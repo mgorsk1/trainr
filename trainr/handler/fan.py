@@ -1,19 +1,10 @@
-import dataclasses
 import json
-import time
 from functools import wraps
-
-from datalite import datalite
 
 import tinytuya
 from datalite.fetch import fetch_from
 
-
-@datalite(db_path="trainr.db")
-@dataclasses.dataclass
-class FanState:
-    speed: int
-    is_on: bool
+from trainr.model.fan import FanState
 
 
 def update_fan_state(f):
@@ -106,8 +97,6 @@ class HBFan:
             self.state.is_on = True
             self.state.update_entry()
 
-            time.sleep(5)
-
     def set_speed(self, level: int):
         start_state = self.state.speed
         if self.speed_max >= level >= self.speed_min:
@@ -117,3 +106,6 @@ class HBFan:
             if level < self.state.speed:
                 for _ in range(start_state - level):
                     self._decrease_speed()
+
+    def get_state(self):
+        return self.state

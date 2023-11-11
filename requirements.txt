@@ -1,2 +1,5 @@
 streamlit
 tinytuya
+huesdk
+fastapi
+uvicorn
