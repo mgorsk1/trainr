@@ -24,7 +24,7 @@ async def get_current_hr():
 
 
 @router.post("/", tags=["hr"], response_model=HRReading)
-async def get_current_hr(value: int):
+async def set_current_hr(value: int):
     data = handler.save_hr_reading(value)
 
     return HRReading(value=data.value, time=data.time)
