@@ -2,7 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter
 
-from trainr.api.v1.models.hr import HRReading, HRZoneInfo, SetHRZoneInfo
+from trainr.api.v1.models.hr import HRReading, HRZoneInfo, HRZoneInfoPut
 from trainr.handler.hr import HR
 from trainr.model.hr import HRZone
 
@@ -51,10 +51,10 @@ async def get_hr_zone_info(zone: int):
     return HRZoneInfo(zone=data.zone, range_from=data.range_from, range_to=data.range_to) if data else {}
 
 
-@router.put('/zones/', tags=["hr"], response_model=SetHRZoneInfo)
+@router.put('/zones/', tags=["hr"], response_model=HRZoneInfoPut)
 async def set_hr_zone_info(zone_info: HRZoneInfo):
     hr_zone_spec = HRZone(zone=zone_info.zone, range_from=zone_info.range_from, range_to=zone_info.range_to)
 
     data, status = handler.set_hr_zone(hr_zone_spec)
 
-    return SetHRZoneInfo(zone=data.zone, range_from=data.range_from, range_to=data.range_to, operation=status)
+    return HRZoneInfoPut(zone=data.zone, range_from=data.range_from, range_to=data.range_to, operation=status)

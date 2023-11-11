@@ -10,7 +10,7 @@ class HRZoneInfo:
 
 
 @dataclass
-class SetHRZoneInfo(HRZoneInfo):
+class HRZoneInfoPut(HRZoneInfo):
     operation: str
 
 @dataclass
