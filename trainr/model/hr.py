@@ -11,6 +11,12 @@ class HRZone:
     range_to: int
 
 
+@datalite(db_path="trainr.db")
+@dataclass
+class ThresholdHR:
+    hr: int
+
+
 @datalite(db_path='trainr.db')
 @dataclass
 class HRReading:

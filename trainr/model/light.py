@@ -8,3 +8,4 @@ from datalite import datalite
 class LightState:
     color: str
     is_on: bool
+    display_name: str
