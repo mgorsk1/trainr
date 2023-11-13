@@ -18,15 +18,17 @@ def index() -> rx.Component:
                         rx.stat_number(State.reading_value),
                     ),
                     rx.stat(
-                        rx.stat_label('FAN'),
+                        rx.stat_label(f'FAN {State.fan_speed_emoji}'),
                         rx.stat_number(State.fan_speed_caption),
                     ),
                     rx.stat(
-                        rx.stat_label('LIGHT'),
+                        rx.stat_label(f'LIGHT {State.light_on_emoji}'),
                         rx.stat_number(State.light_color_caption),
                     ),
+                    width="125%",
                     spacing="2em"),
-                rx.progress(value=State.reading_percent, width="100%", color_scheme=State.active_zone_color),
+                rx.progress(value=State.reading_percent, width="125%", color_scheme=State.active_zone_color),
+                rx.text(State.reading_zone_display_name, font_size="0.5em")
             ),
             spacing="1.5em",
             font_size="2em",

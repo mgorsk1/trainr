@@ -8,4 +8,5 @@ from datalite import datalite
 class FanState:
     speed: int
     is_on: bool
+    display_name: str
 

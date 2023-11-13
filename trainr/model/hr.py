@@ -9,6 +9,13 @@ class HRZone:
     zone: int
     range_from: int
     range_to: int
+    display_name: str
+
+
+@datalite(db_path="trainr.db")
+@dataclass
+class HRZoneSpec(HRZone):
+    pass
 
 
 @datalite(db_path="trainr.db")

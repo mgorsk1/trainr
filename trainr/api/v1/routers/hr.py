@@ -2,9 +2,9 @@ from typing import Optional
 
 from fastapi import APIRouter
 
-from trainr.api.v1.models.hr import HRReading, HRZoneInfo, HRZoneInfoPut
+from trainr.api.v1.models.hr import HRReading, HRZoneInfo, HRZoneInfoPut, HRThresholdInfo
 from trainr.handler.hr import HR
-from trainr.model.hr import HRZone
+from trainr.model.hr import HRZone, ThresholdHR
 
 router = APIRouter(
     prefix='/hr',
@@ -38,17 +38,19 @@ async def get_hr_history(minutes: int = 60):
 
 
 @router.get("/zones", tags=["hr"])
-async def get_hr_zones():
-    data = handler.get_hr_zones()
+async def get_hr_zones(zone: int = -1, hr: int = -1):
+    if zone > 0:
+        data = handler.get_hr_zone(zone)
+        return [data]
+    elif hr > 0:
+        data = handler.get_hr_zone_by_hr(hr)
 
-    return [HRZoneInfo(zone=r.zone, range_from=r.range_from, range_to=r.range_to) for r in data]
+        return [data]
+    else:
+        data = handler.get_hr_zones()
 
-
-@router.get("/zones/{zone}", tags=["hr"], response_model=Optional[HRZoneInfo])
-async def get_hr_zone_info(zone: int):
-    data = handler.get_hr_zone(zone)
-
-    return HRZoneInfo(zone=data.zone, range_from=data.range_from, range_to=data.range_to) if data else {}
+        return [HRZoneInfo(zone=r.zone, range_from=r.range_from, range_to=r.range_to, display_name=r.display_name)
+                for r in data]
 
 
 @router.put('/zones/', tags=["hr"], response_model=HRZoneInfoPut)
@@ -58,3 +60,17 @@ async def set_hr_zone_info(zone_info: HRZoneInfo):
     data, status = handler.set_hr_zone(hr_zone_spec)
 
     return HRZoneInfoPut(zone=data.zone, range_from=data.range_from, range_to=data.range_to, operation=status)
+
+
+@router.get('/threshold/', tags=["hr"], response_model=HRThresholdInfo)
+async def get_threshold_hr():
+    data: ThresholdHR = handler.get_threshold_hr()
+
+    return HRThresholdInfo(value=data.hr if data else -1)
+
+
+@router.put('/threshold/', tags=["hr"], response_model=HRThresholdInfo)
+async def get_threshold_hr(threshold_hr: HRThresholdInfo):
+    handler.set_threshold_hr(threshold_hr.value)
+
+    return HRThresholdInfo(value=handler.get_threshold_hr().hr)

@@ -13,6 +13,34 @@ def admin() -> rx.Component:
         rx.vstack(
             heading(),
             nav(),
+            rx.vstack(
+                rx.vstack(
+                    rx.heading('Reading Settings', size="md"),
+                    rx.select(
+                        ['HR', 'FTP'],
+                        default_value=State.reading_type,
+                        on_change=State.set_reading_type,
+                    ),
+                    rx.heading(f"Threshold {State.reading_type.upper()}", size="md"),
+                    rx.number_input(
+                        value=State.reading_threshold,
+                        on_change=State.set_threshold
+                    ),
+                    rx.button("Calculate Zones", on_click=State.calculate_zones, color_scheme="blue")
+                ),
+                rx.box(
+                    rx.data_table(
+                        columns=["Zone", "From", "To"],
+                        data=State.reading_zones
+                    ),
+                    border_radius="md",
+                    width="15%",
+                    font_size="0.5em"
+
+                ),
+            ),
+            rx.divider(),
+            rx.heading('Fan settings', size="md"),
             rx.hstack(
                 rx.vstack(
                     rx.heading("Fan", size="sm"),
@@ -25,11 +53,13 @@ def admin() -> rx.Component:
                     rx.heading('Fan Speed', size='sm'),
                     rx.select(
                         list(fan_speed_mapping.keys()),
-                        value=State.fan_speed_name,
+                        value=State.fan_speed_display_name,
                         on_change=State.set_fan_speed
                     ),
                 ),
                 spacing="1.5em"),
+            rx.divider(),
+            rx.heading('Light settings', size="md"),
             rx.hstack(
                 rx.vstack(
                     rx.heading("Lights", size="sm"),
@@ -47,24 +77,6 @@ def admin() -> rx.Component:
                     ),
                 ),
                 spacing="1.5em"),
-            rx.vstack(
-                rx.heading("Threshold HR", size="md"),
-                rx.number_input(
-                    value=State.hr_threshold,
-                    on_change=State.set_hr_threshold
-                ),
-                rx.button("Calculate Zones", on_click=State.calculate_hr_zones, color_scheme="blue")
-            ),
-            rx.box(
-                rx.data_table(
-                    columns=["Zone", "From", "To"],
-                    data=State.hr_zones
-                ),
-                border_radius="md",
-                width="15%",
-                font_size="0.5em"
-
-            ),
             spacing="1.5em",
             font_size="2em",
             padding_top="5%",

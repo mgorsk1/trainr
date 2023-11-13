@@ -7,6 +7,7 @@ class HRZoneInfo:
     zone: int
     range_from: int
     range_to: int
+    display_name: str
 
 
 @dataclass
@@ -22,3 +23,7 @@ class HRZones:
 class HRReading:
     value: int
     time: int
+
+@dataclass
+class HRThresholdInfo:
+    value: int
