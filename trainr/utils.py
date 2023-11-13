@@ -28,7 +28,7 @@ light_spec_mapping = {
 
 light_color_mapping = {v.hue: k for k, v in light_spec_mapping.items()}
 
-hr_zones_mapping: Dict[int, LightColor] = {
+hr_zones_light_mapping: Dict[int, LightColor] = {
     0: light_spec_mapping['GRAY'],
     1: light_spec_mapping['BLUE'],
     2: light_spec_mapping['GREEN'],

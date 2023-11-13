@@ -1,4 +1,4 @@
-from trainr.ui.components import nav
+from trainr.ui.components import nav, heading
 from trainr.ui.state import State
 
 import reflex as rx
@@ -11,7 +11,7 @@ def admin() -> rx.Component:
     return rx.fragment(
         rx.color_mode_button(rx.color_mode_icon(), float="right"),
         rx.vstack(
-            rx.heading("TRAINR", font_size="2em"),
+            heading(),
             nav(),
             rx.hstack(
                 rx.vstack(

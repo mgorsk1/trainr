@@ -7,7 +7,7 @@ from typing import List, Tuple
 from trainr.handler.fan import HBFan
 from trainr.handler.hr import HR
 from trainr.handler.light import HueGroup
-from trainr.utils import fan_speed_display_name_mapping, hr_zones_mapping, light_spec_mapping, fan_speed_mapping
+from trainr.utils import fan_speed_display_name_mapping, hr_zones_light_mapping, light_spec_mapping, fan_speed_mapping
 
 global fan_handler
 global handler
@@ -83,7 +83,7 @@ class State(rx.State):
     @rx.var
     def active_zone_color(self) -> str:
         if self.reading_type == 'HR':
-            return hr_zones_mapping.get(self.active_zone, 'N/A').name
+            return hr_zones_light_mapping.get(self.active_zone, 'N/A').name
 
     def get_data(self):
         self.hr_threshold = hr_handler.get_threshold_hr().hr
