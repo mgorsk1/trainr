@@ -27,8 +27,8 @@ def index() -> rx.Component:
                     ),
                     width="125%",
                     spacing="2em"),
-                rx.progress(value=State.reading_percent, width="125%", color_scheme=State.active_zone_color),
-                rx.text(State.reading_zone_display_name, font_size="0.5em")
+                rx.progress(value=State.reading_percent, width="125%", color_scheme=State.reading_zone_color),
+                rx.text(State.reading_zone_display_name, font_size="0.35em")
             ),
             spacing="1.5em",
             font_size="2em",
