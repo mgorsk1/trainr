@@ -54,7 +54,7 @@ async def get_hr_zones(zone: int = -1, hr: int = -1):
                 for r in data]
 
 
-@router.put('/zones/', tags=['hr'], response_model=HRZoneInfoApiModel)
+@router.put('/zones', tags=['hr'], response_model=HRZoneInfoApiModel)
 async def set_hr_zone_info(zone_info: HRZoneInputApiModel):
     hr_zone_spec = HRZoneInfoApiModel(
         zone=zone_info.zone, range_from=zone_info.range_from, range_to=zone_info.range_to)
@@ -64,14 +64,14 @@ async def set_hr_zone_info(zone_info: HRZoneInputApiModel):
     return HRZoneInfoApiModel(zone=data.zone, range_from=data.range_from, range_to=data.range_to)
 
 
-@router.get('/threshold/', tags=['hr'], response_model=HRThresholdInfoApiModel)
+@router.get('/threshold', tags=['hr'], response_model=HRThresholdInfoApiModel)
 async def get_threshold_hr():
     data: ThresholdHRHandlerModel = handler.get_threshold_hr()
 
     return HRThresholdInfoApiModel(threshold=data.hr if data else -1)
 
 
-@router.put('/threshold/', tags=['hr'], response_model=HRThresholdInfoApiModel)
+@router.put('/threshold', tags=['hr'], response_model=HRThresholdInfoApiModel)
 async def get_threshold_hr(threshold_hr: HRThresholdInfoApiModel):
     handler.set_threshold_hr(threshold_hr.threshold)
 
