@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 import requests
 
-from trainr.utils import hr_zones_to_light_spec_mapping, SystemMode
+from trainr.utils import hr_zone_to_light_spec_mapping, SystemMode
 
 global api_url
 
@@ -65,8 +65,8 @@ class State(rx.State):
             return \
                 requests.get(f'{api_url}/{self.reading_type.lower()}/zones', params=dict(hr=self.reading_value)).json()[
                     0]
-        except KeyError:
-            return {'zone': -1, 'display_name': 'N/A'}
+        except (KeyError, IndexError):
+            return {'zone': -1, 'display_name': 'Zone Unknown'}
 
     @rx.var
     def reading_zone(self):
@@ -79,7 +79,7 @@ class State(rx.State):
     @rx.var
     def reading_zone_color(self) -> str:
         if self.reading_type == 'hr':
-            if result := hr_zones_to_light_spec_mapping.get(self.reading_zone):
+            if result := hr_zone_to_light_spec_mapping.get(self.reading_zone):
                 return result.name
             else:
                 return 'N/A'
@@ -202,4 +202,4 @@ class State(rx.State):
                 self.refresh_fan_state()
                 self.refresh_light_state()
 
-            await asyncio.sleep(2)
+            await asyncio.sleep(5)

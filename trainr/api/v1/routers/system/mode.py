@@ -16,14 +16,14 @@ handler = SystemModeHandler()
 
 
 @router.get('/', tags=['system'], response_model=SystemModeInfoApiModel)
-async def get_mode_state():
+async def get_mode_state() -> SystemModeInfoApiModel:
     data = handler.get_state()
 
     return SystemModeInfoApiModel(system_mode=data.value)
 
 
 @router.put('/', tags=['system'])
-async def set_mode(mode: SystemModeInputApiModel):
+async def set_mode(mode: SystemModeInputApiModel) -> SystemModeInfoApiModel:
     handler.set_mode(mode.system_mode)
 
     data = handler.get_state()

@@ -101,6 +101,9 @@ class HBFan:
             self.state.update_entry()
 
     def set_speed(self, level: int):
+        if not self.state.is_on:
+            self.turn_on()
+
         start_state = self.state.speed
         if self.speed_max >= level >= self.speed_min:
             if level > self.state.speed:

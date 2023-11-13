@@ -18,6 +18,9 @@ class HueGroup:
         self.group.off(transition=10)
 
     def set_color(self, hue: int, saturation: int):
+        if not self.group.is_on:
+            self.turn_on()
+
         self.group.set_color(hue=hue, transition=0)
         self.group.set_saturation(saturation, transition=5)
         self.group.set_brightness(254, transition=5)

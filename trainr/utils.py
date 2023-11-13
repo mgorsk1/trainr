@@ -25,6 +25,7 @@ fan_speed_to_display_name_mapping: Dict[int, str] = {
     v: k for k, v in fan_speed_name_to_int_mapping.items()}
 
 light_name_to_spec_mapping = {
+    # @todo specify proper gray
     'GRAY': LightColor(hue=22658, saturation=209, name='gray'),
     'BLUE': LightColor(hue=44133, saturation=254, name='blue'),
     'GREEN': LightColor(hue=22658, saturation=209, name='green'),
@@ -35,7 +36,7 @@ light_name_to_spec_mapping = {
 
 light_color_mapping = {v.hue: k for k, v in light_name_to_spec_mapping.items()}
 
-hr_zones_to_light_spec_mapping: Dict[int, LightColor] = {
+hr_zone_to_light_spec_mapping: Dict[int, LightColor] = {
     0: light_name_to_spec_mapping['GRAY'],
     1: light_name_to_spec_mapping['BLUE'],
     2: light_name_to_spec_mapping['GREEN'],

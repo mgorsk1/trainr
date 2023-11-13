@@ -13,7 +13,8 @@ class HR:
         self.set_threshold_hr(self.threshold_hr)
 
     def get_hr_reading(self) -> HRReadingHandlerModel:
-        return HRReadingHandlerModel(value=120, time=round(time.time() * 1000))
+        data = fetch_all(HRReadingHandlerModel, page=0, element_count=1)
+        return data[-1]
 
     def save_hr_reading(self, value: int):
         data = HRReadingHandlerModel(
@@ -40,12 +41,14 @@ class HR:
         except TypeError:
             return None
 
-    def get_hr_zone_by_hr(self, hr: int) -> HRZoneHandlerModel:
+    def get_hr_zone_by_hr(self, hr: int) -> Optional[HRZoneHandlerModel]:
         zones = self.get_hr_zones()
 
         for z in zones:
             if z.range_from <= hr < z.range_to:
                 return z
+
+        return None
 
     def set_hr_zone(self, spec: HRZoneHandlerModel) -> HRZoneHandlerModel:
         if data := self.get_hr_zone(spec.zone):

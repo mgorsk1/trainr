@@ -22,14 +22,14 @@ handler = HBFan(fan_device_id, fan_ip, fan_local_key)
 
 
 @router.get('/', tags=['fan'], response_model=FanStateApiModel)
-async def get_state() -> FanStateApiModel:
+async def get_fan_state() -> FanStateApiModel:
     state = handler.get_state()
 
     return FanStateApiModel(is_on=state.is_on, speed=state.speed, display_name=state.display_name)
 
 
 @router.put('/on', tags=['fan'], response_model=FanStateApiModel)
-async def turn_on():
+async def turn_fan_on():
     handler.turn_on()
 
     state = handler.get_state()
@@ -38,7 +38,7 @@ async def turn_on():
 
 
 @router.put('/off', tags=['fan'], response_model=FanStateApiModel)
-async def turn_off():
+async def turn_fan_off():
     handler.turn_off()
 
     state = handler.get_state()
@@ -47,10 +47,9 @@ async def turn_off():
 
 
 @router.put('/speed', tags=['fan'], response_model=FanStateApiModel)
-async def set_speed(speed: FanSpeedInputApiModel):
-    if handler.state.is_on:
-        level = fan_speed_name_to_int_mapping.get(speed.fan_speed)
+async def set_fan_speed(speed: FanSpeedInputApiModel):
+    level = fan_speed_name_to_int_mapping.get(speed.fan_speed)
 
-        handler.set_speed(level)
+    handler.set_speed(level)
 
     return handler.get_state()
