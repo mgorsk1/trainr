@@ -39,44 +39,57 @@ def admin() -> rx.Component:
 
                 ),
             ),
-            rx.divider(),
-            rx.heading('Fan settings', size="md"),
-            rx.hstack(
-                rx.vstack(
-                    rx.heading("Fan", size="sm"),
-                    rx.switch(
-                        is_checked=State.fan_on,
-                        on_change=State.toggle_fan
-                    ),
+            rx.vstack(
+                rx.switch(
+                    is_checked=State.system_mode_auto,
+                    on_change=State.toggle_system_mode
                 ),
+                rx.text(f'SYSTEM MODE: {State.system_mode}', font_size="0.35em")
+            ),
+            rx.cond(
+                State.system_mode_manual,
                 rx.vstack(
-                    rx.heading('Fan Speed', size='sm'),
-                    rx.select(
-                        list(fan_speed_mapping.keys()),
-                        value=State.fan_speed_display_name,
-                        on_change=State.set_fan_speed
-                    ),
-                ),
-                spacing="1.5em"),
-            rx.divider(),
-            rx.heading('Light settings', size="md"),
-            rx.hstack(
-                rx.vstack(
-                    rx.heading("Lights", size="sm"),
-                    rx.switch(
-                        is_checked=State.light_on,
-                        on_change=State.toggle_light
-                    )
-                ),
-                rx.vstack(
-                    rx.heading('Light Color', size='sm'),
-                    rx.select(
-                        list(light_spec_mapping.keys()),
-                        value=State.light_color_caption,
-                        on_change=State.set_light_color
-                    ),
-                ),
-                spacing="1.5em"),
+                    rx.divider(),
+                    rx.heading('Fan settings', size="md"),
+                    rx.hstack(
+                        rx.vstack(
+                            rx.heading("Fan", size="sm"),
+                            rx.switch(
+                                is_checked=State.fan_on,
+                                on_change=State.toggle_fan
+                            ),
+                        ),
+                        rx.vstack(
+                            rx.heading('Fan Speed', size='sm'),
+                            rx.select(
+                                list(fan_speed_mapping.keys()),
+                                value=State.fan_speed_display_name,
+                                on_change=State.set_fan_speed
+                            ),
+                        ),
+                        spacing="1.5em"),
+                    rx.divider(),
+                    rx.heading('Light settings', size="md"),
+                    rx.hstack(
+                        rx.vstack(
+                            rx.heading("Lights", size="sm"),
+                            rx.switch(
+                                is_checked=State.light_on,
+                                on_change=State.toggle_light
+                            )
+                        ),
+                        rx.vstack(
+                            rx.heading('Light Color', size='sm'),
+                            rx.select(
+                                list(light_spec_mapping.keys()),
+                                value=State.light_color_caption,
+                                on_change=State.set_light_color
+                            ),
+                        ),
+                        spacing="1.5em",
+                    width="100%"),
+                )
+            ),
             spacing="1.5em",
             font_size="2em",
             padding_top="5%",

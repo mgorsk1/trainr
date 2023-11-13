@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 import reflex as rx
@@ -6,7 +7,7 @@ from typing import List, Tuple
 
 import requests
 
-from trainr.utils import hr_zones_light_mapping, light_spec_mapping
+from trainr.utils import hr_zones_light_mapping, light_spec_mapping, hr_zones_fan_mapping, SystemMode
 
 global api_url
 
@@ -14,11 +15,11 @@ api_url = os.getenv('TRAINR_API_URL', 'http://localhost:1337/api/v1')
 
 
 class State(rx.State):
-    reading_value: int = 125
+    system_mode: SystemMode
+
+    reading_value: int = 0
     reading_type: str = 'hr'
     reading_threshold: int
-    reading_zone: str
-    reading_zone_display_name: str
     reading_zones: List[Tuple[int, int, int]]
 
     fan_on: bool
@@ -28,11 +29,50 @@ class State(rx.State):
     light_on: bool
     light_color: str
 
+    # System -----------------------------------------------------------------------------------------------------------
+
+    @rx.var
+    def system_mode_auto(self) -> bool:
+        return True if self.system_mode == SystemMode.AUTO else False
+
+    @rx.var
+    def system_mode_manual(self) -> bool:
+        return not self.system_mode_auto
+
+    def toggle_system_mode(self, mode_auto: bool):
+        if not mode_auto:
+            result = requests.put(f'{api_url}/system/mode', json={'value': SystemMode.MANUAL})
+        else:
+            result = requests.put(f'{api_url}/system/mode', json={'value': SystemMode.AUTO})
+
+        self.system_mode = result.json().get('value')
+
+
+    def refresh_system_state(self):
+        self.system_mode = requests.get(f'{api_url}/system/mode/').json()['value']
+
     # Reading ----------------------------------------------------------------------------------------------------------
 
     @rx.var
     def reading_type_display_name(self):
         return f'{self.reading_type.upper()} {self.reading_type_emoji}'
+
+    @rx.var
+    def reading_zone_spec(self):
+        try:
+            return \
+                requests.get(f'{api_url}/{self.reading_type.lower()}/zones', params=dict(hr=self.reading_value)).json()[
+                    0]
+        except KeyError:
+            return {'zone': -1, 'display_name': 'N/A'}
+
+    @rx.var
+    def reading_zone(self):
+        return self.reading_zone_spec.get('zone')
+
+    @rx.var
+    def reading_zone_display_name(self):
+        return self.reading_zone_spec.get('display_name')
 
     @rx.var
     def reading_zone_color(self) -> str:
@@ -121,16 +161,6 @@ class State(rx.State):
     # ------------------------------------------------------------------------------------------------------------------
 
     def get_data(self):
-        try:
-            _reading_zone = \
-                requests.get(f'{api_url}/{self.reading_type.lower()}/zones', params=dict(hr=self.reading_value)).json()[
-                    0]
-        except KeyError:
-            _reading_zone = {'zone': -1, 'display_name': 'N/A'}
-
-        self.reading_zone = _reading_zone.get('zone')
-        self.reading_zone_display_name = _reading_zone.get('display_name')
-
         self.reading_threshold = requests.get(f'{api_url}/{self.reading_type.lower()}/threshold').json().get('value', 0)
 
         try:
@@ -139,13 +169,30 @@ class State(rx.State):
         except AttributeError:
             self.reading_zones = []
 
+        self.refresh_system_state()
+        self.refresh_fan_state()
+        self.refresh_light_state()
+
+    def refresh_fan_state(self):
         fan_state = requests.get(f'{api_url}/fan').json()
 
         self.fan_on = fan_state.get('is_on')
         self.fan_speed = fan_state.get('speed', 0)
         self.fan_speed_display_name = fan_state.get('display_name', 'N/A')
 
+    def refresh_light_state(self):
         light_state = requests.get(f'{api_url}/light').json()
 
         self.light_on = light_state.get('is_on')
         self.light_color = light_state.get('display_name', 'N/A')
+
+    @rx.background
+    async def collect_readings(self):
+        while True:
+            async with self:
+                self.reading_value = requests.get(f'{api_url}/hr/').json()['value']
+
+                self.refresh_fan_state()
+                self.refresh_light_state()
+
+            await asyncio.sleep(2)

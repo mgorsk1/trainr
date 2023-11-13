@@ -4,7 +4,7 @@ from trainr.ui.components import nav, heading
 from trainr.ui.state import State
 
 
-@rx.page(on_load=State.get_data)
+@rx.page(on_load=[State.get_data, State.collect_readings])
 def index() -> rx.Component:
     return rx.fragment(
         rx.color_mode_button(rx.color_mode_icon(), float="right"),

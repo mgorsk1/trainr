@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Dict
 
 
@@ -7,6 +8,11 @@ class LightColor:
     hue: int
     saturation: int
     name: str
+
+
+class SystemMode(str, Enum):
+    AUTO = 'AUTO'
+    MANUAL = 'MANUAL'
 
 
 fan_speed_mapping = {
@@ -35,4 +41,12 @@ hr_zones_light_mapping: Dict[int, LightColor] = {
     3: light_spec_mapping['YELLOW'],
     4: light_spec_mapping['ORANGE'],
     5: light_spec_mapping['RED']
+}
+
+hr_zones_fan_mapping: Dict[int, str] = {
+    1: 'LOW',
+    2: 'MEDIUM',
+    3: 'MEDIUM',
+    4: 'HIGH',
+    5: 'HIGH',
 }
