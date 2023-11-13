@@ -3,7 +3,7 @@ from trainr.ui.state import State
 
 import reflex as rx
 
-from trainr.utils import fan_speed_mapping, light_spec_mapping
+from trainr.utils import fan_speed_name_to_int_mapping, light_name_to_spec_mapping
 
 
 @rx.page(on_load=State.get_data)
@@ -63,7 +63,7 @@ def admin() -> rx.Component:
                         rx.vstack(
                             rx.heading('Fan Speed', size='sm'),
                             rx.select(
-                                list(fan_speed_mapping.keys()),
+                                list(fan_speed_name_to_int_mapping.keys()),
                                 value=State.fan_speed_display_name,
                                 on_change=State.set_fan_speed
                             ),
@@ -82,13 +82,13 @@ def admin() -> rx.Component:
                         rx.vstack(
                             rx.heading('Light Color', size='sm'),
                             rx.select(
-                                list(light_spec_mapping.keys()),
+                                list(light_name_to_spec_mapping.keys()),
                                 value=State.light_color_caption,
                                 on_change=State.set_light_color
                             ),
                         ),
                         spacing="1.5em",
-                    width="100%"),
+                        width="100%"),
                 )
             ),
             spacing="1.5em",

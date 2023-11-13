@@ -1,6 +1,6 @@
 from huesdk import Hue
 
-from trainr.model.light import LightState
+from trainr.handler.model.light import LightStateHandlerModel
 from trainr.utils import light_color_mapping
 
 
@@ -22,7 +22,7 @@ class HueGroup:
         self.group.set_saturation(saturation, transition=5)
         self.group.set_brightness(254, transition=5)
 
-    def get_state(self):
+    def get_state(self) -> LightStateHandlerModel:
         # @todo figure this out properly
         display_name = light_color_mapping.get(self.hue.get_light(name='Komoda').hue, 'N/A')
-        return LightState(is_on=self.group.is_on, color=self.group.hue, display_name=display_name)
+        return LightStateHandlerModel(is_on=self.group.is_on, color=self.group.hue, display_name=display_name)

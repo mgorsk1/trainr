@@ -4,8 +4,8 @@ from functools import wraps
 import tinytuya
 from datalite.fetch import fetch_from
 
-from trainr.model.fan import FanState
-from trainr.utils import fan_speed_display_name_mapping
+from trainr.handler.model.fan import FanStateHandlerModel
+from trainr.utils import fan_speed_to_display_name_mapping
 
 
 def update_fan_state(f):
@@ -26,9 +26,9 @@ class HBFan:
         self.device.set_version(3.3)
 
         try:
-            self.state = fetch_from(FanState, 1)
+            self.state = fetch_from(FanStateHandlerModel, 1)
         except KeyError:
-            self.state = FanState(speed=1, is_on=False, display_name='LOW')
+            self.state = FanStateHandlerModel(speed=1, is_on=False, display_name='LOW')
             self.state.create_entry()
 
         self.speed_max = 3
@@ -108,6 +108,6 @@ class HBFan:
                 for _ in range(start_state - level):
                     self._decrease_speed()
 
-    def get_state(self):
-        self.state.display_name = fan_speed_display_name_mapping.get(self.state.speed)
+    def get_state(self) -> FanStateHandlerModel:
+        self.state.display_name = fan_speed_to_display_name_mapping.get(self.state.speed)
         return self.state

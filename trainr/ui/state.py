@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 import requests
 
-from trainr.utils import hr_zones_light_mapping, light_spec_mapping, hr_zones_fan_mapping, SystemMode
+from trainr.utils import hr_zones_to_light_spec_mapping, SystemMode
 
 global api_url
 
@@ -15,7 +15,7 @@ api_url = os.getenv('TRAINR_API_URL', 'http://localhost:1337/api/v1')
 
 
 class State(rx.State):
-    system_mode: SystemMode
+    system_mode: str
 
     reading_value: int = 0
     reading_type: str = 'hr'
@@ -41,15 +41,14 @@ class State(rx.State):
 
     def toggle_system_mode(self, mode_auto: bool):
         if not mode_auto:
-            result = requests.put(f'{api_url}/system/mode', json={'value': SystemMode.MANUAL})
+            result = requests.put(f'{api_url}/system/mode', json={'system_mode': SystemMode.MANUAL})
         else:
-            result = requests.put(f'{api_url}/system/mode', json={'value': SystemMode.AUTO})
+            result = requests.put(f'{api_url}/system/mode', json={'system_mode': SystemMode.AUTO})
 
-        self.system_mode = result.json().get('value')
-
+        self.system_mode = result.json().get('system_mode')
 
     def refresh_system_state(self):
-        self.system_mode = requests.get(f'{api_url}/system/mode/').json()['value']
+        self.system_mode = requests.get(f'{api_url}/system/mode/').json()['system_mode']
 
     # Reading ----------------------------------------------------------------------------------------------------------
 
@@ -77,7 +76,7 @@ class State(rx.State):
     @rx.var
     def reading_zone_color(self) -> str:
         if self.reading_type == 'hr':
-            if result := hr_zones_light_mapping.get(self.reading_zone):
+            if result := hr_zones_to_light_spec_mapping.get(self.reading_zone):
                 return result.name
             else:
                 return 'N/A'
@@ -102,7 +101,7 @@ class State(rx.State):
         self.reading_threshold = threshold
 
     def calculate_zones(self):
-        requests.put(f'{api_url}/{self.reading_type.lower()}/threshold', json={'value': self.reading_threshold})
+        requests.put(f'{api_url}/{self.reading_type.lower()}/threshold', json={'threshold': self.reading_threshold})
 
         self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
                               requests.get(f'{api_url}/{self.reading_type.lower()}/zones').json()]
@@ -119,7 +118,7 @@ class State(rx.State):
 
     @rx.var
     def fan_speed_emoji(self):
-        return "💨" * self.fan_speed
+        return "💨" * self.fan_speed if self.fan_on else ''
 
     def toggle_fan(self, fan_on: bool):
         if self.fan_on:
@@ -131,8 +130,15 @@ class State(rx.State):
 
     def set_fan_speed(self, fan_speed_display_name: str):
         if self.fan_on:
-            requests.put(f'{api_url}/fan/speed/{fan_speed_display_name}')
+            requests.put(f'{api_url}/fan/speed', json=dict(fan_speed=fan_speed_display_name))
             self.fan_speed_display_name = fan_speed_display_name
+
+    def refresh_fan_state(self):
+        fan_state = requests.get(f'{api_url}/fan').json()
+
+        self.fan_on = fan_state.get('is_on')
+        self.fan_speed = fan_state.get('speed', 0)
+        self.fan_speed_display_name = fan_state.get('display_name', 'N/A')
 
     # Light ------------------------------------------------------------------------------------------------------------
 
@@ -154,14 +160,21 @@ class State(rx.State):
 
     def set_light_color(self, light_color: str):
         if self.light_on:
-            requests.put(f'{api_url}/light/color/{light_color}')
+            requests.put(f'{api_url}/light/color/', json=dict(color_name=light_color))
 
             self.light_color = light_color
+
+    def refresh_light_state(self):
+        light_state = requests.get(f'{api_url}/light').json()
+
+        self.light_on = light_state.get('is_on')
+        self.light_color = light_state.get('display_name', 'N/A')
 
     # ------------------------------------------------------------------------------------------------------------------
 
     def get_data(self):
-        self.reading_threshold = requests.get(f'{api_url}/{self.reading_type.lower()}/threshold').json().get('value', 0)
+        self.reading_threshold = requests.get(f'{api_url}/{self.reading_type.lower()}/threshold').json().get(
+            'threshold', 0)
 
         try:
             self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
@@ -173,24 +186,11 @@ class State(rx.State):
         self.refresh_fan_state()
         self.refresh_light_state()
 
-    def refresh_fan_state(self):
-        fan_state = requests.get(f'{api_url}/fan').json()
-
-        self.fan_on = fan_state.get('is_on')
-        self.fan_speed = fan_state.get('speed', 0)
-        self.fan_speed_display_name = fan_state.get('display_name', 'N/A')
-
-    def refresh_light_state(self):
-        light_state = requests.get(f'{api_url}/light').json()
-
-        self.light_on = light_state.get('is_on')
-        self.light_color = light_state.get('display_name', 'N/A')
-
     @rx.background
     async def collect_readings(self):
         while True:
             async with self:
-                self.reading_value = requests.get(f'{api_url}/hr/').json()['value']
+                self.reading_value = requests.get(f'{api_url}/{self.reading_type}/').json()['reading']
 
                 self.refresh_fan_state()
                 self.refresh_light_state()

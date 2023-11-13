@@ -2,7 +2,7 @@ import os
 
 from fastapi import APIRouter
 
-from trainr.api.v1.models.system.mode import SystemModeInfo
+from trainr.api.v1.model.system.mode import SystemModeInfoApiModel, SystemModeInputApiModel
 from trainr.handler.system.mode import SystemModeHandler
 
 router = APIRouter(
@@ -15,15 +15,17 @@ global handler
 handler = SystemModeHandler()
 
 
-@router.get("/", tags=["system"], response_model=SystemModeInfo)
+@router.get("/", tags=["system"], response_model=SystemModeInfoApiModel)
 async def get_mode_state():
     data = handler.get_state()
 
-    return SystemModeInfo(value=data.value)
+    return SystemModeInfoApiModel(system_mode=data.value)
 
 
 @router.put("/", tags=["system"])
-async def set_mode(mode: SystemModeInfo):
-    handler.set_mode(mode.value)
+async def set_mode(mode: SystemModeInputApiModel):
+    handler.set_mode(mode.system_mode)
 
-    return handler.get_state()
+    data = handler.get_state()
+
+    return SystemModeInfoApiModel(system_mode=data.value)

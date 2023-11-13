@@ -15,15 +15,15 @@ class SystemMode(str, Enum):
     MANUAL = 'MANUAL'
 
 
-fan_speed_mapping = {
+fan_speed_name_to_int_mapping = {
     'LOW': 1,
     'MEDIUM': 2,
     'HIGH': 3
 }
 
-fan_speed_display_name_mapping: Dict[int, str] = {v: k for k, v in fan_speed_mapping.items()}
+fan_speed_to_display_name_mapping: Dict[int, str] = {v: k for k, v in fan_speed_name_to_int_mapping.items()}
 
-light_spec_mapping = {
+light_name_to_spec_mapping = {
     'GRAY': LightColor(hue=22658, saturation=209, name='gray'),
     'BLUE': LightColor(hue=44133, saturation=254, name='blue'),
     'GREEN': LightColor(hue=22658, saturation=209, name='green'),
@@ -32,18 +32,18 @@ light_spec_mapping = {
     'RED': LightColor(hue=21, saturation=254, name='red'),
 }
 
-light_color_mapping = {v.hue: k for k, v in light_spec_mapping.items()}
+light_color_mapping = {v.hue: k for k, v in light_name_to_spec_mapping.items()}
 
-hr_zones_light_mapping: Dict[int, LightColor] = {
-    0: light_spec_mapping['GRAY'],
-    1: light_spec_mapping['BLUE'],
-    2: light_spec_mapping['GREEN'],
-    3: light_spec_mapping['YELLOW'],
-    4: light_spec_mapping['ORANGE'],
-    5: light_spec_mapping['RED']
+hr_zones_to_light_spec_mapping: Dict[int, LightColor] = {
+    0: light_name_to_spec_mapping['GRAY'],
+    1: light_name_to_spec_mapping['BLUE'],
+    2: light_name_to_spec_mapping['GREEN'],
+    3: light_name_to_spec_mapping['YELLOW'],
+    4: light_name_to_spec_mapping['ORANGE'],
+    5: light_name_to_spec_mapping['RED']
 }
 
-hr_zones_fan_mapping: Dict[int, str] = {
+hr_zone_to_fan_speed_mapping: Dict[int, str] = {
     1: 'LOW',
     2: 'MEDIUM',
     3: 'MEDIUM',
