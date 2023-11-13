@@ -9,33 +9,35 @@ from trainr.utils import fan_speed_name_to_int_mapping, light_name_to_spec_mappi
 @rx.page(on_load=State.get_data)
 def admin() -> rx.Component:
     return rx.fragment(
-        rx.color_mode_button(rx.color_mode_icon(), float="right"),
+        rx.color_mode_button(rx.color_mode_icon(), float='right'),
         rx.vstack(
             heading(),
             nav(),
             rx.vstack(
                 rx.vstack(
-                    rx.heading('Reading Settings', size="md"),
+                    rx.heading('Reading Settings', size='md'),
                     rx.select(
                         ['HR', 'FTP'],
                         default_value=State.reading_type,
                         on_change=State.set_reading_type,
                     ),
-                    rx.heading(f"Threshold {State.reading_type.upper()}", size="md"),
+                    rx.heading(
+                        f'Threshold {State.reading_type.upper()}', size='md'),
                     rx.number_input(
                         value=State.reading_threshold,
                         on_change=State.set_threshold
                     ),
-                    rx.button("Calculate Zones", on_click=State.calculate_zones, color_scheme="blue")
+                    rx.button(
+                        'Calculate Zones', on_click=State.calculate_zones, color_scheme='blue')
                 ),
                 rx.box(
                     rx.data_table(
-                        columns=["Zone", "From", "To"],
+                        columns=['Zone', 'From', 'To'],
                         data=State.reading_zones
                     ),
-                    border_radius="md",
-                    width="15%",
-                    font_size="0.5em"
+                    border_radius='md',
+                    width='15%',
+                    font_size='0.5em'
 
                 ),
             ),
@@ -45,16 +47,17 @@ def admin() -> rx.Component:
                     is_checked=State.system_mode_auto,
                     on_change=State.toggle_system_mode
                 ),
-                rx.text(f'SYSTEM MODE: {State.system_mode}', font_size="0.35em")
+                rx.text(
+                    f'SYSTEM MODE: {State.system_mode}', font_size='0.35em')
             ),
             rx.cond(
                 State.system_mode_manual,
                 rx.vstack(
                     rx.divider(),
-                    rx.heading('Fan settings', size="md"),
+                    rx.heading('Fan settings', size='md'),
                     rx.hstack(
                         rx.vstack(
-                            rx.heading("Fan", size="sm"),
+                            rx.heading('Fan', size='sm'),
                             rx.switch(
                                 is_checked=State.fan_on,
                                 on_change=State.toggle_fan
@@ -68,12 +71,12 @@ def admin() -> rx.Component:
                                 on_change=State.set_fan_speed
                             ),
                         ),
-                        spacing="1.5em"),
+                        spacing='1.5em'),
                     rx.divider(),
-                    rx.heading('Light settings', size="md"),
+                    rx.heading('Light settings', size='md'),
                     rx.hstack(
                         rx.vstack(
-                            rx.heading("Lights", size="sm"),
+                            rx.heading('Lights', size='sm'),
                             rx.switch(
                                 is_checked=State.light_on,
                                 on_change=State.toggle_light
@@ -87,12 +90,12 @@ def admin() -> rx.Component:
                                 on_change=State.set_light_color
                             ),
                         ),
-                        spacing="1.5em",
-                        width="100%"),
+                        spacing='1.5em',
+                        width='100%'),
                 )
             ),
-            spacing="1.5em",
-            font_size="2em",
-            padding_top="5%",
+            spacing='1.5em',
+            font_size='2em',
+            padding_top='5%',
         ),
     )

@@ -15,14 +15,14 @@ global handler
 handler = SystemModeHandler()
 
 
-@router.get("/", tags=["system"], response_model=SystemModeInfoApiModel)
+@router.get('/', tags=['system'], response_model=SystemModeInfoApiModel)
 async def get_mode_state():
     data = handler.get_state()
 
     return SystemModeInfoApiModel(system_mode=data.value)
 
 
-@router.put("/", tags=["system"])
+@router.put('/', tags=['system'])
 async def set_mode(mode: SystemModeInputApiModel):
     handler.set_mode(mode.system_mode)
 

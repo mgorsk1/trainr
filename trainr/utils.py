@@ -21,7 +21,8 @@ fan_speed_name_to_int_mapping = {
     'HIGH': 3
 }
 
-fan_speed_to_display_name_mapping: Dict[int, str] = {v: k for k, v in fan_speed_name_to_int_mapping.items()}
+fan_speed_to_display_name_mapping: Dict[int, str] = {
+    v: k for k, v in fan_speed_name_to_int_mapping.items()}
 
 light_name_to_spec_mapping = {
     'GRAY': LightColor(hue=22658, saturation=209, name='gray'),

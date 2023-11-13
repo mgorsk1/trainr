@@ -7,7 +7,7 @@ from trainr.ui.state import State
 @rx.page(on_load=[State.get_data, State.collect_readings])
 def index() -> rx.Component:
     return rx.fragment(
-        rx.color_mode_button(rx.color_mode_icon(), float="right"),
+        rx.color_mode_button(rx.color_mode_icon(), float='right'),
         rx.vstack(
             heading(),
             nav(),
@@ -25,14 +25,16 @@ def index() -> rx.Component:
                         rx.stat_label(f'LIGHT {State.light_on_emoji}'),
                         rx.stat_number(State.light_color_caption),
                     ),
-                    width="125%",
-                    spacing="2em"),
-                rx.progress(value=State.reading_percent, width="125%", color_scheme=State.reading_zone_color,
+                    width='125%',
+                    spacing='2em'),
+                rx.progress(value=State.reading_percent,
+                            width='125%',
+                            color_scheme=State.reading_zone_color,
                             is_animated=True, has_stripe=True),
-                rx.text(State.reading_zone_display_name, font_size="0.35em")
+                rx.text(State.reading_zone_display_name, font_size='0.35em')
             ),
-            spacing="1.5em",
-            font_size="2em",
-            padding_top="5%",
+            spacing='1.5em',
+            font_size='2em',
+            padding_top='5%',
         ),
     )

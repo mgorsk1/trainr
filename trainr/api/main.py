@@ -30,7 +30,7 @@ app = FastAPI()
 app.include_router(v1, prefix='/api')
 
 
-@app.get("/", response_model=HealthApiModel)
+@app.get('/', response_model=HealthApiModel)
 async def root():
     return HealthApiModel(healthy=True)
 

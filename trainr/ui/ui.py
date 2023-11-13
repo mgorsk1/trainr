@@ -1,4 +1,4 @@
-"""Welcome to Reflex! This file outlines the steps to create a basic app."""
+'''Welcome to Reflex! This file outlines the steps to create a basic app.'''
 import reflex as rx
 
 from trainr.ui.pages.admin import admin

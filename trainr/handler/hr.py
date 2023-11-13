@@ -16,7 +16,8 @@ class HR:
         return HRReadingHandlerModel(value=120, time=round(time.time() * 1000))
 
     def save_hr_reading(self, value: int):
-        data = HRReadingHandlerModel(value=value, time=round(time.time() * 1000))
+        data = HRReadingHandlerModel(
+            value=value, time=round(time.time() * 1000))
 
         data.create_entry()
 
@@ -67,7 +68,8 @@ class HR:
                 f = int(int(self.threshold_hr) * z.range_from / 100)
                 n = int(int(self.threshold_hr) * z.range_to / 100)
 
-                self.set_hr_zone(HRZoneHandlerModel(zone=z.zone, range_from=f + 1, range_to=n, display_name=z.display_name))
+                self.set_hr_zone(HRZoneHandlerModel(
+                    zone=z.zone, range_from=f + 1, range_to=n, display_name=z.display_name))
             except IndexError:
                 pass
 
@@ -91,9 +93,14 @@ class HR:
 
     def get_zones_spec(self) -> List[HRZoneHandlerModel]:
         return [
-            HRZoneHandlerModel(zone=1, range_from=0, range_to=68, display_name='Active Recovery'),
-            HRZoneHandlerModel(zone=2, range_from=68, range_to=83, display_name='Anaerobic Capacity'),
-            HRZoneHandlerModel(zone=3, range_from=83, range_to=95, display_name='Tempo'),
-            HRZoneHandlerModel(zone=4, range_from=95, range_to=105, display_name='Threshold'),
-            HRZoneHandlerModel(zone=5, range_from=105, range_to=200, display_name='VO2 Max'),
+            HRZoneHandlerModel(zone=1, range_from=0, range_to=68,
+                               display_name='Active Recovery'),
+            HRZoneHandlerModel(zone=2, range_from=68, range_to=83,
+                               display_name='Anaerobic Capacity'),
+            HRZoneHandlerModel(zone=3, range_from=83,
+                               range_to=95, display_name='Tempo'),
+            HRZoneHandlerModel(zone=4, range_from=95,
+                               range_to=105, display_name='Threshold'),
+            HRZoneHandlerModel(zone=5, range_from=105,
+                               range_to=200, display_name='VO2 Max'),
         ]
