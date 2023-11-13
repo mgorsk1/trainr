@@ -94,7 +94,7 @@ class State(rx.State):
     # Light ------------------------------------------------------------------------------------------------------------
 
     @rx.var
-    def light_color_caption(self):
+    def light_color_caption(self) -> str:
         return self.light_color if self.light_on else 'OFF'
 
     @rx.var
@@ -111,10 +111,9 @@ class State(rx.State):
 
     def set_light_color(self, light_color: str):
         if self.light_on:
-            light_spec = light_spec_mapping[light_color]
-            light_handler.set_color(light_spec.hue, light_spec.saturation)
+            requests.put(f'{api_url}/light/color/{light_color}')
 
-            self.light_color = light_spec.hue
+            self.light_color = light_color
 
     # ------------------------------------------------------------------------------------------------------------------
 

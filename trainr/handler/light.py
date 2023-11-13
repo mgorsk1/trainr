@@ -23,5 +23,6 @@ class HueGroup:
         self.group.set_brightness(254, transition=5)
 
     def get_state(self):
-        display_name = light_color_mapping.get(self.group.hue, 'N/A')
+        # @todo figure this out properly
+        display_name = light_color_mapping.get(self.hue.get_light(name='Komoda').hue, 'N/A')
         return LightState(is_on=self.group.is_on, color=self.group.hue, display_name=display_name)

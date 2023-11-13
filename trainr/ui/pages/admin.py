@@ -72,7 +72,7 @@ def admin() -> rx.Component:
                     rx.heading('Light Color', size='sm'),
                     rx.select(
                         list(light_spec_mapping.keys()),
-                        default_value=str(State.light_color_caption),
+                        value=State.light_color_caption,
                         on_change=State.set_light_color
                     ),
                 ),
