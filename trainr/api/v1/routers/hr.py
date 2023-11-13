@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter
 
 from trainr.api.v1.models.hr import HRReading, HRZoneInfo, HRZoneInfoPut, HRThresholdInfo

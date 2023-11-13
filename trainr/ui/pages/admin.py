@@ -39,6 +39,7 @@ def admin() -> rx.Component:
 
                 ),
             ),
+            rx.divider(),
             rx.vstack(
                 rx.switch(
                     is_checked=State.system_mode_auto,
