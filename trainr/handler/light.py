@@ -1,6 +1,6 @@
 from huesdk import Hue
 
-from trainr.models.light import LightState
+from trainr.model.light import LightState
 from trainr.utils import light_color_mapping
 
 

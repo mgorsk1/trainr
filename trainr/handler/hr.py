@@ -1,7 +1,7 @@
 import time
 from typing import List, Optional, Tuple
 
-from trainr.models.hr import HRZone, HRReading, ThresholdHR
+from trainr.model.hr import HRZone, HRReading, ThresholdHR
 
 from datalite.fetch import fetch_equals, fetch_all, fetch_if, fetch_from
 

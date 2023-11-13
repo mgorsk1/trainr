@@ -4,7 +4,7 @@ from functools import wraps
 import tinytuya
 from datalite.fetch import fetch_from
 
-from trainr.models.fan import FanState
+from trainr.model.fan import FanState
 
 
 def update_fan_state(f):
