@@ -30,16 +30,15 @@ def admin() -> rx.Component:
                     rx.button(
                         'Calculate Zones', on_click=State.calculate_zones, color_scheme='blue')
                 ),
-                rx.box(
-                    rx.data_table(
-                        columns=['Zone', 'From', 'To'],
-                        data=State.reading_zones
-                    ),
-                    border_radius='md',
-                    width='15%',
-                    font_size='0.5em'
-
+                rx.table(
+                    headers=['Zone', 'From', 'To'],
+                    rows=State.reading_zones,
+                    variant='striped'
                 ),
+                border_radius='md',
+                width='15%',
+                font_size='0.5em'
+
             ),
             rx.divider(),
             rx.vstack(
