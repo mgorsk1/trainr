@@ -14,7 +14,7 @@ api_url = os.getenv('TRAINR_API_URL', 'http://localhost:1337/api/v1')
 
 
 class State(rx.State):
-    reading_value: int = 100
+    reading_value: int = 125
     reading_type: str = 'hr'
     reading_threshold: int
     reading_zone: str
@@ -36,8 +36,11 @@ class State(rx.State):
 
     @rx.var
     def reading_zone_color(self) -> str:
-        if self.reading_type == 'HR':
-            return hr_zones_light_mapping.get(self.reading_zone, 'N/A').name
+        if self.reading_type == 'hr':
+            if result := hr_zones_light_mapping.get(self.reading_zone):
+                return result.name
+            else:
+                return 'N/A'
 
     @rx.var
     def reading_type_emoji(self):
