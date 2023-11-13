@@ -24,10 +24,10 @@ class HR:
 
         return data
 
-    def get_hr_history(self, minutes: int) -> List[HRReadingHandlerModel]:
-        date_from = round(time.time() * 1000) - (minutes * 60 * 1000)
+    def get_hr_history(self, seconds: int) -> List[HRReadingHandlerModel]:
+        date_from = round(time.time() * 1000) - (seconds * 1000)
 
-        return list(fetch_if(HRReadingHandlerModel, f'time >= {date_from}', element_count=10000000))
+        return list(fetch_if(HRReadingHandlerModel, f'time >= {date_from}', page=0))
 
     def get_hr_zones(self) -> List[HRZoneHandlerModel]:
         return list(fetch_all(HRZoneHandlerModel, element_count=10))

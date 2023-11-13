@@ -24,23 +24,24 @@ global handler
 handler = HR()
 
 
-# @todo this method should act based on avg from last N seconds not just single reading
-async def adjust_system(reading: int):
+async def adjust_system():
     system_mode = await get_mode_state()
 
     system_on = system_mode.system_mode == 'AUTO'
 
-    if system_on:
-        if reading > 0:
-            zone = await get_hr_zones(hr=reading)
+    history = await get_hr_history()
+
+    if system_on and history:
+        reading_avg = int(sum([r.reading for r in history]) / len(history))
+
+        if reading_avg > 0:
+            zone = await get_hr_zones(hr=reading_avg)
             zone = zone[0].zone
 
             if light_color := hr_zone_to_light_spec_mapping.get(zone):
-                print(light_color)
                 await set_light_color(LightColorInputApiModel(color_name=light_color.name.upper()))
 
             if fan_speed := hr_zone_to_fan_speed_mapping.get(zone):
-                print(fan_speed)
                 await set_fan_speed(FanSpeedInputApiModel(fan_speed=fan_speed))
         else:
             await turn_fan_off()
@@ -58,14 +59,14 @@ async def get_current_hr():
 async def set_current_hr(reading: HRReadingInfoApiModel, background_tasks: BackgroundTasks) -> HRReadingInfoApiModel:
     data = handler.save_hr_reading(reading.reading)
 
-    background_tasks.add_task(adjust_system, reading.reading)
+    background_tasks.add_task(adjust_system)
 
     return HRReadingInfoApiModel(reading=data.value, time=data.time)
 
 
-@router.get('/history', tags=['hr'])
-async def get_hr_history(minutes: int = 60):
-    data = handler.get_hr_history(minutes)
+@router.get('/history', tags=['hr'], response_model=List[HRReadingInfoApiModel])
+async def get_hr_history(seconds: int = 10) -> List[HRReadingInfoApiModel]:
+    data = handler.get_hr_history(seconds)
 
     return [HRReadingInfoApiModel(reading=r.value, time=r.time) for r in data]
 
