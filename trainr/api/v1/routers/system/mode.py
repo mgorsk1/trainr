@@ -4,7 +4,9 @@ from fastapi import APIRouter
 
 from trainr.api.v1.model.system.mode import SystemModeInfoApiModel, SystemModeInputApiModel
 from trainr.handler.system.mode import SystemModeHandler
+from trainr.utils import SystemMode
 
+# @todo generalize this
 router = APIRouter(
     prefix='/mode',
     tags=['system']
@@ -19,7 +21,7 @@ handler = SystemModeHandler()
 async def get_mode_state() -> SystemModeInfoApiModel:
     data = handler.get_state()
 
-    return SystemModeInfoApiModel(system_mode=data.value)
+    return SystemModeInfoApiModel(system_mode=data.setting_value)
 
 
 @router.put('/', tags=['system'])
@@ -28,4 +30,4 @@ async def set_mode(mode: SystemModeInputApiModel) -> SystemModeInfoApiModel:
 
     data = handler.get_state()
 
-    return SystemModeInfoApiModel(system_mode=data.value)
+    return SystemModeInfoApiModel(system_mode=data.setting_value)

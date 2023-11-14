@@ -1,11 +1,12 @@
-from dataclasses import dataclass
+from sqlalchemy import String, Boolean, Integer, Column
 
-from datalite import datalite
+from trainr.handler.model import Base
 
 
-@datalite(db_path='trainr.db')
-@dataclass
-class FanStateHandlerModel:
-    speed: int
-    is_on: bool
-    display_name: str
+class FanStateHandlerModel(Base):
+    __tablename__ = "fanstate"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    speed = Column(Integer, nullable=False)
+    display_name = Column(String(32), nullable=False)
+    is_on = Column(Boolean, nullable=False)

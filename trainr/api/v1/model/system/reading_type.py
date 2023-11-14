@@ -3,8 +3,8 @@ from enum import Enum
 
 
 class ReadingType(str, Enum):
-    HR = 'hr'
-    FTP = 'ftp'
+    HR = 'HR'
+    FTP = 'FTP'
 
 
 @dataclass

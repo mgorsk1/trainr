@@ -4,12 +4,12 @@ from fastapi import APIRouter
 
 from fastapi import BackgroundTasks
 from trainr.api.v1.model.fan import FanSpeedInputApiModel
-from trainr.api.v1.model.reading import ReadingInfoApiModel, ZoneInfoApiModel, ThresholdInfoApiModel, ZoneInputApiModel
+from trainr.api.v1.model.reading import ReadingInfoApiModel, ZoneInfoApiModel, ThresholdInfoApiModel, ZoneInputApiModel, \
+    ReadingInputApiModel
 from trainr.api.v1.model.light import LightColorInputApiModel
 from trainr.api.v1.routers.fan import set_fan_speed, turn_fan_off
 from trainr.api.v1.routers.light import set_light_color, turn_light_off
 from trainr.api.v1.routers.system.mode import get_mode_state
-from trainr.handler.model.reading import ThresholdHandlerModel
 from trainr.handler.reading.hr import HRReadingHandler
 from trainr.handler.reading.ftp import FTPReadingHandler
 from trainr.utils import hr_zone_to_light_spec_mapping, hr_zone_to_fan_speed_mapping
@@ -50,15 +50,16 @@ def get_router(handler):
     async def get_current_reading():
         data = handler.get_reading()
 
-        return ReadingInfoApiModel(reading=data.reading_value, time=data.time)
+        return ReadingInfoApiModel(reading=data.reading_value, time=data.time.strftime('%s'))
 
     @router.post('/', tags=tags, response_model=ReadingInfoApiModel)
-    async def set_current_reading(reading: ReadingInfoApiModel, background_tasks: BackgroundTasks) -> ReadingInfoApiModel:
+    async def set_current_reading(reading: ReadingInputApiModel,
+                                  background_tasks: BackgroundTasks) -> ReadingInfoApiModel:
         data = handler.save_reading(reading.reading)
 
         background_tasks.add_task(adjust_system)
 
-        return ReadingInfoApiModel(reading=data.reading_value, time=data.time)
+        return ReadingInfoApiModel(reading=data.reading_value, time=data.time.strftime('%s'))
 
     @router.get('/history', tags=tags, response_model=List[ReadingInfoApiModel])
     async def get_reading_history(seconds: int = 10) -> List[ReadingInfoApiModel]:
@@ -70,19 +71,20 @@ def get_router(handler):
     async def get_zones(zone: int = -1, hr: int = -1) -> List[ZoneInfoApiModel]:
         if zone > 0:
             data = handler.get_reading_zone(zone)
-            return [data] if data else []
         elif hr >= 0:
             data = handler.get_reading_zone_by_reading(hr)
-
-            return [data] if data else []
         else:
             data = handler.get_reading_zones()
 
-            return [ZoneInfoApiModel(zone=r.zone,
-                                     range_from=r.range_from,
-                                     range_to=r.range_to,
-                                     display_name=r.display_name)
-                    for r in data]
+        data = data or []
+
+        data = data if isinstance(data, list) else [data]
+
+        return [ZoneInfoApiModel(zone=r.zone,
+                                 range_from=r.range_from,
+                                 range_to=r.range_to,
+                                 display_name=r.display_name)
+                for r in data]
 
     @router.put('/zones', tags=tags, response_model=ZoneInfoApiModel)
     async def set_zone_info(zone_info: ZoneInputApiModel):
@@ -95,15 +97,15 @@ def get_router(handler):
 
     @router.get('/threshold', tags=tags, response_model=ThresholdInfoApiModel)
     async def get_threshold():
-        data: ThresholdHandlerModel = handler.get_threshold()
+        data = handler.get_threshold()
 
-        return ThresholdInfoApiModel(threshold=data.reading_value if data else -1)
+        return ThresholdInfoApiModel(threshold=data.reading_value if data else 0)
 
     @router.put('/threshold', tags=tags, response_model=ThresholdInfoApiModel)
     async def get_threshold(threshold: ThresholdInfoApiModel):
         handler.set_threshold(threshold.threshold)
 
-        data: ThresholdHandlerModel = handler.get_threshold()
+        data = handler.get_threshold()
 
         return ThresholdInfoApiModel(threshold=data.reading_value)
 

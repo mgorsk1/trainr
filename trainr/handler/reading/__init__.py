@@ -1,18 +1,18 @@
-import time
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
 from typing import List, Optional
 
-from trainr.handler.model.reading import ReadingZoneHandlerModel, ReadingHandlerModel, ThresholdHandlerModel
+from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import Session
 
-from datalite.fetch import fetch_if, fetch_from
+from trainr.handler.database.engine import engine
+from trainr.handler.model.reading import ReadingZoneHandlerModel, ReadingHandlerModel, ThresholdHandlerModel
 
 
 class ReadingHandler(ABC):
     def __init__(self):
-        self.threshold = 200 if not self.get_threshold(
-        ) else self.get_threshold().reading_value
-
-        self.set_threshold(self.threshold)
+        self.threshold = None
 
     @property
     @abstractmethod
@@ -20,35 +20,58 @@ class ReadingHandler(ABC):
         pass
 
     def get_reading(self) -> ReadingHandlerModel:
-        try:
-            data = fetch_if(
-                ReadingHandlerModel, f'reading_type=="{self.reading_type}"', page=0, element_count=1)
-            return data[-1]
-        except IndexError:
-            return ReadingHandlerModel(reading_value=-1, reading_type=self.reading_type, time=time.time())
+        # @todo add condition to filter by time
+        with Session(engine) as session:
+            query_statement = select(ReadingHandlerModel) \
+                .where(ReadingHandlerModel.reading_type == self.reading_type) \
+                .order_by(ReadingHandlerModel.time.desc()) \
+                .limit(1)
+
+            try:
+                return session.scalars(query_statement).one()
+            except NoResultFound:
+                data = ReadingHandlerModel(
+                    reading_value=0, reading_type=self.reading_type, time=datetime.now())
+
+                return data
 
     def save_reading(self, value: int):
-        data = ReadingHandlerModel(reading_value=value,
-                                   reading_type=self.reading_type,
-                                   time=round(time.time() * 1000))
+        with Session(engine, expire_on_commit=False) as session:
+            data = ReadingHandlerModel(reading_value=value,
+                                       reading_type=self.reading_type,
+                                       time=datetime.now())
 
-        data.create_entry()
+            session.add(data)
+            session.commit()
 
         return data
 
     def get_reading_history(self, seconds: int) -> List[ReadingHandlerModel]:
-        date_from = round(time.time() * 1000) - (seconds * 1000)
+        time_difference = datetime.now() - timedelta(seconds=seconds)
 
-        return list(
-            fetch_if(ReadingHandlerModel, f'time >= {date_from} and reading_type = "{self.reading_type}"', page=0))
+        with Session(engine) as session:
+            query_statement = select(ReadingHandlerModel) \
+                .where(ReadingHandlerModel.reading_type == self.reading_type) \
+                .where(ReadingHandlerModel.time >= time_difference)
+
+            return session.scalars(query_statement).fetchall()
 
     def get_reading_zones(self) -> List[ReadingZoneHandlerModel]:
-        return list(fetch_if(ReadingZoneHandlerModel, f'reading_type=="{self.reading_type}"', page=0))
+        with Session(engine) as session:
+            query_statement = select(ReadingZoneHandlerModel) \
+                .where(ReadingZoneHandlerModel.reading_type == self.reading_type)
+
+            return session.scalars(query_statement).fetchall()
 
     def get_reading_zone(self, zone: int) -> Optional[ReadingZoneHandlerModel]:
         try:
-            return fetch_if(ReadingZoneHandlerModel, f'reading_type=="{self.reading_type}" and zone=="{zone}"', page=0)[0]
-        except TypeError:
+            with Session(engine) as session:
+                query_statement = select(ReadingZoneHandlerModel) \
+                    .where(ReadingZoneHandlerModel.reading_type == self.reading_type) \
+                    .where(ReadingZoneHandlerModel.zone == zone)
+
+                return session.scalars(query_statement).one()
+        except NoResultFound:
             return None
 
     def get_reading_zone_by_reading(self, reading: int) -> Optional[ReadingZoneHandlerModel]:
@@ -65,19 +88,21 @@ class ReadingHandler(ABC):
             data.zone = spec.zone
             data.range_from = spec.range_from
             data.range_to = spec.range_to
-
-            data.update_entry()
-
-            return data
         else:
-            spec.create_entry()
+            data = spec
 
-            return spec
+        with Session(engine) as session:
+            session.add(data)
+            session.commit()
+
+        return data
 
     def _set_zones_from_threshold(self):
+        if not self.threshold:
+            return None
+
         for z in self.zones_spec:
             try:
-
                 f = int(int(self.threshold) * z.range_from / 100)
                 n = int(int(self.threshold) * z.range_to / 100)
 
@@ -91,22 +116,26 @@ class ReadingHandler(ABC):
                 pass
 
     def set_threshold(self, threshold: int):
-        try:
-            data = self.get_threshold()
+        if data := self.get_threshold():
             data.reading_value = threshold
-            data.update_entry()
-        except:
-            data = ThresholdHandlerModel(reading_value=threshold,
-                                         reading_type=self.reading_type)
-            data.create_entry()
+        else:
+            data = ThresholdHandlerModel(
+                reading_value=threshold, reading_type=self.reading_type)
+
+        with Session(engine, expire_on_commit=True) as session:
+            session.add(data)
+            session.commit()
 
         self.threshold = threshold
         self._set_zones_from_threshold()
 
     def get_threshold(self) -> Optional[ThresholdHandlerModel]:
         try:
-            return fetch_if(ThresholdHandlerModel, f'reading_type=="{self.reading_type}"', page=0)[0]
-        except:
+            with Session(engine) as session:
+                query_statement = select(ThresholdHandlerModel)
+
+                return session.scalars(query_statement).one()
+        except NoResultFound:
             return None
 
     @property
