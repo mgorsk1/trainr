@@ -35,6 +35,17 @@ def admin() -> rx.Component:
                     rows=State.reading_zones,
                     variant='striped'
                 ),
+                rx.divider(),
+                rx.slider(
+                    value=State.system_last_seconds,
+                    min_=5,
+                    max_=60,
+                    step=5,
+                    on_change=State.set_last_seconds,
+                    padding_top='5%'
+                ),
+                rx.heading(
+                    f'Last Seconds: {State.system_last_seconds}', size='md'),
                 border_radius='md',
                 width='15%',
                 font_size='0.5em'

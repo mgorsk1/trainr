@@ -1,12 +1,11 @@
 from trainr.handler.system import SystemSettingHandler
-from trainr.utils import SystemMode
 
 
-class SystemModeHandler(SystemSettingHandler):
+class SystemLastSecondsHandler(SystemSettingHandler):
     @property
     def setting_name(self):
-        return 'mode'
+        return 'last_seconds'
 
     @property
     def setting_default_value(self):
-        return SystemMode.MANUAL
+        return 10
