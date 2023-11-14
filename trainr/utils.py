@@ -20,6 +20,10 @@ class ReadingFunction(str, Enum):
     AVG = 'avg'
 
 
+class ReadingType(str, Enum):
+    HR = 'hr'
+    FTP = 'ftp'
+
 fan_speed_name_to_int_mapping = {
     'LOW': 1,
     'MEDIUM': 2,

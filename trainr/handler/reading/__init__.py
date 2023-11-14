@@ -29,7 +29,8 @@ class ReadingHandler(ABC):
 
             if seconds > 0:
                 time_difference = datetime.now() - timedelta(seconds=seconds)
-                query_statement = query_statement.where(ReadingHandlerModel.time >= time_difference)
+                query_statement = query_statement.where(
+                    ReadingHandlerModel.time >= time_difference)
 
             try:
                 return session.scalars(query_statement).one()

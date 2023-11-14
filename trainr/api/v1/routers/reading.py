@@ -9,7 +9,8 @@ from trainr.api.v1.model.reading import ReadingInfoApiModel, ZoneInfoApiModel, T
 from trainr.api.v1.model.light import LightColorInputApiModel
 from trainr.api.v1.routers.fan import set_fan_speed, turn_fan_off
 from trainr.api.v1.routers.light import set_light_color, turn_light_off
-from trainr.api.v1.routers.system.mode import get_mode_state
+
+from trainr.api.v1.routers.system import mode_router
 from trainr.handler.reading.hr import HRReadingHandler
 from trainr.handler.reading.ftp import FTPReadingHandler
 from trainr.utils import hr_zone_to_light_spec_mapping, hr_zone_to_fan_speed_mapping, ReadingFunction
@@ -24,7 +25,7 @@ def get_router(handler):
     )
 
     async def adjust_system():
-        system_mode = await get_mode_state()
+        system_mode = await mode_router.get_mode_state()
 
         system_on = system_mode.system_mode == 'AUTO'
 
@@ -53,7 +54,8 @@ def get_router(handler):
         elif function == ReadingFunction.AVG:
             data = handler.get_reading_avg(seconds)
         else:
-            raise NotImplementedError(f'Reading function {function} not supported')
+            raise NotImplementedError(
+                f'Reading function {function} not supported')
 
         return ReadingInfoApiModel(reading=data.reading_value, time=data.time.strftime('%s'))
 
