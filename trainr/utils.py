@@ -15,6 +15,11 @@ class SystemMode(str, Enum):
     MANUAL = 'MANUAL'
 
 
+class ReadingFunction(str, Enum):
+    LAST = 'last'
+    AVG = 'avg'
+
+
 fan_speed_name_to_int_mapping = {
     'LOW': 1,
     'MEDIUM': 2,

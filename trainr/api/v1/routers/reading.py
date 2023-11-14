@@ -12,7 +12,7 @@ from trainr.api.v1.routers.light import set_light_color, turn_light_off
 from trainr.api.v1.routers.system.mode import get_mode_state
 from trainr.handler.reading.hr import HRReadingHandler
 from trainr.handler.reading.ftp import FTPReadingHandler
-from trainr.utils import hr_zone_to_light_spec_mapping, hr_zone_to_fan_speed_mapping
+from trainr.utils import hr_zone_to_light_spec_mapping, hr_zone_to_fan_speed_mapping, ReadingFunction
 
 
 def get_router(handler):
@@ -47,8 +47,13 @@ def get_router(handler):
                 await turn_light_off()
 
     @router.get('/', tags=tags, response_model=ReadingInfoApiModel)
-    async def get_current_reading(seconds: int = 0):
-        data = handler.get_reading(seconds)
+    async def get_current_reading(seconds: int = 10, function: ReadingFunction = ReadingFunction.LAST):
+        if function == ReadingFunction.LAST:
+            data = handler.get_reading(seconds)
+        elif function == ReadingFunction.AVG:
+            data = handler.get_reading_avg(seconds)
+        else:
+            raise NotImplementedError(f'Reading function {function} not supported')
 
         return ReadingInfoApiModel(reading=data.reading_value, time=data.time.strftime('%s'))
 
