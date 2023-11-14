@@ -152,7 +152,8 @@ class ReadingHandler(ABC):
     def get_threshold(self) -> Optional[ThresholdHandlerModel]:
         try:
             with Session(engine) as session:
-                query_statement = select(ThresholdHandlerModel)
+                query_statement = select(ThresholdHandlerModel) \
+                    .where(ThresholdHandlerModel.reading_type == self.reading_type)
 
                 return session.scalars(query_statement).one()
         except NoResultFound:
