@@ -17,6 +17,7 @@ api_url = os.getenv('TRAINR_API_URL', 'http://localhost:1337/api/v1')
 class State(rx.State):
     system_mode: str
     system_reading_type: str
+    system_last_seconds: int
 
     reading_value: int = 0
     reading_threshold: int
@@ -41,29 +42,39 @@ class State(rx.State):
 
     def toggle_system_mode(self, mode_auto: bool):
         if not mode_auto:
-            result = requests.put(
-                f'{api_url}/system/mode', json={'system_mode': SystemMode.MANUAL})
+            payload = {'setting_value': SystemMode.MANUAL}
         else:
-            result = requests.put(
-                f'{api_url}/system/mode', json={'system_mode': SystemMode.AUTO})
+            payload = {'setting_value': SystemMode.AUTO}
 
-        self.system_mode = result.json().get('system_mode', 'N/A')
+        result = requests.put(f'{api_url}/system/mode', json=payload)
+        self.system_mode = result.json().get('setting_value', 'N/A')
 
     def set_reading_type(self, system_reading_type: str):
         result = requests.put(f'{api_url}/system/reading_type',
-                              json=dict(reading_type=system_reading_type.lower()))
+                              json={'setting_value': system_reading_type.lower()})
 
-        self.system_reading_type = result.json().get('reading_type', 'N/A').upper()
+        self.system_reading_type = result.json().get('setting_value', 'N/A').upper()
 
         self.refresh_system_state()
         self.refresh_reading_state()
 
+    def set_last_seconds(self, system_last_seconds: int):
+        result = requests.put(f'{api_url}/system/last_seconds',
+                              json={'setting_value': str(system_last_seconds)})
+
+        self.system_last_seconds = int(result.json().get('setting_value', 0))
+
+        self.refresh_system_state()
+
     def refresh_system_state(self):
         self.system_mode = requests.get(
-            f'{api_url}/system/mode/').json().get('system_mode', 'N/A')
+            f'{api_url}/system/mode/').json().get('setting_value', 'N/A')
 
         self.system_reading_type = requests.get(
-            f'{api_url}/system/reading_type/').json().get('reading_type', 'N/A').upper()
+            f'{api_url}/system/reading_type/').json().get('setting_value', 'N/A').upper()
+
+        self.system_last_seconds = int(requests.get(
+            f'{api_url}/system/last_seconds/').json().get('setting_value', 60))
 
     # Reading ----------------------------------------------------------------------------------------------------------
 
@@ -209,7 +220,7 @@ class State(rx.State):
             async with self:
                 # @todo this should take into account last 15 seconds not all history
                 self.reading_value = requests.get(
-                    f'{api_url}/{self.system_reading_type.lower()}/').json()['reading']
+                    f'{api_url}/{self.system_reading_type.lower()}', params=dict(seconds=self.system_last_seconds)).json()['reading']
 
                 self.refresh_fan_state()
                 self.refresh_light_state()

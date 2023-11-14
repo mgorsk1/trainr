@@ -1,6 +1,5 @@
-from trainr.api.v1.model.system.reading_type import ReadingType
-
 from trainr.handler.system import SystemSettingHandler
+from trainr.utils import ReadingType
 
 
 class SystemReadingTypeHandler(SystemSettingHandler):

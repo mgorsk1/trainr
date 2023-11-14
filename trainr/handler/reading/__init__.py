@@ -5,6 +5,7 @@ from typing import List, Optional
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 
 from trainr.handler.database.engine import engine
 from trainr.handler.model.reading import ReadingZoneHandlerModel, ReadingHandlerModel, ThresholdHandlerModel
@@ -19,13 +20,17 @@ class ReadingHandler(ABC):
     def reading_type(self):
         pass
 
-    def get_reading(self) -> ReadingHandlerModel:
-        # @todo add condition to filter by time
+    def get_reading(self, seconds: int = 0) -> ReadingHandlerModel:
         with Session(engine) as session:
             query_statement = select(ReadingHandlerModel) \
                 .where(ReadingHandlerModel.reading_type == self.reading_type) \
                 .order_by(ReadingHandlerModel.time.desc()) \
                 .limit(1)
+
+            if seconds > 0:
+                time_difference = datetime.now() - timedelta(seconds=seconds)
+                query_statement = query_statement.where(
+                    ReadingHandlerModel.time >= time_difference)
 
             try:
                 return session.scalars(query_statement).one()
@@ -34,6 +39,21 @@ class ReadingHandler(ABC):
                     reading_value=0, reading_type=self.reading_type, time=datetime.now())
 
                 return data
+
+    def get_reading_avg(self, seconds: int = 10) -> ReadingHandlerModel:
+        time_difference = datetime.now() - timedelta(seconds=seconds)
+
+        with Session(engine) as session:
+            data = session \
+                .query(func.avg(ReadingHandlerModel.reading_value)) \
+                .filter(ReadingHandlerModel.reading_type == self.reading_type) \
+                .filter(ReadingHandlerModel.time >= time_difference).one()[0]
+
+            reading_value = int(data) if data else 0
+
+            return ReadingHandlerModel(reading_value=reading_value,
+                                       reading_type=self.reading_type,
+                                       time=datetime.now())
 
     def save_reading(self, value: int):
         with Session(engine, expire_on_commit=False) as session:
@@ -119,8 +139,8 @@ class ReadingHandler(ABC):
         if data := self.get_threshold():
             data.reading_value = threshold
         else:
-            data = ThresholdHandlerModel(
-                reading_value=threshold, reading_type=self.reading_type)
+            data = ThresholdHandlerModel(reading_value=threshold,
+                                         reading_type=self.reading_type)
 
         with Session(engine, expire_on_commit=True) as session:
             session.add(data)
@@ -132,7 +152,8 @@ class ReadingHandler(ABC):
     def get_threshold(self) -> Optional[ThresholdHandlerModel]:
         try:
             with Session(engine) as session:
-                query_statement = select(ThresholdHandlerModel)
+                query_statement = select(ThresholdHandlerModel) \
+                    .where(ThresholdHandlerModel.reading_type == self.reading_type)
 
                 return session.scalars(query_statement).one()
         except NoResultFound:
@@ -142,14 +163,29 @@ class ReadingHandler(ABC):
     # @todo specify per reading type
     def zones_spec(self) -> List[ReadingZoneHandlerModel]:
         return [
-            ReadingZoneHandlerModel(zone=1, range_from=0, range_to=68,
-                                    display_name='Active Recovery', reading_type=self.reading_type),
-            ReadingZoneHandlerModel(zone=2, range_from=68, range_to=83,
-                                    display_name='Anaerobic Capacity', reading_type=self.reading_type),
-            ReadingZoneHandlerModel(zone=3, range_from=83,
-                                    range_to=95, display_name='Tempo', reading_type=self.reading_type),
-            ReadingZoneHandlerModel(zone=4, range_from=95,
-                                    range_to=105, display_name='Threshold', reading_type=self.reading_type),
-            ReadingZoneHandlerModel(zone=5, range_from=105,
-                                    range_to=200, display_name='VO2 Max', reading_type=self.reading_type),
+            ReadingZoneHandlerModel(zone=1,
+                                    range_from=0,
+                                    range_to=68,
+                                    display_name='Active Recovery',
+                                    reading_type=self.reading_type),
+            ReadingZoneHandlerModel(zone=2,
+                                    range_from=68,
+                                    range_to=83,
+                                    display_name='Anaerobic Capacity',
+                                    reading_type=self.reading_type),
+            ReadingZoneHandlerModel(zone=3,
+                                    range_from=83,
+                                    range_to=95,
+                                    display_name='Tempo',
+                                    reading_type=self.reading_type),
+            ReadingZoneHandlerModel(zone=4,
+                                    range_from=95,
+                                    range_to=105,
+                                    display_name='Threshold',
+                                    reading_type=self.reading_type),
+            ReadingZoneHandlerModel(zone=5,
+                                    range_from=105,
+                                    range_to=200,
+                                    display_name='VO2 Max',
+                                    reading_type=self.reading_type),
         ]
