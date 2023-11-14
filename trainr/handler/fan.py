@@ -4,7 +4,8 @@ from functools import wraps
 import tinytuya
 from datalite.fetch import fetch_from
 
-from trainr.model.fan import FanState
+from trainr.handler.model.fan import FanStateHandlerModel
+from trainr.utils import fan_speed_to_display_name_mapping
 
 
 def update_fan_state(f):
@@ -25,26 +26,28 @@ class HBFan:
         self.device.set_version(3.3)
 
         try:
-            self.state = fetch_from(FanState, 1)
+            self.state = fetch_from(FanStateHandlerModel, 1)
         except KeyError:
-            self.state = FanState(speed=1, is_on=False)
+            self.state = FanStateHandlerModel(
+                speed=1, is_on=False, display_name='LOW')
             self.state.create_entry()
 
         self.speed_max = 3
         self.speed_min = 1
 
     def _run_command(self, command: dict):
-        payload = self.device.generate_payload(tinytuya.CONTROL, {"201": json.dumps(command)})
+        payload = self.device.generate_payload(
+            tinytuya.CONTROL, {'201': json.dumps(command)})
 
         self.device.send(payload)
 
     def _press_speed_button(self):
         command = {
-            "control": "send_ir",
-            "head": "010ece00000000000400100030013e011e",
-            "key1": "004#000280##000280#0004F0#000100$",
-            "type": 0,
-            "delay": 300
+            'control': 'send_ir',
+            'head': '010ece00000000000400100030013e011e',
+            'key1': '004#000280##000280#0004F0#000100$',
+            'type': 0,
+            'delay': 300
         }
 
         self._run_command(command)
@@ -75,11 +78,11 @@ class HBFan:
     @update_fan_state
     def turn_off(self):
         command = {
-            "control": "send_ir",
-            "head": "010ece00000000000400100030013e011e",
-            "key1": "004#000280##000280#0005F8#%",
-            "type": 0,
-            "delay": 300
+            'control': 'send_ir',
+            'head': '010ece00000000000400100030013e011e',
+            'key1': '004#000280##000280#0005F8#%',
+            'type': 0,
+            'delay': 300
         }
 
         self._run_command(command)
@@ -98,6 +101,9 @@ class HBFan:
             self.state.update_entry()
 
     def set_speed(self, level: int):
+        if not self.state.is_on:
+            self.turn_on()
+
         start_state = self.state.speed
         if self.speed_max >= level >= self.speed_min:
             if level > self.state.speed:
@@ -107,5 +113,7 @@ class HBFan:
                 for _ in range(start_state - level):
                     self._decrease_speed()
 
-    def get_state(self):
+    def get_state(self) -> FanStateHandlerModel:
+        self.state.display_name = fan_speed_to_display_name_mapping.get(
+            self.state.speed)
         return self.state
