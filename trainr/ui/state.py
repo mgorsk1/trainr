@@ -16,9 +16,9 @@ api_url = os.getenv('TRAINR_API_URL', 'http://localhost:1337/api/v1')
 
 class State(rx.State):
     system_mode: str
+    system_reading_type: str
 
     reading_value: int = 0
-    reading_type: str = 'hr'
     reading_threshold: int
     reading_zones: List[Tuple[int, int, int]]
 
@@ -47,23 +47,35 @@ class State(rx.State):
             result = requests.put(
                 f'{api_url}/system/mode', json={'system_mode': SystemMode.AUTO})
 
-        self.system_mode = result.json().get('system_mode')
+        self.system_mode = result.json().get('system_mode', 'N/A')
+
+    def set_reading_type(self, system_reading_type: str):
+        result = requests.put(f'{api_url}/system/reading_type', json=dict(reading_type=system_reading_type.lower()))
+
+        self.system_reading_type = result.json().get('reading_type', 'N/A').upper()
+
+        self.refresh_system_state()
+        self.refresh_reading_state()
 
     def refresh_system_state(self):
         self.system_mode = requests.get(
-            f'{api_url}/system/mode/').json()['system_mode']
+            f'{api_url}/system/mode/').json().get('system_mode', 'N/A')
+
+        self.system_reading_type = requests.get(
+            f'{api_url}/system/reading_type/').json().get('reading_type', 'N/A').upper()
 
     # Reading ----------------------------------------------------------------------------------------------------------
 
     @rx.var
     def reading_type_display_name(self):
-        return f'{self.reading_type.upper()} {self.reading_type_emoji}'
+        return f'{self.system_reading_type.upper()} {self.reading_type_emoji}'
 
     @rx.var
     def reading_zone_spec(self):
         try:
             return \
-                requests.get(f'{api_url}/{self.reading_type.lower()}/zones', params=dict(hr=self.reading_value)).json()[
+                requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones',
+                             params=dict(hr=self.reading_value)).json()[
                     0]
         except (KeyError, IndexError):
             return {'zone': -1, 'display_name': 'Zone Unknown'}
@@ -78,7 +90,7 @@ class State(rx.State):
 
     @rx.var
     def reading_zone_color(self) -> str:
-        if self.reading_type == 'hr':
+        if self.system_reading_type.lower() == 'hr':
             if result := hr_zone_to_light_spec_mapping.get(self.reading_zone):
                 return result.name
             else:
@@ -91,7 +103,7 @@ class State(rx.State):
             'FTP': '⚡'
         }
 
-        return map.get(self.reading_type.upper(), 'N/A') if self.reading_value > 0 else ''
+        return map.get(self.system_reading_type.upper(), 'N/A') if self.reading_value > 0 else ''
 
     @rx.var
     def reading_percent(self) -> int:
@@ -104,15 +116,21 @@ class State(rx.State):
         self.reading_threshold = threshold
 
     def calculate_zones(self):
-        requests.put(f'{api_url}/{self.reading_type.lower()}/threshold',
+        requests.put(f'{api_url}/{self.system_reading_type.lower()}/threshold',
                      json={'threshold': self.reading_threshold})
 
         self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
-                              requests.get(f'{api_url}/{self.reading_type.lower()}/zones').json()]
+                              requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
 
-    def set_reading_type(self, reading_type: str):
-        self.reading_type = reading_type
-        self.get_data()
+    def refresh_reading_state(self):
+        self.reading_threshold = requests.get(f'{api_url}/{self.system_reading_type.lower()}/threshold').json().get(
+            'threshold', 0)
+
+        try:
+            self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
+                                  requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
+        except AttributeError:
+            self.reading_zones = []
 
     # Fan --------------------------------------------------------------------------------------------------------------
 
@@ -179,16 +197,8 @@ class State(rx.State):
     # ------------------------------------------------------------------------------------------------------------------
 
     def get_data(self):
-        self.reading_threshold = requests.get(f'{api_url}/{self.reading_type.lower()}/threshold').json().get(
-            'threshold', 0)
-
-        try:
-            self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
-                                  requests.get(f'{api_url}/{self.reading_type.lower()}/zones').json()]
-        except AttributeError:
-            self.reading_zones = []
-
         self.refresh_system_state()
+        self.refresh_reading_state()
         self.refresh_fan_state()
         self.refresh_light_state()
 
@@ -196,8 +206,9 @@ class State(rx.State):
     async def collect_readings(self):
         while True:
             async with self:
+                # @todo this should take into account last 15 seconds not all history
                 self.reading_value = requests.get(
-                    f'{api_url}/{self.reading_type}/').json()['reading']
+                    f'{api_url}/{self.system_reading_type.lower()}/').json()['reading']
 
                 self.refresh_fan_state()
                 self.refresh_light_state()
