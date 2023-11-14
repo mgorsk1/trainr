@@ -2,9 +2,11 @@ import os
 
 from fastapi import APIRouter
 
-from trainr.api.v1.model.system.reading_type import SystemReadingTypeInfoApiModel, SystemReadingTypeInputApiModel
+from trainr.api.v1.model.system.reading_type import SystemReadingTypeInfoApiModel, SystemReadingTypeInputApiModel, \
+    ReadingType
 from trainr.handler.system.reading_type import SystemReadingTypeHandler
 
+# @todo generalize this
 router = APIRouter(
     prefix='/reading_type',
     tags=['system']
@@ -19,7 +21,7 @@ handler = SystemReadingTypeHandler()
 async def get_mode_state() -> SystemReadingTypeInfoApiModel:
     data = handler.get_state()
 
-    return SystemReadingTypeInfoApiModel(reading_type=data.value)
+    return SystemReadingTypeInfoApiModel(reading_type=data.setting_value)
 
 
 @router.put('/', tags=['system'])
@@ -28,4 +30,4 @@ async def set_mode(mode: SystemReadingTypeInputApiModel) -> SystemReadingTypeInf
 
     data = handler.get_state()
 
-    return SystemReadingTypeInfoApiModel(reading_type=data.value)
+    return SystemReadingTypeInfoApiModel(reading_type=data.setting_name)

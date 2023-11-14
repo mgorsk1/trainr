@@ -21,14 +21,13 @@ class ZonesInfoApiModel:
 
 
 @dataclass
-class ReadingInfoApiModel:
+class ReadingInputApiModel:
     reading: int
-    time: int
 
 
 @dataclass
-class ReadingInputApiModel(ReadingInfoApiModel):
-    pass
+class ReadingInfoApiModel(ReadingInputApiModel):
+    time: int
 
 
 @dataclass

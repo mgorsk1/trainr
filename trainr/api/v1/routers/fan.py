@@ -51,5 +51,6 @@ async def set_fan_speed(speed: FanSpeedInputApiModel):
     level = fan_speed_name_to_int_mapping.get(speed.fan_speed)
 
     handler.set_speed(level)
+    data = handler.get_state()
 
-    return handler.get_state()
+    return FanStateApiModel(speed=data.speed, is_on=data.is_on, display_name=data.display_name)
