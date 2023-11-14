@@ -18,11 +18,11 @@ def admin() -> rx.Component:
                     rx.heading('Reading Settings', size='md'),
                     rx.select(
                         ['HR', 'FTP'],
-                        default_value=State.reading_type,
+                        value=State.system_reading_type,
                         on_change=State.set_reading_type,
                     ),
                     rx.heading(
-                        f'Threshold {State.reading_type.upper()}', size='md'),
+                        f'Threshold {State.system_reading_type.upper()}', size='md'),
                     rx.number_input(
                         value=State.reading_threshold,
                         on_change=State.set_threshold

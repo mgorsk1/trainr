@@ -5,27 +5,30 @@ from datalite import datalite
 
 @datalite(db_path='trainr.db')
 @dataclass
-class HRZoneHandlerModel:
+class ReadingZoneHandlerModel:
     zone: int
     range_from: int
     range_to: int
     display_name: str
+    reading_type: str
 
 
 @datalite(db_path='trainr.db')
 @dataclass
-class HRZoneSpecHandlerModel(HRZoneHandlerModel):
+class ReadingZoneSpecHandlerModel(ReadingZoneHandlerModel):
     pass
 
 
 @datalite(db_path='trainr.db')
 @dataclass
-class ThresholdHRHandlerModel:
-    hr: int
+class ThresholdHandlerModel:
+    reading_value: int
+    reading_type: str
 
 
 @datalite(db_path='trainr.db')
 @dataclass
-class HRReadingHandlerModel:
+class ReadingHandlerModel:
     time: int
-    value: int
+    reading_value: int
+    reading_type: int
