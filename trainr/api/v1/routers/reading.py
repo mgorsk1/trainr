@@ -47,8 +47,8 @@ def get_router(handler):
                 await turn_light_off()
 
     @router.get('/', tags=tags, response_model=ReadingInfoApiModel)
-    async def get_current_reading():
-        data = handler.get_reading()
+    async def get_current_reading(seconds: int = 0):
+        data = handler.get_reading(seconds)
 
         return ReadingInfoApiModel(reading=data.reading_value, time=data.time.strftime('%s'))
 

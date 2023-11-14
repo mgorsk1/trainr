@@ -19,13 +19,16 @@ class ReadingHandler(ABC):
     def reading_type(self):
         pass
 
-    def get_reading(self) -> ReadingHandlerModel:
-        # @todo add condition to filter by time
+    def get_reading(self, seconds: int = 0) -> ReadingHandlerModel:
         with Session(engine) as session:
             query_statement = select(ReadingHandlerModel) \
                 .where(ReadingHandlerModel.reading_type == self.reading_type) \
                 .order_by(ReadingHandlerModel.time.desc()) \
                 .limit(1)
+
+            if seconds > 0:
+                time_difference = datetime.now() - timedelta(seconds=seconds)
+                query_statement = query_statement.where(ReadingHandlerModel.time >= time_difference)
 
             try:
                 return session.scalars(query_statement).one()
