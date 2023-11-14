@@ -7,7 +7,8 @@ from trainr.handler.model.system.reading_type import SystemReadingTypeHandlerMod
 class SystemReadingTypeHandler:
     def __init__(self):
         try:
-            self.state: SystemReadingTypeHandlerModel = fetch_from(SystemReadingTypeHandlerModel, 1)
+            self.state: SystemReadingTypeHandlerModel = fetch_from(
+                SystemReadingTypeHandlerModel, 1)
         except KeyError:
             self.state = SystemReadingTypeHandlerModel(value=ReadingType.HR)
             self.state.create_entry()

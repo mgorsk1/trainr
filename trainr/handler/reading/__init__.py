@@ -9,7 +9,8 @@ from datalite.fetch import fetch_if, fetch_from
 
 class ReadingHandler(ABC):
     def __init__(self):
-        self.threshold = 200 if not self.get_threshold() else self.get_threshold().reading_value
+        self.threshold = 200 if not self.get_threshold(
+        ) else self.get_threshold().reading_value
 
         self.set_threshold(self.threshold)
 

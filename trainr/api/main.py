@@ -8,6 +8,8 @@ app = FastAPI()
 app.include_router(v1, prefix='/api')
 
 # @todo add background task to clear reading history
+
+
 @app.get('/', response_model=HealthApiModel)
 async def root():
     return HealthApiModel(healthy=True)

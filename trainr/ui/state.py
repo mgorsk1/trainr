@@ -50,7 +50,8 @@ class State(rx.State):
         self.system_mode = result.json().get('system_mode', 'N/A')
 
     def set_reading_type(self, system_reading_type: str):
-        result = requests.put(f'{api_url}/system/reading_type', json=dict(reading_type=system_reading_type.lower()))
+        result = requests.put(f'{api_url}/system/reading_type',
+                              json=dict(reading_type=system_reading_type.lower()))
 
         self.system_reading_type = result.json().get('reading_type', 'N/A').upper()
 

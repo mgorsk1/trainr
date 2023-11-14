@@ -17,12 +17,12 @@ from trainr.utils import hr_zone_to_light_spec_mapping, hr_zone_to_fan_speed_map
 
 def get_router(handler):
     tags = [handler.reading_type.lower()]
-    
+
     router = APIRouter(
         prefix=f'/{handler.reading_type.lower()}',
         tags=tags
     )
-    
+
     async def adjust_system():
         system_mode = await get_mode_state()
 
