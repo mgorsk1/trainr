@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    networks:
+      - trainr-network
+    env_file:
+      - .env
+    volumes:
+      - trainr-backend-db:/app/db
+    ports:
+      - 8080:8080
+
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    networks:
+      - trainr-network
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+      - 8000:8000
+
+networks:
+  trainr-network:
+
+volumes:
+  trainr-backend-db:
+    driver: local

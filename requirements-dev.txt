@@ -1,0 +1,4 @@
+poetry
+autopep8
+isort
+mypy
