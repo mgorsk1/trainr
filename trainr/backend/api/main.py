@@ -6,6 +6,8 @@ from trainr.backend.api.v1.model.health import HealthApiModel
 from trainr.backend.handler.database.engine import init_db
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
 from trainr.backend.handler.reading.hr import HRReadingHandler
+from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler
+from trainr.utils import ReadingType
 
 app = FastAPI()
 
@@ -16,8 +18,13 @@ app.include_router(v1, prefix='/api')
 @repeat_every(seconds=30 * 60)
 def expire_reading_history() -> None:
     try:
-        HRReadingHandler().remove_history()
-        FTPReadingHandler().remove_history()
+        reading_type = SystemReadingTypeHandler().get_state().setting_value
+        if reading_type == ReadingType.HR:
+            HRReadingHandler().remove_history()
+        elif reading_type == ReadingType.FTP:
+            FTPReadingHandler().remove_history()
+        else:
+            raise NotImplementedError(f'Expiring history for reading type {reading_type} not implemented.')
     except Exception as e:
         print(e.args)
 
