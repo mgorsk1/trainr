@@ -25,7 +25,8 @@ def admin() -> rx.Component:
                                     on_change=State.set_reading_type,
                                 ),
                             ),
-                            header=rx.heading(f'Reading Source {State.reading_type_emoji}', size='md'),
+                            header=rx.heading(
+                                f'Reading Source {State.reading_type_emoji}', size='md'),
                             footer=rx.text(
                                 'Choose which metric should drive you!',
                                 as_='i',
