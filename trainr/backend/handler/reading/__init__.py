@@ -170,8 +170,9 @@ class ReadingHandler(ABC):
 
         try:
             with Session(engine) as session:
-                delete_statement = delete(ReadingHandlerModel).where(
-                    ReadingHandlerModel.time < time_difference)
+                delete_statement = delete(ReadingHandlerModel) \
+                    .where(ReadingHandlerModel.time < time_difference) \
+                    .where(ReadingHandlerModel.reading_type == self.reading_type)
 
                 session.execute(delete_statement)
         except:
