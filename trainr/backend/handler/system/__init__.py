@@ -1,11 +1,13 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from trainr.backend.handler.database.engine import engine
-from trainr.backend.handler.model.system.settings import SystemSettingsHandlerModel
+from trainr.backend.handler.model.system.settings import \
+    SystemSettingsHandlerModel
 from trainr.utils import SystemMode
 
 

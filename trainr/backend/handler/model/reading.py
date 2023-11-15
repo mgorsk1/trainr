@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import String, Integer, DateTime, Column
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String
 
 from trainr.backend.handler.model import Base
 

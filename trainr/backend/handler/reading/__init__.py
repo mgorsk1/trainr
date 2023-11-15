@@ -1,6 +1,9 @@
-from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from typing import List, Optional
+from abc import ABC
+from abc import abstractmethod
+from datetime import datetime
+from datetime import timedelta
+from typing import List
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -8,7 +11,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from trainr.backend.handler.database.engine import engine
-from trainr.backend.handler.model.reading import ReadingZoneHandlerModel, ReadingHandlerModel, ThresholdHandlerModel
+from trainr.backend.handler.model.reading import ReadingHandlerModel
+from trainr.backend.handler.model.reading import ReadingZoneHandlerModel
+from trainr.backend.handler.model.reading import ThresholdHandlerModel
 
 
 class ReadingHandler(ABC):

@@ -1,5 +1,7 @@
+from sqlalchemy import Column
+from sqlalchemy import String
+
 from trainr.backend.handler.model import Base
-from sqlalchemy import String, Column
 
 
 class SystemSettingsHandlerModel(Base):

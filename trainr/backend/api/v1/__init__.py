@@ -1,6 +1,9 @@
 from fastapi import APIRouter
+
+from trainr.backend.api.v1.routers import fan
+from trainr.backend.api.v1.routers import light
 from trainr.backend.api.v1.routers import reading
-from trainr.backend.api.v1.routers import fan, light, system
+from trainr.backend.api.v1.routers import system
 
 v1 = APIRouter(prefix='/v1')
 

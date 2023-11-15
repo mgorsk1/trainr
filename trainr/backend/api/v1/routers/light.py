@@ -2,9 +2,11 @@ import os
 
 from fastapi import APIRouter
 
-from trainr.backend.api.v1.model.light import LightColorInputApiModel, LightStateApiModel
+from trainr.backend.api.v1.model.light import LightColorInputApiModel
+from trainr.backend.api.v1.model.light import LightStateApiModel
 from trainr.backend.handler.light import HueGroup
-from trainr.utils import LightColor, light_name_to_spec_mapping
+from trainr.utils import LightColor
+from trainr.utils import light_name_to_spec_mapping
 
 router = APIRouter(
     prefix='/light',

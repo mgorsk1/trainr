@@ -1,19 +1,25 @@
 from typing import List
 
 from fastapi import APIRouter
-
 from fastapi import BackgroundTasks
-from trainr.backend.api.v1.model.fan import FanSpeedInputApiModel
-from trainr.backend.api.v1.model.reading import ReadingInfoApiModel, ZoneInfoApiModel, ThresholdInfoApiModel, ZoneInputApiModel, \
-    ReadingInputApiModel
-from trainr.backend.api.v1.model.light import LightColorInputApiModel
-from trainr.backend.api.v1.routers.fan import set_fan_speed, turn_fan_off
-from trainr.backend.api.v1.routers.light import set_light_color, turn_light_off
 
-from trainr.backend.handler.reading.hr import HRReadingHandler
+from trainr.backend.api.v1.model.fan import FanSpeedInputApiModel
+from trainr.backend.api.v1.model.light import LightColorInputApiModel
+from trainr.backend.api.v1.model.reading import ReadingInfoApiModel
+from trainr.backend.api.v1.model.reading import ReadingInputApiModel
+from trainr.backend.api.v1.model.reading import ThresholdInfoApiModel
+from trainr.backend.api.v1.model.reading import ZoneInfoApiModel
+from trainr.backend.api.v1.model.reading import ZoneInputApiModel
+from trainr.backend.api.v1.routers.fan import set_fan_speed
+from trainr.backend.api.v1.routers.fan import turn_fan_off
+from trainr.backend.api.v1.routers.light import set_light_color
+from trainr.backend.api.v1.routers.light import turn_light_off
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
+from trainr.backend.handler.reading.hr import HRReadingHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
-from trainr.utils import hr_zone_to_light_spec_mapping, hr_zone_to_fan_speed_mapping, ReadingFunction
+from trainr.utils import ReadingFunction
+from trainr.utils import hr_zone_to_fan_speed_mapping
+from trainr.utils import hr_zone_to_light_spec_mapping
 
 
 def get_router(handler):

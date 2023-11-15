@@ -1,17 +1,17 @@
 import asyncio
 import os
+from typing import List
+from typing import Tuple
 
 import reflex as rx
-
-from typing import List, Tuple
-
 import requests
 
-from trainr.utils import hr_zone_to_light_spec_mapping, SystemMode
+from trainr.utils import SystemMode
+from trainr.utils import hr_zone_to_light_spec_mapping
 
 global api_url
 
-api_url = os.getenv('FRONTEND__API_URL', 'http://localhost:1337/api/v1')
+api_url = os.getenv('FRONTEND__API_URL', 'http://localhost:8080/api/v1')
 
 
 class State(rx.State):

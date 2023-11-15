@@ -1,9 +1,10 @@
-from trainr.frontend.ui.components import nav, heading
-from trainr.frontend.ui.state import State
-
 import reflex as rx
 
-from trainr.utils import fan_speed_name_to_int_mapping, light_name_to_spec_mapping
+from trainr.frontend.ui.components import heading
+from trainr.frontend.ui.components import nav
+from trainr.frontend.ui.state import State
+from trainr.utils import fan_speed_name_to_int_mapping
+from trainr.utils import light_name_to_spec_mapping
 
 
 @rx.page(on_load=State.get_data)

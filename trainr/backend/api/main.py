@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from trainr.backend.handler.database.engine import init_db
 from trainr.backend.api.v1 import v1
 from trainr.backend.api.v1.model.health import HealthApiModel
+from trainr.backend.handler.database.engine import init_db
 
 app = FastAPI()
 

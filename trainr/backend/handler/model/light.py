@@ -1,5 +1,7 @@
-from sqlalchemy import String, Boolean, Column, Integer
-
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
 
 from trainr.backend.handler.model import Base
 

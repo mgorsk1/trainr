@@ -1,22 +1,17 @@
-# Stage 1: init
-FROM python:3.9 as init
+FROM python:3.9
 
-# Pass `--build-arg API_URL=http://app.example.com:8000` during build
-ARG API_URL
-
-# Copy local context to `/app` inside container (see .dockerignore)
 WORKDIR /app/trainr
+
 COPY trainr/backend backend
 COPY trainr/utils.py .
 COPY requirements-backend.txt requirements.txt
 
-# Create virtualenv which will be copied into final container
 ENV VIRTUAL_ENV=/app/trainr/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV PYTHONPATH=$VIRTUAL_ENV:/app
-RUN python3.9 -m venv $VIRTUAL_ENV
 
-# Install app requirements and reflex inside virtualenv
-RUN pip install -r requirements.txt
+RUN python3.9 -m venv $VIRTUAL_ENV && \
+    pip install -r requirements.txt
 
-CMD ["uvicorn", "trainr.backend.api.main:app", "--host", "0.0.0.0", "--port", "1337"]
+CMD ["uvicorn", "trainr.backend.api.main:app", "--host", "0.0.0.0", "--port", "8080"]
+

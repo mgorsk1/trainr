@@ -1,7 +1,9 @@
 from fastapi import APIRouter
 
-from trainr.backend.api.v1.model.system import SystemSettingInfoApiModel, SystemSettingInputApiModel
-from trainr.backend.handler.model.system.settings import SystemSettingsHandlerModel
+from trainr.backend.api.v1.model.system import SystemSettingInfoApiModel
+from trainr.backend.api.v1.model.system import SystemSettingInputApiModel
+from trainr.backend.handler.model.system.settings import \
+    SystemSettingsHandlerModel
 from trainr.backend.handler.system.last_seconds import SystemLastSecondsHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
 from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler

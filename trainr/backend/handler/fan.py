@@ -2,13 +2,13 @@ import json
 from functools import wraps
 
 import tinytuya
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+
 from trainr.backend.handler.database.engine import engine
 from trainr.backend.handler.model.fan import FanStateHandlerModel
 from trainr.utils import fan_speed_to_display_name_mapping
-
-from sqlalchemy import select
 
 
 def update_fan_state(f):

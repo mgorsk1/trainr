@@ -13,9 +13,7 @@ services:
     volumes:
       - trainr-backend-db:/app/db
     ports:
-      - 2337:1337
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 8080:8080
 
   frontend:
     container_name: frontend

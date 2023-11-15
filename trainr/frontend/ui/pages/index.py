@@ -1,6 +1,7 @@
 import reflex as rx
 
-from trainr.frontend.ui.components import nav, heading
+from trainr.frontend.ui.components import heading
+from trainr.frontend.ui.components import nav
 from trainr.frontend.ui.state import State
 
 
