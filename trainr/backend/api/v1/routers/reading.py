@@ -10,9 +10,9 @@ from trainr.backend.api.v1.model.light import LightColorInputApiModel
 from trainr.backend.api.v1.routers.fan import set_fan_speed, turn_fan_off
 from trainr.backend.api.v1.routers.light import set_light_color, turn_light_off
 
-from trainr.backend.api.v1.routers.system import mode_router
 from trainr.backend.handler.reading.hr import HRReadingHandler
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
+from trainr.backend.handler.system.mode import SystemModeHandler
 from trainr.utils import hr_zone_to_light_spec_mapping, hr_zone_to_fan_speed_mapping, ReadingFunction
 
 
@@ -25,9 +25,9 @@ def get_router(handler):
     )
 
     async def adjust_system():
-        system_mode = await mode_router.get_mode_state()
+        system_mode = SystemModeHandler().get_state().setting_value
 
-        system_on = system_mode.system_mode == 'AUTO'
+        system_on = system_mode == 'AUTO'
 
         history = await get_reading_history()
 
