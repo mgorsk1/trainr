@@ -23,11 +23,15 @@ def admin() -> rx.Component:
                                     ['HR', 'FTP'],
                                     value=State.system_reading_type,
                                     on_change=State.set_reading_type,
-                                )
+                                ),
                             ),
-                            header=rx.heading('Reading Source', size='md'),
-                            footer=rx.text('Choose which metric should drive you!', as_='i', font_size='0.4em',
-                                           padding_top='18px')
+                            header=rx.heading(f'Reading Source {State.reading_type_emoji}', size='md'),
+                            footer=rx.text(
+                                'Choose which metric should drive you!',
+                                as_='i',
+                                font_size='0.4em',
+                                padding_top='18px'
+                            )
                         ),
                             width='10em',
                         ), rx.box(
@@ -40,9 +44,15 @@ def admin() -> rx.Component:
                                     )
                                 ),
                                 header=rx.heading(
-                                    f'Threshold {State.system_reading_type.upper()}', size='md'),
-                                footer=rx.text('Zones will be calculated based on this value.', as_='i',
-                                               font_size='0.4em', padding_top='10px')
+                                    f'Threshold {State.system_reading_type.upper()}',
+                                    size='md'
+                                ),
+                                footer=rx.text(
+                                    'Zones will be calculated based on this value.',
+                                    as_='i',
+                                    font_size='0.4em',
+                                    padding_top='10px'
+                                )
                             ),
                             width='10em',
                         ),
@@ -70,13 +80,18 @@ def admin() -> rx.Component:
                                         margin_top='20px'
                                     ),
                                     rx.badge(
-                                        State.system_last_seconds, variant='solid', color_scheme='blue',
+                                        State.system_last_seconds,
+                                        variant='solid',
+                                        color_scheme='blue',
                                     )
                                 ),
                                 header=rx.heading('Last Seconds', size='md'),
-                                footer=rx.text('Time period for which readings are collected.',
-                                               as_='i',
-                                               font_size='0.4em', padding_top='10px')
+                                footer=rx.text(
+                                    'Time period for which readings are collected.',
+                                    as_='i',
+                                    font_size='0.4em',
+                                    padding_top='10px'
+                                )
                             ),
                             width='10em',
                             height='10em'
@@ -85,61 +100,71 @@ def admin() -> rx.Component:
                         spacing='4'
                     ),
                     col_span=4,
-                    row_span=1),
+                    row_span=1
+                ),
                 rx.grid_item(
                     rx.vstack(
                         rx.switch(
                             is_checked=State.system_mode_auto,
-                            on_change=State.toggle_system_mode,
+                            on_change=State.toggle_system_mode
                         ),
                         rx.text(
                             f'SYSTEM MODE: {State.system_mode}', font_size='0.35em'
                         ),
                     ),
                     col_span=1,
-                    row_span=1,),
-                rx.cond(
-                    State.system_mode_manual,
-                    rx.grid_item(
-                        rx.responsive_grid(
-                            rx.box(
-                                rx.card(
-                                    rx.select(
-                                        list(fan_speed_name_to_int_mapping.keys()),
-                                        value=State.fan_speed_display_name,
-                                        on_change=State.set_fan_speed
-                                    ),
-                                    header=rx.heading(
-                                        'Fan Settings', size='md'),
-                                    footer=rx.switch(
-                                        is_checked=State.fan_on,
-                                        on_change=State.toggle_fan,
-                                        padding_top='17px'
-                                    ),
-                                )
+                    row_span=1
+                ),
+                rx.grid_item(
+                    rx.responsive_grid(
+                        rx.box(
+                            rx.card(
+                                rx.select(
+                                    list(fan_speed_name_to_int_mapping.keys()),
+                                    value=State.fan_speed_display_name,
+                                    on_change=State.set_fan_speed,
+                                    is_disabled=State.system_mode_auto
+                                ),
+                                header=rx.heading(
+                                    'Fan Settings',
+                                    size='md',
+                                    color=State.system_mode_header_color
+                                ),
+                                footer=rx.switch(
+                                    is_checked=State.fan_on,
+                                    on_change=State.toggle_fan,
+                                    padding_top='17px',
+                                    is_disabled=State.system_mode_auto
+                                ),
                             ),
-                            rx.box(
-                                rx.card(
-                                    rx.select(
-                                        list(light_name_to_spec_mapping.keys()),
-                                        value=State.light_color_caption,
-                                        on_change=State.set_light_color,
-                                    ),
-                                    header=rx.heading(
-                                        'Light Settings', size='md'),
-                                    footer=rx.switch(
-                                        is_checked=State.light_on,
-                                        on_change=State.toggle_light,
-                                        padding_top='17px'
-                                    )
-                                )
-                            ),
-                            columns=[3],
-                            spacing='4'
+                            width='10em'
                         ),
-                        col_span=4,
-                        row_span=1
+                        rx.box(
+                            rx.card(
+                                rx.select(
+                                    list(light_name_to_spec_mapping.keys()),
+                                    value=State.light_color_caption,
+                                    on_change=State.set_light_color,
+                                    is_disabled=State.system_mode_auto
+                                ),
+                                header=rx.heading(
+                                    'Light Settings',
+                                    size='md',
+                                    color=State.system_mode_header_color
+                                ),
+                                footer=rx.switch(
+                                    is_checked=State.light_on,
+                                    on_change=State.toggle_light,
+                                    padding_top='17px',
+                                    is_disabled=State.system_mode_auto
+                                )
+                            ),
+                        ),
+                        columns=[3],
+                        spacing='4'
                     ),
+                    col_span=4,
+                    row_span=1
                 ),
                 template_columns="repeat(9, 1fr)",
             ),
