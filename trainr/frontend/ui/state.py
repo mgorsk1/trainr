@@ -40,6 +40,10 @@ class State(rx.State):
     def system_mode_manual(self) -> bool:
         return not self.system_mode_auto
 
+    @rx.var
+    def system_mode_header_color(self) -> str:
+        return 'gray' if self.system_mode_auto else 'black'
+
     def toggle_system_mode(self, mode_auto: bool):
         if not mode_auto:
             payload = {'setting_value': SystemMode.MANUAL}
@@ -80,7 +84,7 @@ class State(rx.State):
 
     @rx.var
     def reading_type_display_name(self):
-        return f'{self.system_reading_type.upper()} {self.reading_type_emoji}'
+        return f'{self.system_reading_type.upper()} {self.reading_type_emoji_active}'
 
     @rx.var
     def reading_zone_spec(self):
@@ -115,7 +119,11 @@ class State(rx.State):
             'FTP': '⚡'
         }
 
-        return map.get(self.system_reading_type.upper(), 'N/A') if self.reading_value > 0 else ''
+        return map.get(self.system_reading_type.upper(), 'N/A')
+
+    @rx.var
+    def reading_type_emoji_active(self):
+        return self.reading_type_emoji if self.reading_value > 0 else ''
 
     @rx.var
     def reading_percent(self) -> int:
@@ -126,6 +134,8 @@ class State(rx.State):
 
     def set_threshold(self, threshold: int):
         self.reading_threshold = threshold
+
+        self.calculate_zones()
 
     def calculate_zones(self):
         requests.put(f'{api_url}/{self.system_reading_type.lower()}/threshold',
