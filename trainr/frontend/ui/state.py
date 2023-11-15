@@ -127,6 +127,8 @@ class State(rx.State):
     def set_threshold(self, threshold: int):
         self.reading_threshold = threshold
 
+        self.calculate_zones()
+
     def calculate_zones(self):
         requests.put(f'{api_url}/{self.system_reading_type.lower()}/threshold',
                      json={'threshold': self.reading_threshold})

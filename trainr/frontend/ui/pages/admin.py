@@ -14,96 +14,134 @@ def admin() -> rx.Component:
         rx.vstack(
             heading(),
             nav(),
-            rx.vstack(
-                rx.vstack(
-                    rx.heading('Reading Settings', size='md'),
-                    rx.select(
-                        ['HR', 'FTP'],
-                        value=State.system_reading_type,
-                        on_change=State.set_reading_type,
+            rx.grid(
+                rx.grid_item(
+                    rx.responsive_grid(
+                        rx.box(rx.card(
+                            rx.card_body(
+                                rx.select(
+                                    ['HR', 'FTP'],
+                                    value=State.system_reading_type,
+                                    on_change=State.set_reading_type,
+                                )
+                            ),
+                            header=rx.heading('Reading Source', size='md'),
+                            footer=rx.text('Choose which metric should drive you!', as_='i', font_size='0.4em',
+                                           padding_top='18px')
+                        ),
+                            width='10em',
+                        ), rx.box(
+                            rx.card(
+                                rx.card_body(
+                                    rx.number_input(
+                                        value=State.reading_threshold,
+                                        on_change=State.set_threshold,
+                                        padding_top='10px',
+                                    )
+                                ),
+                                header=rx.heading(
+                                    f'Threshold {State.system_reading_type.upper()}', size='md'),
+                                footer=rx.text('Zones will be calculated based on this value.', as_='i',
+                                               font_size='0.4em', padding_top='10px')
+                            ),
+                            width='10em',
+                        ),
+                        rx.box(
+                            rx.card(
+                                rx.table(
+                                    headers=['Zone', 'From', 'To'],
+                                    rows=State.reading_zones,
+                                    variant='striped',
+                                    font_size='0.5em',
+                                    size='sm'
+                                ),
+                            ),
+                            width='10em',
+                        ),
+                        rx.box(
+                            rx.card(
+                                rx.vstack(
+                                    rx.slider(
+                                        value=State.system_last_seconds,
+                                        min_=5,
+                                        max_=60,
+                                        step=5,
+                                        on_change=State.set_last_seconds,
+                                        margin_top='20px'
+                                    ),
+                                    rx.badge(
+                                        State.system_last_seconds, variant='solid', color_scheme='blue',
+                                    )
+                                ),
+                                header=rx.heading('Last Seconds', size='md'),
+                                footer=rx.text('Time period for which readings are collected.',
+                                               as_='i',
+                                               font_size='0.4em', padding_top='10px')
+                            ),
+                            width='10em',
+                            height='10em'
+                        ),
+                        columns=[3],
+                        spacing='4'
                     ),
-                    rx.heading(
-                        f'Threshold {State.system_reading_type.upper()}', size='md'),
-                    rx.number_input(
-                        value=State.reading_threshold,
-                        on_change=State.set_threshold
+                    col_span=4,
+                    row_span=1),
+                rx.grid_item(
+                    rx.vstack(
+                        rx.switch(
+                            is_checked=State.system_mode_auto,
+                            on_change=State.toggle_system_mode,
+                        ),
+                        rx.text(
+                            f'SYSTEM MODE: {State.system_mode}', font_size='0.35em'
+                        ),
                     ),
-                    rx.button(
-                        'Calculate Zones', on_click=State.calculate_zones, color_scheme='blue')
-                ),
-                rx.table(
-                    headers=['Zone', 'From', 'To'],
-                    rows=State.reading_zones,
-                    variant='striped'
-                ),
-                rx.divider(),
-                rx.slider(
-                    value=State.system_last_seconds,
-                    min_=5,
-                    max_=60,
-                    step=5,
-                    on_change=State.set_last_seconds,
-                    padding_top='5%'
-                ),
-                rx.heading(
-                    f'Last Seconds: {State.system_last_seconds}', size='md'),
-                border_radius='md',
-                width='15%',
-                font_size='0.5em'
-
-            ),
-            rx.divider(),
-            rx.vstack(
-                rx.switch(
-                    is_checked=State.system_mode_auto,
-                    on_change=State.toggle_system_mode
-                ),
-                rx.text(
-                    f'SYSTEM MODE: {State.system_mode}', font_size='0.35em')
-            ),
-            rx.cond(
-                State.system_mode_manual,
-                rx.vstack(
-                    rx.divider(),
-                    rx.heading('Fan settings', size='md'),
-                    rx.hstack(
-                        rx.vstack(
-                            rx.heading('Fan', size='sm'),
-                            rx.switch(
-                                is_checked=State.fan_on,
-                                on_change=State.toggle_fan
+                    col_span=1,
+                    row_span=1,),
+                rx.cond(
+                    State.system_mode_manual,
+                    rx.grid_item(
+                        rx.responsive_grid(
+                            rx.box(
+                                rx.card(
+                                    rx.select(
+                                        list(fan_speed_name_to_int_mapping.keys()),
+                                        value=State.fan_speed_display_name,
+                                        on_change=State.set_fan_speed
+                                    ),
+                                    header=rx.heading(
+                                        'Fan Settings', size='md'),
+                                    footer=rx.switch(
+                                        is_checked=State.fan_on,
+                                        on_change=State.toggle_fan,
+                                        padding_top='17px'
+                                    ),
+                                )
                             ),
-                        ),
-                        rx.vstack(
-                            rx.heading('Fan Speed', size='sm'),
-                            rx.select(
-                                list(fan_speed_name_to_int_mapping.keys()),
-                                value=State.fan_speed_display_name,
-                                on_change=State.set_fan_speed
+                            rx.box(
+                                rx.card(
+                                    rx.select(
+                                        list(light_name_to_spec_mapping.keys()),
+                                        value=State.light_color_caption,
+                                        on_change=State.set_light_color,
+                                    ),
+                                    header=rx.heading(
+                                        'Light Settings', size='md'),
+                                    footer=rx.switch(
+                                        is_checked=State.light_on,
+                                        on_change=State.toggle_light,
+                                        padding_top='17px'
+                                    )
+                                )
                             ),
+                            columns=[3],
+                            spacing='4'
                         ),
-                        spacing='1.5em'),
-                    rx.divider(),
-                    rx.heading('Light settings', size='md'),
-                    rx.hstack(
-                        rx.vstack(
-                            rx.heading('Lights', size='sm'),
-                            rx.switch(
-                                is_checked=State.light_on,
-                                on_change=State.toggle_light
-                            )
-                        ),
-                        rx.vstack(
-                            rx.heading('Light Color', size='sm'),
-                            rx.select(
-                                list(light_name_to_spec_mapping.keys()),
-                                value=State.light_color_caption,
-                                on_change=State.set_light_color
-                            ),
-                        ),
-                        spacing='1.5em',
-                        width='100%'),
-                )
+                        col_span=4,
+                        row_span=1
+                    ),
+                ),
+                template_columns="repeat(9, 1fr)",
             ),
             spacing='1.5em',
             font_size='2em',
