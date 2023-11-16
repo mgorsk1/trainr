@@ -28,9 +28,25 @@ services:
       - 3000:3000
       - 8000:8000
 
+  postgresql:
+    image: postgres
+    restart: always
+    networks:
+      - trainr-network
+    environment:
+      POSTGRES_USER: trainr_user
+      POSTGRES_PASSWORD: trainr_password
+      POSTGRES_DB: trainr
+    volumes:
+      - trainr-postgresql-db:/var/lib/postgresql
+    ports:
+      - 5432:5432
+
 networks:
   trainr-network:
 
 volumes:
   trainr-backend-db:
+    driver: local
+  trainr-postgresql-db:
     driver: local
