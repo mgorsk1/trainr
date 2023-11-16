@@ -35,5 +35,5 @@ class ReadingHandlerModel(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     time = Column(DateTime, default=datetime.now())
-    reading_type = Column(Integer, nullable=False)
+    reading_type = Column(String, nullable=False)
     reading_value = Column(Integer, nullable=False)
