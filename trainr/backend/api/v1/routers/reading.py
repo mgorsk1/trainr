@@ -32,6 +32,7 @@ def get_router(handler):
         system_on = SystemModeHandler().get_state().setting_value == 'AUTO'
 
         reading_avg = await get_current_reading(seconds=10, function=ReadingFunction.AVG)
+        reading_avg = reading_avg.reading
 
         if system_on and reading_avg > 0:
             zone = await get_zones(hr=reading_avg)
