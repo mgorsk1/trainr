@@ -158,7 +158,7 @@ def admin() -> rx.Component:
                                     on_change=State.toggle_light,
                                     padding_top='17px',
                                     is_disabled=State.system_mode_auto,
-                                    color_scheme=State.light_color.lower()
+                                    color_scheme=State.light_color_class,
                                 )
                             ),
                         ),

@@ -7,6 +7,7 @@ import reflex as rx
 import requests
 
 from trainr.utils import SystemMode
+from trainr.utils import ftp_zone_to_light_spec_mapping
 from trainr.utils import hr_zone_to_light_spec_mapping
 
 global api_url
@@ -55,7 +56,7 @@ class State(rx.State):
 
     def set_reading_type(self, system_reading_type: str):
         result = requests.put(f'{api_url}/system/reading_type',
-                              json={'setting_value': system_reading_type.lower()})
+                              json={'setting_value': system_reading_type})
 
         self.system_reading_type = result.json().get('setting_value', 'N/A').upper()
 
@@ -106,11 +107,15 @@ class State(rx.State):
 
     @rx.var
     def reading_zone_color(self) -> str:
-        if self.system_reading_type.lower() == 'hr':
-            if result := hr_zone_to_light_spec_mapping.get(self.reading_zone):
-                return result.name
-            else:
-                return 'N/A'
+        if self.system_reading_type == 'HR':
+            reading_zone_to_light_spec_mapping = hr_zone_to_light_spec_mapping
+        else:
+            reading_zone_to_light_spec_mapping = ftp_zone_to_light_spec_mapping
+
+        if result := reading_zone_to_light_spec_mapping.get(self.reading_zone):
+            return result.name
+        else:
+            return 'N/A'
 
     @rx.var
     def reading_type_emoji(self):
@@ -209,6 +214,20 @@ class State(rx.State):
                          json=dict(color_name=light_color))
 
             self.light_color = light_color
+
+    @rx.var
+    def light_color_class(self):
+        map = {
+            'NAVY': 'facebook',
+            'BLUE': 'twitter',
+            'GREEN': 'whatsapp',
+            'RED': 'red',
+            'YELLOW': 'yellow',
+            'WHITE': 'gray',
+            'ORANGE': 'orange',
+        }
+
+        return map.get(self.light_color, 'gray')
 
     def refresh_light_state(self):
         light_state = requests.get(f'{api_url}/light').json()
