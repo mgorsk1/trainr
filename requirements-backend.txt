@@ -1,5 +1,7 @@
 tinytuya
 huesdk
 fastapi
+fastapi-utils
 uvicorn
 sqlalchemy<2.0.0
+pg8000

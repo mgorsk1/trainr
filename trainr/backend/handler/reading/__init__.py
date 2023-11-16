@@ -5,6 +5,7 @@ from datetime import timedelta
 from typing import List
 from typing import Optional
 
+from sqlalchemy import delete
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -163,6 +164,20 @@ class ReadingHandler(ABC):
                 return session.scalars(query_statement).one()
         except NoResultFound:
             return None
+
+    def remove_history(self, seconds: int = 60 * 60):
+        time_difference = datetime.now() - timedelta(seconds=seconds)
+
+        try:
+            with Session(engine) as session:
+                delete_statement = delete(ReadingHandlerModel) \
+                    .where(ReadingHandlerModel.time < time_difference) \
+                    .where(ReadingHandlerModel.reading_type == self.reading_type)
+
+                session.execute(delete_statement)
+                session.commit()
+        except:
+            pass
 
     @property
     # @todo specify per reading type

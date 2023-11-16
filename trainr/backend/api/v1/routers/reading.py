@@ -11,11 +11,10 @@ from trainr.backend.api.v1.model.reading import ThresholdInfoApiModel
 from trainr.backend.api.v1.model.reading import ZoneInfoApiModel
 from trainr.backend.api.v1.model.reading import ZoneInputApiModel
 from trainr.backend.api.v1.routers.fan import set_fan_speed
-from trainr.backend.api.v1.routers.fan import turn_fan_off
 from trainr.backend.api.v1.routers.light import set_light_color
-from trainr.backend.api.v1.routers.light import turn_light_off
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
 from trainr.backend.handler.reading.hr import HRReadingHandler
+from trainr.backend.handler.system.last_seconds import SystemLastSecondsHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
 from trainr.utils import ReadingFunction
 from trainr.utils import hr_zone_to_fan_speed_mapping
@@ -31,27 +30,22 @@ def get_router(handler):
     )
 
     async def adjust_system():
-        system_mode = SystemModeHandler().get_state().setting_value
+        system_on = SystemModeHandler().get_state().setting_value == 'AUTO'
+        last_seconds = SystemLastSecondsHandler().get_state().setting_value
 
-        system_on = system_mode == 'AUTO'
+        reading_avg = await get_current_reading(seconds=int(last_seconds), function=ReadingFunction.AVG)
+        reading_avg = reading_avg.reading
 
-        history = await get_reading_history()
+        if system_on and reading_avg > 0:
+            zone = await get_zones(hr=reading_avg)
+            zone = zone[0].zone if zone else None
 
-        if system_on and history:
-            reading_avg = int(sum([r.reading for r in history]) / len(history))
-
-            if reading_avg > 0:
-                zone = await get_zones(hr=reading_avg)
-                zone = zone[0].zone
-
+            if zone:
                 if light_color := hr_zone_to_light_spec_mapping.get(zone):
                     await set_light_color(LightColorInputApiModel(color_name=light_color.name.upper()))
 
                 if fan_speed := hr_zone_to_fan_speed_mapping.get(zone):
                     await set_fan_speed(FanSpeedInputApiModel(fan_speed=fan_speed))
-            else:
-                await turn_fan_off()
-                await turn_light_off()
 
     @router.get('/', tags=tags, response_model=ReadingInfoApiModel)
     async def get_current_reading(seconds: int = 10, function: ReadingFunction = ReadingFunction.LAST):
