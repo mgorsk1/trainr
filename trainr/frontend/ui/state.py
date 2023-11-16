@@ -247,9 +247,9 @@ class State(rx.State):
     async def collect_readings(self):
         while True:
             async with self:
-                # @todo this should take into account last 15 seconds not all history
                 self.reading_value = requests.get(
-                    f'{api_url}/{self.system_reading_type.lower()}', params=dict(seconds=self.system_last_seconds)).json()['reading']
+                    f'{api_url}/{self.system_reading_type.lower()}',
+                    params=dict(seconds=self.system_last_seconds)).json()['reading']
 
                 self.refresh_fan_state()
                 self.refresh_light_state()
