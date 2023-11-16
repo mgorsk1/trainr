@@ -14,6 +14,7 @@ from trainr.backend.api.v1.routers.fan import set_fan_speed
 from trainr.backend.api.v1.routers.light import set_light_color
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
 from trainr.backend.handler.reading.hr import HRReadingHandler
+from trainr.backend.handler.system.last_seconds import SystemLastSecondsHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
 from trainr.utils import ReadingFunction
 from trainr.utils import hr_zone_to_fan_speed_mapping
@@ -30,8 +31,9 @@ def get_router(handler):
 
     async def adjust_system():
         system_on = SystemModeHandler().get_state().setting_value == 'AUTO'
+        last_seconds = SystemLastSecondsHandler().get_state().setting_value
 
-        reading_avg = await get_current_reading(seconds=10, function=ReadingFunction.AVG)
+        reading_avg = await get_current_reading(seconds=int(last_seconds), function=ReadingFunction.AVG)
         reading_avg = reading_avg.reading
 
         if system_on and reading_avg > 0:
