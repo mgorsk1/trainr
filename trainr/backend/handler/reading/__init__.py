@@ -175,6 +175,7 @@ class ReadingHandler(ABC):
                     .where(ReadingHandlerModel.reading_type == self.reading_type)
 
                 session.execute(delete_statement)
+                session.commit()
         except:
             pass
 
