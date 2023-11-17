@@ -16,7 +16,11 @@ from trainr.backend.handler.reading.ftp import FTPReadingHandler
 from trainr.backend.handler.reading.hr import HRReadingHandler
 from trainr.backend.handler.system.last_seconds import SystemLastSecondsHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
+from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler
 from trainr.utils import ReadingFunction
+from trainr.utils import ReadingType
+from trainr.utils import ftp_zone_to_fan_speed_mapping
+from trainr.utils import ftp_zone_to_light_spec_mapping
 from trainr.utils import hr_zone_to_fan_speed_mapping
 from trainr.utils import hr_zone_to_light_spec_mapping
 
@@ -36,15 +40,25 @@ def get_router(handler):
         reading_avg = await get_current_reading(seconds=int(last_seconds), function=ReadingFunction.AVG)
         reading_avg = reading_avg.reading
 
+        reading_type = SystemReadingTypeHandler().get_state().setting_value
+
+        zone_to_light_spec_mapping = hr_zone_to_light_spec_mapping \
+            if reading_type == ReadingType.HR \
+            else ftp_zone_to_light_spec_mapping
+
+        zone_to_fan_spec_mapping = hr_zone_to_fan_speed_mapping \
+            if reading_type == ReadingType.HR \
+            else ftp_zone_to_fan_speed_mapping
+
         if system_on and reading_avg > 0:
             zone = await get_zones(hr=reading_avg)
             zone = zone[0].zone if zone else None
 
             if zone:
-                if light_color := hr_zone_to_light_spec_mapping.get(zone):
+                if light_color := zone_to_light_spec_mapping.get(zone):
                     await set_light_color(LightColorInputApiModel(color_name=light_color.name.upper()))
 
-                if fan_speed := hr_zone_to_fan_speed_mapping.get(zone):
+                if fan_speed := zone_to_fan_spec_mapping.get(zone):
                     await set_fan_speed(FanSpeedInputApiModel(fan_speed=fan_speed))
 
     @router.get('/', tags=tags, response_model=ReadingInfoApiModel)

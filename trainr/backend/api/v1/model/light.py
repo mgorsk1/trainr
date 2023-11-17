@@ -15,9 +15,11 @@ class LightColorInputApiModel:
 
 
 class Color(str, Enum):
-    GRAY = 'GRAY'
+    WHITE = 'WHITE'
+    NAVY = 'NAVY'
     BLUE = 'BLUE'
     GREEN = 'GREEN'
     YELLOW = 'YELLOW'
     ORANGE = 'ORANGE'
     RED = 'RED'
+
