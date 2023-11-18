@@ -5,6 +5,7 @@ from typing import Tuple
 
 import reflex as rx
 import requests
+from requests.exceptions import ConnectionError
 
 from trainr.utils import SystemMode
 from trainr.utils import ftp_zone_to_light_spec_mapping
@@ -19,6 +20,7 @@ class State(rx.State):
     system_mode: str
     system_reading_type: str
     system_last_seconds: int
+    system_backend_healthy: bool
 
     reading_value: int = 0
     reading_threshold: int
@@ -72,20 +74,39 @@ class State(rx.State):
         self.refresh_system_state()
 
     def refresh_system_state(self):
-        self.system_mode = requests.get(
-            f'{api_url}/system/mode/').json().get('setting_value', 'N/A')
+        try:
+            self.system_mode = requests.get(
+                f'{api_url}/system/mode/').json().get('setting_value', 'N/A')
+        except:
+            self.system_mode = SystemMode.MANUAL
 
-        self.system_reading_type = requests.get(
-            f'{api_url}/system/reading_type/').json().get('setting_value', 'N/A').upper()
+        try:
+            self.system_reading_type = requests.get(
+                f'{api_url}/system/reading_type/').json().get('setting_value', 'N/A').upper()
+        except:
+            self.system_reading_type = 'unknown'
 
-        self.system_last_seconds = int(requests.get(
-            f'{api_url}/system/last_seconds/').json().get('setting_value', 60))
+        try:
+            self.system_last_seconds = int(requests.get(
+                f'{api_url}/system/last_seconds/').json().get('setting_value', 60))
+        except:
+            self.system_last_seconds = 0
+
+        self.refresh_backend_health()
+
+    def refresh_backend_health(self):
+        try:
+            backend_healthy = requests.get(f'{api_url}/health').json()['healthy']
+        except (ConnectionError, KeyError):
+            backend_healthy = False
+
+        self.system_backend_healthy = backend_healthy
 
     # Reading ----------------------------------------------------------------------------------------------------------
 
     @rx.var
     def reading_type_display_name(self):
-        return f'{self.system_reading_type.upper()} {self.reading_type_emoji_active}'
+        return f'{self.system_reading_type} {self.reading_type_emoji_active}'
 
     @rx.var
     def reading_zone_spec(self):
@@ -94,7 +115,7 @@ class State(rx.State):
                 requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones',
                              params=dict(hr=self.reading_value)).json()[
                     0]
-        except (KeyError, IndexError):
+        except (AttributeError, KeyError, IndexError, ConnectionError):
             return {'zone': -1, 'display_name': 'Zone Unknown'}
 
     @rx.var
@@ -146,17 +167,20 @@ class State(rx.State):
         requests.put(f'{api_url}/{self.system_reading_type.lower()}/threshold',
                      json={'threshold': self.reading_threshold})
 
-        self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
-                              requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
-
-    def refresh_reading_state(self):
-        self.reading_threshold = requests.get(f'{api_url}/{self.system_reading_type.lower()}/threshold').json().get(
-            'threshold', 0)
-
         try:
             self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
-        except AttributeError:
+        except (AttributeError, ConnectionError):
+            self.reading_zones = []
+
+    def refresh_reading_state(self):
+        try:
+            self.reading_threshold = requests.get(f'{api_url}/{self.system_reading_type.lower()}/threshold').json().get(
+                'threshold', 0)
+
+            self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
+                                  requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
+        except (AttributeError, ConnectionError):
             self.reading_zones = []
 
     # Fan --------------------------------------------------------------------------------------------------------------
@@ -184,7 +208,10 @@ class State(rx.State):
             self.fan_speed_display_name = fan_speed_display_name
 
     def refresh_fan_state(self):
-        fan_state = requests.get(f'{api_url}/fan').json()
+        try:
+            fan_state = requests.get(f'{api_url}/fan').json()
+        except ConnectionError:
+            fan_state = {}
 
         self.fan_on = fan_state.get('is_on')
         self.fan_speed = fan_state.get('speed', 0)
@@ -230,9 +257,12 @@ class State(rx.State):
         return map.get(self.light_color, 'gray')
 
     def refresh_light_state(self):
-        light_state = requests.get(f'{api_url}/light').json()
+        try:
+            light_state = requests.get(f'{api_url}/light').json()
+        except ConnectionError:
+            light_state = {}
 
-        self.light_on = light_state.get('is_on')
+        self.light_on = light_state.get('is_on', False)
         self.light_color = light_state.get('display_name', 'N/A')
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -247,11 +277,15 @@ class State(rx.State):
     async def collect_readings(self):
         while True:
             async with self:
-                self.reading_value = requests.get(
-                    f'{api_url}/{self.system_reading_type.lower()}',
-                    params=dict(seconds=self.system_last_seconds)).json()['reading']
+                try:
+                    self.reading_value = requests.get(
+                        f'{api_url}/{self.system_reading_type.lower()}',
+                        params=dict(seconds=self.system_last_seconds)).json()['reading']
+                except (ConnectionError, KeyError):
+                    self.reading_value = 0
 
                 self.refresh_fan_state()
                 self.refresh_light_state()
+                self.refresh_backend_health()
 
             await asyncio.sleep(5)

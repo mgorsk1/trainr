@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 
 from trainr.backend.api.v1 import v1
-from trainr.backend.api.v1.model.health import HealthApiModel
 from trainr.backend.api.v1.routers.fan import turn_fan_off
 from trainr.backend.api.v1.routers.light import turn_light_off
 from trainr.backend.handler.database.engine import init_db
@@ -56,8 +55,3 @@ def expire_reading_history() -> None:
 @app.on_event('startup')
 async def init():
     init_db()
-
-
-@app.get('/', response_model=HealthApiModel)
-async def root():
-    return HealthApiModel(healthy=True)

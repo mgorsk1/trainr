@@ -117,9 +117,9 @@ class ReadingHandler(ABC):
 
     def set_reading_zone(self, spec: ReadingZoneHandlerModel) -> ReadingZoneHandlerModel:
         if data := self.get_reading_zone(spec.zone):
-            data.zone = spec.zone
             data.range_from = spec.range_from
             data.range_to = spec.range_to
+            data.display_name = spec.display_name
         else:
             data = spec
 
@@ -137,6 +137,8 @@ class ReadingHandler(ABC):
             try:
                 f = int(int(self.threshold) * z.range_from / 100)
                 n = int(int(self.threshold) * z.range_to / 100)
+
+                print(z.__dict__)
 
                 self.set_reading_zone(ReadingZoneHandlerModel(
                     zone=z.zone,
