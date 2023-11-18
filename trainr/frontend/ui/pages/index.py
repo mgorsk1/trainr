@@ -7,6 +7,7 @@ from trainr.frontend.ui.state import State
 @rx.page(on_load=[State.get_data, State.collect_readings])
 def index() -> rx.Component:
     return rx.fragment(
+        rx.color_mode_button(rx.color_mode_icon(), float='right'),
         rx.grid(
             rx.grid_item(
                 heading(),

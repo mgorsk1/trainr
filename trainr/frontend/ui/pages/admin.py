@@ -10,6 +10,7 @@ from trainr.utils import light_name_to_spec_mapping
 @rx.page(on_load=State.get_data)
 def admin() -> rx.Component:
     return rx.fragment(
+        rx.color_mode_button(rx.color_mode_icon(), float='right'),
         rx.grid(
             rx.grid_item(
                 heading(),
