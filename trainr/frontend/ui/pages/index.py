@@ -66,34 +66,4 @@ def index() -> rx.Component:
             gap=1,
             font_size='2em'
         ),
-        # rx.vstack(
-        #
-        #     rx.grid(
-        #
-        #     ),
-        #     # rx.grid(
-        #     #     rx.grid_item(
-        #     #         rx.box(),
-        #     #         col_span=4,
-        #     #         row_span=1,
-        #     #         maring_left='10%'
-        #     #     ),
-        #     #     rx.grid_item(
-        #     #         rx.responsive_grid(
-        #     #
-        #     #         col_span=2,
-        #     #         row_span=1
-        #     #     ),
-        #     #     rx.grid_item(
-        #     #         rx.box(),
-        #     #         col_span=4,
-        #     #         row_span=1
-        #     #     ),
-        #     #     template_columns="repeat(10, 1fr)",
-        #     # ),
-        #     spacing='1.5em',
-        #     font_size='2em',
-        #     padding_top='5%',
-        #     width='100%'
-        # )
     )
