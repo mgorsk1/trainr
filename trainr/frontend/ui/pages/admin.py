@@ -15,7 +15,7 @@ def admin() -> rx.Component:
             rx.grid_item(
                 heading(),
                 row_span=2,
-                col_span=20,
+                col_span=19,
                 padding_top='4%',
                 padding_bottom='1%'
             ),
@@ -115,7 +115,7 @@ def admin() -> rx.Component:
                     )
                 ),
                 row_span=8,
-                col_span=4,
+                col_span=3,
             ),
             rx.grid_item(
                 rx.responsive_grid(
@@ -170,7 +170,7 @@ def admin() -> rx.Component:
                 row_span=8,
                 col_span=1
             ),
-            template_columns='repeat(20, 1fr)',
+            template_columns='repeat(19, 1fr)',
             template_rows='repeat(10, 1fr)',
             width='100%',
             gap=1,
