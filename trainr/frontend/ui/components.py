@@ -35,7 +35,6 @@ def backend_health() -> rx.Component:
                 font_size='0.5em'
             ),
             status='error',
-            variant='solid',
             margin_bottom='5%',
         ),
     )
