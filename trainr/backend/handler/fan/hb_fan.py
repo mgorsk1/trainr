@@ -7,6 +7,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from trainr.backend.handler.database.engine import engine
+from trainr.backend.handler.fan.base import FanHandler
 from trainr.backend.handler.model.fan import FanStateHandlerModel
 from trainr.utils import fan_speed_to_display_name_mapping
 
@@ -26,15 +27,21 @@ def update_fan_state(f):
     return wrapped
 
 
-class HBFan:
-    def __init__(self, device_id: str, ip: str, local_key: str):
-        self.device = tinytuya.OutletDevice(device_id, ip, local_key)
+class HBFan(FanHandler):
+    def __init__(self, config, **kwargs):
+        super().__init__(config, **kwargs)
+
+        self.device = tinytuya.OutletDevice(
+            config.hb_device_id, config.hb_fan_ip, config.hb_fan_local_key)
         self.device.set_version(3.3)
 
-        self.speed_max = 3
-        self.speed_min = 1
+    @property
+    def speed_min(self) -> int:
+        return 1
 
-        self.state = None
+    @property
+    def speed_max(self) -> int:
+        return 3
 
     def _run_command(self, command: dict):
         payload = self.device.generate_payload(
@@ -108,22 +115,6 @@ class HBFan:
             self._press_speed_button()
 
             self.state.is_on = True
-
-    def set_speed(self, level: int):
-        if not self.state:
-            self.get_state()
-
-        if not self.state.is_on:
-            self.turn_on()
-
-        start_state = self.state.speed
-        if self.speed_max >= level >= self.speed_min:
-            if level > self.state.speed:
-                for _ in range(level - start_state):
-                    self._increase_speed()
-            if level < self.get_state().speed:
-                for _ in range(start_state - level):
-                    self._decrease_speed()
 
     def get_state(self) -> FanStateHandlerModel:
         with Session(engine, expire_on_commit=False) as session:

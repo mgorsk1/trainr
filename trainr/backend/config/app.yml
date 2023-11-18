@@ -1,0 +1,13 @@
+fan:
+  cls: ${BACKEND__FAN_CLS:-HBFan}
+  settings:
+    hb_device_id: ${BACKEND__HB_FAN_DEVICE_ID:-__empty__}
+    hb_fan_ip: ${BACKEND__HB_FAN_IP:-192.168.0.2}
+    hb_fan_local_key: ${BACKEND__HB_FAN_LOCAL_KEY:-__empty__}
+
+light:
+  cls: ${BACKEND__LIGHT_CLS:-HueGroup}
+  settings:
+    hue_bridge_ip: ${BACKEND__HUE_BRIDGE_IP:-192.168.0.2}
+    hue_bridge_username: ${BACKEND__HUE_BRIDGE_USERNAME:-__empty__}
+    hue_bridge_group_name: ${BACKEND__HUE_BRIDGE_GROUP_NAME:-Salon}

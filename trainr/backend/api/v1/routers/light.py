@@ -1,10 +1,9 @@
-import os
-
 from fastapi import APIRouter
 
 from trainr.backend.api.v1.model.light import LightColorInputApiModel
 from trainr.backend.api.v1.model.light import LightStateApiModel
-from trainr.backend.handler.light import HueGroup
+from trainr.backend.config import config
+from trainr.backend.handler.factory import LightHandlerFactory
 from trainr.utils import LightColor
 from trainr.utils import light_name_to_spec_mapping
 
@@ -15,10 +14,7 @@ router = APIRouter(
 
 global handler
 
-hue_bridge_ip = os.getenv('BACKEND__HUE_BRIDGE_IP')
-hue_bridge_username = os.getenv('BACKEND__HUE_BRIDGE_USERNAME')
-
-handler = HueGroup(hue_bridge_ip, hue_bridge_username)
+handler = LightHandlerFactory(config.light).get_handler()
 
 
 @router.get('/', tags=['light'], response_model=LightStateApiModel)

@@ -1,14 +1,18 @@
 from huesdk import Hue
 
+from trainr.backend.handler.light.base import LightHandler
 from trainr.backend.handler.model.light import LightStateHandlerModel
 from trainr.utils import light_color_mapping
 
 
-class HueGroup:
-    def __init__(self, hue_bridge_ip: str, user_name: str, group_name: str = 'Salon'):
-        self.hue = Hue(bridge_ip=hue_bridge_ip, username=user_name)
+class HueGroup(LightHandler):
+    def __init__(self, config, **kwargs):
+        super().__init__(config, **kwargs)
 
-        self.group = self.hue.get_group(name=group_name)
+        self.hue = Hue(bridge_ip=self.config.hue_bridge_ip,
+                       username=self.config.hue_bridge_username)
+
+        self.group = self.hue.get_group(name=self.config.hue_bridge_group_name)
 
     def turn_on(self):
         self.group.on()
@@ -29,4 +33,5 @@ class HueGroup:
         # @todo figure this out properly
         display_name = light_color_mapping.get(
             self.hue.get_light(name='Komoda').hue, 'N/A')
+
         return LightStateHandlerModel(is_on=self.group.is_on, color=self.group.hue, display_name=display_name)
