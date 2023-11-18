@@ -84,7 +84,7 @@ class State(rx.State):
             self.system_reading_type = requests.get(
                 f'{api_url}/system/reading_type/').json().get('setting_value', 'N/A').upper()
         except:
-            self.system_reading_type = 'unknown'
+            self.system_reading_type = 'UNKNOWN'
 
         try:
             self.system_last_seconds = int(requests.get(
