@@ -22,4 +22,3 @@ class Color(str, Enum):
     YELLOW = 'YELLOW'
     ORANGE = 'ORANGE'
     RED = 'RED'
-

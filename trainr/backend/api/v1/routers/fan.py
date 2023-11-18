@@ -1,10 +1,9 @@
-import os
-
 from fastapi import APIRouter
 
 from trainr.backend.api.v1.model.fan import FanSpeedInputApiModel
 from trainr.backend.api.v1.model.fan import FanStateApiModel
-from trainr.backend.handler.fan import HBFan
+from trainr.backend.config import config
+from trainr.backend.handler.factory import FanHandlerFactory
 from trainr.utils import fan_speed_name_to_int_mapping
 
 router = APIRouter(
@@ -14,11 +13,7 @@ router = APIRouter(
 
 global handler
 
-fan_device_id = os.getenv('BACKEND__FAN_DEVICE_ID')
-fan_ip = os.getenv('BACKEND__FAN_IP')
-fan_local_key = os.getenv('BACKEND__FAN_LOCAL_KEY')
-
-handler = HBFan(fan_device_id, fan_ip, fan_local_key)
+handler = FanHandlerFactory(config.fan).get_handler()
 
 
 @router.get('/', tags=['fan'], response_model=FanStateApiModel)
