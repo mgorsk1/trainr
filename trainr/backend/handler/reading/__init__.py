@@ -138,8 +138,6 @@ class ReadingHandler(ABC):
                 f = int(int(self.threshold) * z.range_from / 100)
                 n = int(int(self.threshold) * z.range_to / 100)
 
-                print(z.__dict__)
-
                 self.set_reading_zone(ReadingZoneHandlerModel(
                     zone=z.zone,
                     range_from=f + 1,
