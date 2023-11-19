@@ -1,7 +1,6 @@
 import reflex as rx
 
 from trainr.frontend.ui.components import heading, backend_health
-from trainr.frontend.ui.components import nav
 from trainr.frontend.ui.state import State
 from trainr.utils import fan_speed_name_to_int_mapping
 from trainr.utils import light_name_to_spec_mapping
@@ -44,10 +43,18 @@ def admin() -> rx.Component:
                     ),
                     rx.card(
                         rx.card_body(
-                            rx.number_input(
-                                value=State.reading_threshold,
-                                on_change=State.set_threshold,
-                                padding_top='10px',
+                            rx.form(
+                                rx.hstack(
+                                    rx.number_input(
+                                        value=State.reading_threshold,
+                                        on_change=State.set_threshold,
+                                        padding_top='10px',
+                                        id='reading_threshold',
+                                    ),
+                                    rx.button('Save', type_='submit')
+                                ),
+                                on_submit=State.save_threshold,
+                                reset_on_submit=False
                             )
                         ),
                         header=rx.heading(
@@ -55,7 +62,7 @@ def admin() -> rx.Component:
                             size='md'
                         ),
                         footer=rx.text(
-                            'Zones will be calculated based on this value.',
+                            'Used to calculated zones.',
                             as_='i',
                             font_size='0.4em',
                             padding_top='10px'

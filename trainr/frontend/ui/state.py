@@ -20,7 +20,8 @@ class State(rx.State):
     system_mode: str
     system_reading_type: str
     system_last_seconds: int
-    system_backend_healthy: bool
+    system_backend_healthy: bool = True
+    system_user_name: str = ' '
 
     reading_value: int = 0
     reading_threshold: int
@@ -46,6 +47,10 @@ class State(rx.State):
     @rx.var
     def system_mode_header_color(self) -> str:
         return 'gray' if self.system_mode_auto else 'black'
+
+    @rx.var
+    def system_user_name_not_set(self) -> bool:
+        return True if len(self.system_user_name) < 1 else False
 
     def toggle_system_mode(self, mode_auto: bool):
         if not mode_auto:
@@ -73,24 +78,38 @@ class State(rx.State):
 
         self.refresh_system_state()
 
+    def set_user_name(self, system_user_name):
+        result = requests.put(f'{api_url}/system/user_name',
+                              json={'setting_value': system_user_name['user_name']})
+
+        self.system_user_name = result.json().get('setting_value', '')
+
+        self.refresh_system_state()
+
     def refresh_system_state(self):
         try:
             self.system_mode = requests.get(
                 f'{api_url}/system/mode/').json().get('setting_value', 'N/A')
-        except:
+        except (ConnectionError, AttributeError):
             self.system_mode = SystemMode.MANUAL
 
         try:
             self.system_reading_type = requests.get(
-                f'{api_url}/system/reading_type/').json().get('setting_value', 'N/A').upper()
-        except:
+                f'{api_url}/system/reading_type/').json().get('setting_value', 'N/A')
+        except (ConnectionError, AttributeError):
             self.system_reading_type = 'UNKNOWN'
 
         try:
             self.system_last_seconds = int(requests.get(
                 f'{api_url}/system/last_seconds/').json().get('setting_value', 60))
-        except:
+        except (ConnectionError, AttributeError):
             self.system_last_seconds = 0
+
+        try:
+            self.system_user_name = requests.get(
+                f'{api_url}/system/user_name/').json().get('setting_value', '')
+        except (ConnectionError, AttributeError):
+            self.system_user_name = ''
 
         self.refresh_backend_health()
 
@@ -161,9 +180,12 @@ class State(rx.State):
     def set_threshold(self, threshold: int):
         self.reading_threshold = threshold
 
-        self.calculate_zones()
+    def save_threshold(self, threshold: dict):
+        self.reading_threshold = threshold['reading_threshold']
 
-    def calculate_zones(self):
+        self.save_zones()
+
+    def save_zones(self):
         requests.put(f'{api_url}/{self.system_reading_type.lower()}/threshold',
                      json={'threshold': self.reading_threshold})
 

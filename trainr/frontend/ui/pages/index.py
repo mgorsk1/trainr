@@ -1,6 +1,6 @@
 import reflex as rx
 
-from trainr.frontend.ui.components import heading, backend_health
+from trainr.frontend.ui.components import heading, backend_health, nav
 from trainr.frontend.ui.state import State
 
 
@@ -8,6 +8,25 @@ from trainr.frontend.ui.state import State
 def index() -> rx.Component:
     return rx.fragment(
         rx.color_mode_button(rx.color_mode_icon(), float='right'),
+        rx.modal(
+            rx.modal_overlay(
+                rx.modal_content(
+                    rx.modal_header("Hey, who are you?"),
+                    rx.modal_body(
+                        rx.form(
+                            rx.vstack(
+                                rx.input(
+                                    placeholder="Your name",
+                                    id="user_name",
+                                ),
+                                rx.button('Save', type_='submit'),
+                            ),
+                            on_submit=State.set_user_name,
+                        ), )
+                )
+            ),
+            is_open=State.system_user_name_not_set,
+        ),
         rx.grid(
             rx.grid_item(
                 heading(),

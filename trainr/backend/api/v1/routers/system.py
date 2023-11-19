@@ -7,6 +7,7 @@ from trainr.backend.handler.model.system.settings import \
 from trainr.backend.handler.system.last_seconds import SystemLastSecondsHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
 from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler
+from trainr.backend.handler.system.user_name import SystemUserNameHandler
 
 
 def get_router(handler: SystemSettingsHandlerModel):
@@ -40,7 +41,9 @@ router = APIRouter(
 mode_router = get_router(SystemModeHandler())
 reading_type_router = get_router(SystemReadingTypeHandler())
 last_seconds_router = get_router(SystemLastSecondsHandler())
+user_name_router = get_router(SystemUserNameHandler())
 
 router.include_router(mode_router)
 router.include_router(reading_type_router)
 router.include_router(last_seconds_router)
+router.include_router(user_name_router)
