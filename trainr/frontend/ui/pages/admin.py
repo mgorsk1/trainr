@@ -1,6 +1,6 @@
 import reflex as rx
 
-from trainr.frontend.ui.components import backend_health
+from trainr.frontend.ui.components import backend_health, user_name_modal
 from trainr.frontend.ui.components import heading
 from trainr.frontend.ui.state import State
 from trainr.utils import fan_speed_name_to_int_mapping
@@ -11,6 +11,7 @@ from trainr.utils import light_name_to_spec_mapping
 def admin() -> rx.Component:
     return rx.fragment(
         rx.color_mode_button(rx.color_mode_icon(), float='right'),
+        user_name_modal(),
         rx.grid(
             rx.grid_item(
                 heading(),
@@ -93,11 +94,38 @@ def admin() -> rx.Component:
                                 State.system_last_seconds,
                                 variant='solid',
                                 color_scheme='blue',
+                                border_radius='10px'
                             )
                         ),
                         header=rx.heading('Last Seconds', size='md'),
                         footer=rx.text(
                             'Time period for which readings are collected.',
+                            as_='i',
+                            font_size='0.4em',
+                            padding_top='10px'
+                        ),
+                    ),
+                    rx.card(
+                        rx.card_body(
+                            rx.form(
+                                rx.hstack(
+                                    rx.input(
+                                        value=State.system_user_name,
+                                        on_change=State.set_user_name,
+                                        id='user_name',
+                                    ),
+                                    rx.button('Save', type_='submit')
+                                ),
+                                on_submit=State.save_user_name,
+                                reset_on_submit=False
+                            )
+                        ),
+                        header=rx.heading(
+                            f'User Name',
+                            size='md'
+                        ),
+                        footer=rx.text(
+                            'How do you want to be called?',
                             as_='i',
                             font_size='0.4em',
                             padding_top='10px'

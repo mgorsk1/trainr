@@ -79,7 +79,10 @@ class State(rx.State):
 
         self.refresh_system_state()
 
-    def set_user_name(self, system_user_name):
+    def set_user_name(self, user_name: str):
+        self.system_user_name = user_name
+
+    def save_user_name(self, system_user_name):
         result = requests.put(f'{api_url}/system/user_name',
                               json={'setting_value': system_user_name['user_name']})
 
@@ -283,7 +286,7 @@ class State(rx.State):
     def refresh_light_state(self):
         try:
             light_state = requests.get(f'{api_url}/light').json()
-        except ConnectionError:
+        except (ConnectionError, AttributeError):
             light_state = {}
 
         self.light_on = light_state.get('is_on', False)

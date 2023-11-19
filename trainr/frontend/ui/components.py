@@ -49,3 +49,25 @@ def backend_health() -> rx.Component:
             margin_bottom='5%',
         ),
     )
+
+
+def user_name_modal() -> rx.Component:
+    return rx.modal(
+        rx.modal_overlay(
+            rx.modal_content(
+                rx.modal_header('Hey, how should I call you?'),
+                rx.modal_body(
+                    rx.form(
+                        rx.vstack(
+                            rx.input(
+                                placeholder='',
+                                id='"user_name',
+                            ),
+                            rx.button('Save', type_='submit'),
+                        ),
+                        on_submit=State.save_user_name,
+                    ), )
+            )
+        ),
+        is_open=State.system_user_name_not_set,
+    )
