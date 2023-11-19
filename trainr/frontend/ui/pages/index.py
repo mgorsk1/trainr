@@ -1,6 +1,7 @@
 import reflex as rx
 
-from trainr.frontend.ui.components import heading, backend_health, nav
+from trainr.frontend.ui.components import backend_health
+from trainr.frontend.ui.components import heading
 from trainr.frontend.ui.state import State
 
 
@@ -66,7 +67,8 @@ def index() -> rx.Component:
                                 width='100%',
                                 color_scheme=State.reading_zone_color,
                                 is_animated=True, has_stripe=True),
-                    rx.text(State.reading_zone_display_name, font_size='0.35em')
+                    rx.text(State.reading_zone_display_name,
+                            font_size='0.35em')
                 ),
                 row_span=8,
                 col_span=3,

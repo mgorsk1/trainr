@@ -115,7 +115,8 @@ class State(rx.State):
 
     def refresh_backend_health(self):
         try:
-            backend_healthy = requests.get(f'{api_url}/health').json()['healthy']
+            backend_healthy = requests.get(
+                f'{api_url}/health').json()['healthy']
         except (ConnectionError, KeyError):
             backend_healthy = False
 
