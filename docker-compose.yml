@@ -1,5 +1,15 @@
 version: '3'
 
+# .prd.env:
+#    FRONTEND__API_URL=http://backend-prd:8080/api/v1
+#    BACKEND__DB_URL="sqlite:////app/db/trainr.db"
+#    BACKEND__HB_FAN_DEVICE_ID=__fill_me__
+#    BACKEND__HB_FAN_IP=__fill_me__
+#    BACKEND__HB_FAN_LOCAL_KEY=__fill_me__
+#    BACKEND__HUE_BRIDGE_IP=__fill_me__
+#    BACKEND__HUE_BRIDGE_USERNAME=__fill_me__
+#    BACKEND__HUE_BRIDGE_GROUP_NAME=__fill_me__
+
 services:
   backend:
     container_name: backend-prd
@@ -10,10 +20,8 @@ services:
       - trainr-prd-backend-db:/app/db
     ports:
       - 8080:8080
-    environment:
-      BACKEND__DB_URL: sqlite:////app/db/trainr.db
     env_file:
-      - .env
+      - .prd.env
 
   frontend:
     container_name: frontend-prd
@@ -23,8 +31,8 @@ services:
     ports:
       - 3000:3000
       - 8000:8000
-    environment:
-      FRONTEND__API_URL: http://backend-prd:8080/api/v1
+    env_file:
+      - .prd.env
 
 networks:
   trainr-prd-network:
