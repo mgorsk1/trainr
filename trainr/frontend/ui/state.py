@@ -193,7 +193,7 @@ class State(rx.State):
         try:
             self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
-        except (AttributeError, ConnectionError):
+        except (ConnectionError, AttributeError):
             self.reading_zones = []
 
     def refresh_reading_state(self):
@@ -203,7 +203,7 @@ class State(rx.State):
 
             self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
-        except (AttributeError, ConnectionError):
+        except (ConnectionError, AttributeError):
             self.reading_zones = []
 
     # Fan --------------------------------------------------------------------------------------------------------------
