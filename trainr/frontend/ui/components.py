@@ -11,15 +11,26 @@ def nav() -> rx.Component:
         rx.breadcrumb_item(
             rx.breadcrumb_link('Admin', href='/admin')
         ),
-        font_size='0.5em'
+        font_size='0.5em',
+        align='left'
     )
 
 
 def heading() -> rx.Component:
     return rx.center(
         rx.vstack(
-            rx.heading('🚴TRAINR 🚴', font_size='2em', padding_bottom='3%'),
-            nav(),
+            rx.box(
+                rx.hstack(
+                    rx.box(
+                        rx.heading('TRAINR  🚴', float='left', size='md', width='100%', align='left'),
+                        nav(),
+                    ),
+                    align_items='left',
+                ),
+                width='100%'
+            ),
+            rx.heading(f'Hi {State.system_user_name}! 👋', font_size='2em', padding_bottom='1%', padding_top='3%'),
+            width='100%'
         )
     )
 

@@ -12,12 +12,12 @@ def index() -> rx.Component:
         rx.modal(
             rx.modal_overlay(
                 rx.modal_content(
-                    rx.modal_header("Hey, who are you?"),
+                    rx.modal_header("Hey, how should I call you?"),
                     rx.modal_body(
                         rx.form(
                             rx.vstack(
                                 rx.input(
-                                    placeholder="Your name",
+                                    placeholder="",
                                     id="user_name",
                                 ),
                                 rx.button('Save', type_='submit'),
@@ -32,13 +32,14 @@ def index() -> rx.Component:
             rx.grid_item(
                 heading(),
                 row_span=2,
-                col_span=19,
-                padding_top='4%',
+                col_span=17,
+                col_start=2,
                 padding_bottom='1%'
             ),
             rx.grid_item(
                 row_span=8,
                 col_span=1,
+                col_start=1,
             ),
             rx.grid_item(
                 row_span=8,

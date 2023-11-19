@@ -7,6 +7,7 @@ import reflex as rx
 import requests
 from requests.exceptions import ConnectionError
 
+from trainr.frontend.ui import defaults
 from trainr.utils import SystemMode
 from trainr.utils import ftp_zone_to_light_spec_mapping
 from trainr.utils import hr_zone_to_light_spec_mapping
@@ -59,13 +60,13 @@ class State(rx.State):
             payload = {'setting_value': SystemMode.AUTO}
 
         result = requests.put(f'{api_url}/system/mode', json=payload)
-        self.system_mode = result.json().get('setting_value', 'N/A')
+        self.system_mode = result.json().get('setting_value', defaults.UNKNOWN)
 
     def set_reading_type(self, system_reading_type: str):
         result = requests.put(f'{api_url}/system/reading_type',
                               json={'setting_value': system_reading_type})
 
-        self.system_reading_type = result.json().get('setting_value', 'N/A').upper()
+        self.system_reading_type = result.json().get('setting_value', defaults.UNKNOWN)
 
         self.refresh_system_state()
         self.refresh_reading_state()
@@ -74,7 +75,7 @@ class State(rx.State):
         result = requests.put(f'{api_url}/system/last_seconds',
                               json={'setting_value': str(system_last_seconds)})
 
-        self.system_last_seconds = int(result.json().get('setting_value', 0))
+        self.system_last_seconds = int(result.json().get('setting_value', defaults.READING_VALUE))
 
         self.refresh_system_state()
 
@@ -82,33 +83,33 @@ class State(rx.State):
         result = requests.put(f'{api_url}/system/user_name',
                               json={'setting_value': system_user_name['user_name']})
 
-        self.system_user_name = result.json().get('setting_value', '')
+        self.system_user_name = result.json()['setting_value']
 
         self.refresh_system_state()
 
     def refresh_system_state(self):
         try:
             self.system_mode = requests.get(
-                f'{api_url}/system/mode/').json().get('setting_value', 'N/A')
-        except (ConnectionError, AttributeError):
+                f'{api_url}/system/mode/').json()['setting_value']
+        except (ConnectionError, AttributeError, KeyError):
             self.system_mode = SystemMode.MANUAL
 
         try:
             self.system_reading_type = requests.get(
-                f'{api_url}/system/reading_type/').json().get('setting_value', 'N/A')
-        except (ConnectionError, AttributeError):
-            self.system_reading_type = 'UNKNOWN'
+                f'{api_url}/system/reading_type/').json()['setting_value']
+        except (ConnectionError, AttributeError, KeyError):
+            self.system_reading_type = defaults.UNKNOWN
 
         try:
             self.system_last_seconds = int(requests.get(
-                f'{api_url}/system/last_seconds/').json().get('setting_value', 60))
-        except (ConnectionError, AttributeError):
+                f'{api_url}/system/last_seconds/').json()['setting_value'])
+        except (ConnectionError, AttributeError, KeyError):
             self.system_last_seconds = 0
 
         try:
             self.system_user_name = requests.get(
-                f'{api_url}/system/user_name/').json().get('setting_value', '')
-        except (ConnectionError, AttributeError):
+                f'{api_url}/system/user_name/').json()['setting_value']
+        except (ConnectionError, AttributeError, KeyError):
             self.system_user_name = ''
 
         self.refresh_backend_health()
@@ -117,7 +118,7 @@ class State(rx.State):
         try:
             backend_healthy = requests.get(
                 f'{api_url}/health').json()['healthy']
-        except (ConnectionError, KeyError):
+        except (ConnectionError, AttributeError, KeyError):
             backend_healthy = False
 
         self.system_backend_healthy = backend_healthy
@@ -136,7 +137,7 @@ class State(rx.State):
                              params=dict(hr=self.reading_value)).json()[
                     0]
         except (AttributeError, KeyError, IndexError, ConnectionError):
-            return {'zone': -1, 'display_name': 'Zone Unknown'}
+            return {'zone': -1, 'display_name': f'Zone {defaults.UNKNOWN}'}
 
     @rx.var
     def reading_zone(self):
@@ -156,7 +157,7 @@ class State(rx.State):
         if result := reading_zone_to_light_spec_mapping.get(self.reading_zone):
             return result.name
         else:
-            return 'N/A'
+            return defaults.UNKNOWN
 
     @rx.var
     def reading_type_emoji(self):
@@ -165,7 +166,7 @@ class State(rx.State):
             'FTP': '⚡'
         }
 
-        return map.get(self.system_reading_type.upper(), 'N/A')
+        return map.get(self.system_reading_type.upper(), defaults.UNKNOWN)
 
     @rx.var
     def reading_type_emoji_active(self):
@@ -191,7 +192,7 @@ class State(rx.State):
                      json={'threshold': self.reading_threshold})
 
         try:
-            self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
+            self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN), z.get('range_to', defaults.UNKNOWN)) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
         except (ConnectionError, AttributeError):
             self.reading_zones = []
@@ -201,7 +202,7 @@ class State(rx.State):
             self.reading_threshold = requests.get(f'{api_url}/{self.system_reading_type.lower()}/threshold').json().get(
                 'threshold', 0)
 
-            self.reading_zones = [(z.get('zone', 'N/A'), z.get('range_from', 'N/A'), z.get('range_to', 'N/A')) for z in
+            self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN), z.get('range_to', defaults.UNKNOWN)) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
         except (ConnectionError, AttributeError):
             self.reading_zones = []
@@ -238,7 +239,7 @@ class State(rx.State):
 
         self.fan_on = fan_state.get('is_on')
         self.fan_speed = fan_state.get('speed', 0)
-        self.fan_speed_display_name = fan_state.get('display_name', 'N/A')
+        self.fan_speed_display_name = fan_state.get('display_name', defaults.UNKNOWN)
 
     # Light ------------------------------------------------------------------------------------------------------------
 
@@ -286,7 +287,7 @@ class State(rx.State):
             light_state = {}
 
         self.light_on = light_state.get('is_on', False)
-        self.light_color = light_state.get('display_name', 'N/A')
+        self.light_color = light_state.get('display_name', defaults.UNKNOWN)
 
     # ------------------------------------------------------------------------------------------------------------------
 

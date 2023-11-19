@@ -15,13 +15,14 @@ def admin() -> rx.Component:
             rx.grid_item(
                 heading(),
                 row_span=2,
-                col_span=19,
-                padding_top='4%',
+                col_span=17,
+                col_start=2,
                 padding_bottom='1%'
             ),
             rx.grid_item(
                 row_span=8,
                 col_span=1,
+                col_start=1,
             ),
             rx.grid_item(
                 rx.responsive_grid(
