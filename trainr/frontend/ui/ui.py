@@ -6,6 +6,6 @@ from trainr.frontend.ui.pages.index import index
 
 # Add state and page to the app.
 app = rx.App()
-app.add_page(index, title='🚴Trainr | Home')
-app.add_page(admin, title='🚴Trainr | Admin')
+app.add_page(index, title='🚴TRAINR | Home')
+app.add_page(admin, title='🚴TRAINR | Admin')
 app.compile()
