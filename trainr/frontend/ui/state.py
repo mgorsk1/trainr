@@ -75,7 +75,8 @@ class State(rx.State):
         result = requests.put(f'{api_url}/system/last_seconds',
                               json={'setting_value': str(system_last_seconds)})
 
-        self.system_last_seconds = int(result.json().get('setting_value', defaults.READING_VALUE))
+        self.system_last_seconds = int(result.json().get(
+            'setting_value', defaults.READING_VALUE))
 
         self.refresh_system_state()
 
@@ -242,7 +243,8 @@ class State(rx.State):
 
         self.fan_on = fan_state.get('is_on')
         self.fan_speed = fan_state.get('speed', 0)
-        self.fan_speed_display_name = fan_state.get('display_name', defaults.UNKNOWN)
+        self.fan_speed_display_name = fan_state.get(
+            'display_name', defaults.UNKNOWN)
 
     # Light ------------------------------------------------------------------------------------------------------------
 

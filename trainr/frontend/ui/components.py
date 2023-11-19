@@ -22,14 +22,16 @@ def heading() -> rx.Component:
             rx.box(
                 rx.hstack(
                     rx.box(
-                        rx.heading('TRAINR  🚴', float='left', size='md', width='100%', align='left'),
+                        rx.heading('TRAINR  🚴', float='left',
+                                   size='md', width='100%', align='left'),
                         nav(),
                     ),
                     align_items='left',
                 ),
                 width='100%'
             ),
-            rx.heading(f'Hi {State.system_user_name}! 👋', font_size='2em', padding_bottom='1%', padding_top='3%'),
+            rx.heading(f'Hi {State.system_user_name}! 👋',
+                       font_size='2em', padding_bottom='1%', padding_top='3%'),
             width='100%'
         )
     )
