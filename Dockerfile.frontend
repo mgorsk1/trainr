@@ -1,6 +1,4 @@
-FROM python:3.9
-
-ARG API_URL=http://localhost:3000
+FROM python:3.9-slim as init
 
 WORKDIR /app/trainr
 
@@ -12,11 +10,32 @@ ENV VIRTUAL_ENV=/app/trainr/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV PYTHONPATH=$VIRTUAL_ENV:/app
 
-RUN python3.9 -m venv $VIRTUAL_ENV && \
-    pip install -r requirements.txt
+RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
+    apt-get update && \
+    apt-get upgrade && \
+    apt-get install -y gcc python3-dev && \
+    python3.9 -m venv $VIRTUAL_ENV && \
+    pip install -r requirements.txt && \
+    rm -rf /var/lib/apt/lists/*
+
+FROM python:3.9-slim
+
+ARG API_URL=http://localhost:3000
+
+WORKDIR /app/trainr
+
+ENV VIRTUAL_ENV=/app/trainr/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PYTHONPATH=$VIRTUAL_ENV:/app
+
+COPY --from=init /app /app
 
 WORKDIR /app/trainr/frontend
 
-RUN reflex init
+RUN apt-get update && \
+    apt-get upgrade && \
+    apt-get install -y nodejs unzip curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    reflex init
 
 CMD ["reflex", "run"]
