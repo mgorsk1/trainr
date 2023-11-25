@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9 AS init
 
 WORKDIR /app/trainr
 
@@ -12,6 +12,23 @@ ENV PYTHONPATH=$VIRTUAL_ENV:/app
 
 RUN python3.9 -m venv $VIRTUAL_ENV && \
     pip install -r requirements.txt
+
+FROM python:3.9-slim
+
+ENV VIRTUAL_ENV=/app/trainr/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PYTHONPATH=$VIRTUAL_ENV:/app
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=init /app /app
+
+WORKDIR /app/trainr
 
 CMD ["uvicorn", "trainr.backend.api.main:app", "--host", "0.0.0.0", "--port", "8080"]
 

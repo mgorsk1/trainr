@@ -32,6 +32,6 @@ class HueGroup(LightHandler):
     def get_state(self) -> LightStateHandlerModel:
         # @todo figure this out properly
         display_name = light_color_mapping.get(
-            self.hue.get_light(name='Komoda').hue, 'N/A')
+            self.hue.get_light(name='Credenza').hue, 'N/A')
 
         return LightStateHandlerModel(is_on=self.group.is_on, color=self.group.hue, display_name=display_name)
