@@ -14,6 +14,12 @@ services:
       - trainr-backend-db:/app/db
     ports:
       - 8080:8080
+    healthcheck:
+      test: curl --fail http://localhost:8080/api/v1/health || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
 
   frontend:
     container_name: frontend
@@ -29,6 +35,13 @@ services:
       - 8000:8000
     depends_on:
       - backend
+    healthcheck:
+      test: curl --fail http://localhost:8000/ping || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 180s
+      timeout: 10s
+
 
   postgresql:
     image: postgres

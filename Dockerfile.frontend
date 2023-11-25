@@ -10,13 +10,13 @@ ENV VIRTUAL_ENV=/app/trainr/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV PYTHONPATH=$VIRTUAL_ENV:/app
 
+WORKDIR /app/trainr/frontend
+
 RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
-    apt-get update && \
-    apt-get upgrade && \
-    apt-get install -y gcc python3-dev && \
-    python3.9 -m venv $VIRTUAL_ENV && \
-    pip install -r requirements.txt && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get update && apt-get upgrade -y && apt-get install -y gcc python3-dev unzip curl && \
+    rm -rf /var/lib/apt/lists/*  && \
+    python3.9 -m venv $VIRTUAL_ENV && pip install -r ../requirements.txt && \
+    reflex init && reflex export --frontend-only --no-zip
 
 FROM python:3.9-slim
 
