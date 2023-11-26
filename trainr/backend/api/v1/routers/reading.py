@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter
 from fastapi import BackgroundTasks
@@ -61,7 +61,7 @@ def get_router(handler):
                 if fan_speed := zone_to_fan_spec_mapping.get(zone):
                     await set_fan_speed(FanSpeedInputApiModel(fan_speed=fan_speed))
 
-    @router.get('/', tags=tags, response_model=ReadingInfoApiModel)
+    @router.get('/', tags=tags, response_model=ReadingInfoApiModel, summary=f'Get last {handler.reading_type} reading.')
     async def get_current_reading(seconds: int = 10, function: ReadingFunction = ReadingFunction.LAST):
         if function == ReadingFunction.LAST:
             data = handler.get_reading(seconds)
@@ -73,7 +73,8 @@ def get_router(handler):
 
         return ReadingInfoApiModel(reading=data.reading_value, time=data.time.strftime('%s'))
 
-    @router.post('/', tags=tags, response_model=ReadingInfoApiModel)
+    @router.post('/', tags=tags, response_model=ReadingInfoApiModel,
+                 summary=f'Register {handler.reading_type} reading.')
     async def set_current_reading(reading: ReadingInputApiModel,
                                   background_tasks: BackgroundTasks) -> ReadingInfoApiModel:
         data = handler.save_reading(reading.reading)
@@ -82,11 +83,12 @@ def get_router(handler):
 
         return ReadingInfoApiModel(reading=data.reading_value, time=data.time.strftime('%s'))
 
-    @router.get('/history', tags=tags, response_model=List[ReadingInfoApiModel])
+    @router.get('/history', tags=tags, response_model=List[ReadingInfoApiModel],
+                summary=f'Get {handler.reading_type} reading history.')
     async def get_reading_history(seconds: int = 10) -> List[ReadingInfoApiModel]:
         data = handler.get_reading_history(seconds)
 
-        return [ReadingInfoApiModel(reading=r.reading_value, time=r.time) for r in data]
+        return [ReadingInfoApiModel(reading=r.reading_value, time=r.time.strftime('%s')) for r in data]
 
     @router.get('/zones', tags=tags, response_model=List[ZoneInfoApiModel])
     async def get_zones(zone: int = -1, hr: int = -1) -> List[ZoneInfoApiModel]:
@@ -107,7 +109,25 @@ def get_router(handler):
                                  display_name=r.display_name)
                 for r in data]
 
-    @router.put('/zones', tags=tags, response_model=ZoneInfoApiModel)
+    @router.get('/zone', tags=tags, response_model=Optional[ZoneInfoApiModel],
+                summary=f'Get {handler.reading_type} zone.')
+    async def get_zone(zone: int = -1, hr: int = -1) -> Optional[ZoneInfoApiModel]:
+        if zone > 0:
+            data = handler.get_reading_zone(zone)
+        elif hr >= 0:
+            data = handler.get_reading_zone_by_reading(hr)
+        else:
+            return None
+
+        if data:
+            return ZoneInfoApiModel(zone=data.zone,
+                                    range_from=data.range_from,
+                                    range_to=data.range_to,
+                                    display_name=data.display_name)
+        else:
+            return None
+
+    @router.put('/zone', tags=tags, response_model=ZoneInfoApiModel, summary=f'Register {handler.reading_type} zone.')
     async def set_zone_info(zone_info: ZoneInputApiModel):
         hr_zone_spec = ZoneInfoApiModel(
             zone=zone_info.zone, range_from=zone_info.range_from, range_to=zone_info.range_to)
@@ -116,14 +136,16 @@ def get_router(handler):
 
         return ZoneInfoApiModel(zone=data.zone, range_from=data.range_from, range_to=data.range_to)
 
-    @router.get('/threshold', tags=tags, response_model=ThresholdInfoApiModel)
+    @router.get('/threshold', tags=tags, response_model=ThresholdInfoApiModel,
+                summary=f'Get {handler.reading_type} threshold.')
     async def get_threshold():
         data = handler.get_threshold()
 
         return ThresholdInfoApiModel(threshold=data.reading_value if data else 0)
 
-    @router.put('/threshold', tags=tags, response_model=ThresholdInfoApiModel)
-    async def get_threshold(threshold: ThresholdInfoApiModel):
+    @router.put('/threshold', tags=tags, response_model=ThresholdInfoApiModel,
+                summary=f'Register {handler.reading_type} threshold.')
+    async def set_threshold(threshold: ThresholdInfoApiModel):
         handler.set_threshold(threshold.threshold)
 
         data = handler.get_threshold()

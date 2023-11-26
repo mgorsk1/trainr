@@ -1,5 +1,6 @@
 import asyncio
 import os
+from datetime import datetime
 from typing import List
 from typing import Tuple
 
@@ -27,6 +28,7 @@ class State(rx.State):
     reading_value: int = 0
     reading_threshold: int
     reading_zones: List[Tuple[int, int, int]]
+    reading_history: List = []
 
     fan_on: bool
     fan_speed: int
@@ -135,13 +137,13 @@ class State(rx.State):
 
     @rx.var
     def reading_zone_spec(self):
+        default_zone = {'zone': -1, 'display_name': f'Zone {defaults.UNKNOWN}'}
         try:
             return \
-                requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones',
-                             params=dict(hr=self.reading_value)).json()[
-                    0]
-        except (AttributeError, KeyError, IndexError, ConnectionError):
-            return {'zone': -1, 'display_name': f'Zone {defaults.UNKNOWN}'}
+                requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
+                             params=dict(hr=self.reading_value)).json() or default_zone
+        except (AttributeError, KeyError, ConnectionError):
+            return default_zone
 
     @rx.var
     def reading_zone(self):
@@ -183,6 +185,10 @@ class State(rx.State):
         except:
             return 0
 
+    @rx.var
+    def reading_history_sanitized(self) -> List[dict]:
+        return [{'x': r.get('time', None), 'y': r.get('reading', None), 'x_label': datetime.fromtimestamp(r.get('time', 0)).strftime('%H')} for r in self.reading_history]
+
     def set_threshold(self, threshold: int):
         self.reading_threshold = threshold
 
@@ -203,13 +209,19 @@ class State(rx.State):
 
     def refresh_reading_state(self):
         try:
-            self.reading_threshold = requests.get(f'{api_url}/{self.system_reading_type.lower()}/threshold').json().get(
-                'threshold', 0)
+            self.reading_threshold = requests \
+                .get(f'{api_url}/{self.system_reading_type.lower()}/threshold') \
+                .json() \
+                .get('threshold', 0)
 
             self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN), z.get('range_to', defaults.UNKNOWN)) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
+            self.reading_history = requests \
+                .get(f'{api_url}/{self.system_reading_type.lower()}/history?seconds=3600') \
+                .json()
         except (ConnectionError, AttributeError):
             self.reading_zones = []
+            self.reading_history = []
 
     # Fan --------------------------------------------------------------------------------------------------------------
 

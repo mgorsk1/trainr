@@ -36,7 +36,7 @@ def index() -> rx.Component:
                             rx.stat_label(
                                 State.reading_type_display_name, font_size='0.4em'),
                             rx.stat_number(rx.badge(State.reading_value, variant='solid', color_scheme='gray',
-                                           font_size='1em', border_radius='15px'), font_size='0.8em'),
+                                                    font_size='1em', border_radius='15px'), font_size='0.8em'),
                         ),
                         rx.stat(
                             rx.stat_label(
