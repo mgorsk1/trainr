@@ -58,7 +58,46 @@ def index() -> rx.Component:
                                 color_scheme=State.reading_zone_color,
                                 is_animated=True, has_stripe=True),
                     rx.text(State.reading_zone_display_name,
-                            font_size='0.4em')
+                            font_size='0.4em'),
+                    rx.accordion(
+                        rx.accordion_item(
+                            rx.accordion_button(
+                                rx.text('Reading History', color='Gray'),
+                                rx.accordion_icon(),
+                            ),
+                            rx.accordion_panel(
+                                rx.recharts.line_chart(
+                                    rx.recharts.line(
+                                        data_key='reading',
+                                        fill='#000000',
+                                        type='monotone',
+                                    ),
+                                    rx.recharts.reference_line(
+                                        stroke_width=2,
+                                        fill='#8884d8',
+                                        fill_opacity=0.3,
+                                    ),
+                                    rx.recharts.x_axis(data_key='time_label', type_='category',
+                                                       name='Last 60 minutes.',
+                                                       tick_line=False, axis_line=True),
+                                    rx.recharts.y_axis(data_key='reading', type_='number'),
+                                    rx.recharts.graphing_tooltip(),
+                                    height=200,
+                                    width='100%',
+                                    margin={
+                                        'left': 0,
+                                        'right': 60,
+                                        'top': 30
+                                    },
+                                    data=State.reading_history_sanitized,
+                                ),
+                            ),
+                        ),
+                        allow_toggle=True,
+                        font_size='0.4em',
+                        width='100%',
+                        padding_top='2%'
+                    ),
                 ),
                 row_span=8,
                 col_span=3,

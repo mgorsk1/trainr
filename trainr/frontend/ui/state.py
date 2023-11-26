@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import List
 from typing import Tuple
 
+import pandas as pd
 import reflex as rx
 import requests
 from requests.exceptions import ConnectionError
@@ -185,9 +186,32 @@ class State(rx.State):
         except:
             return 0
 
-    @rx.var
+    @rx.var #
     def reading_history_sanitized(self) -> List[dict]:
-        return [{'x': r.get('time', None), 'y': r.get('reading', None), 'x_label': datetime.fromtimestamp(r.get('time', 0)).strftime('%H')} for r in self.reading_history]
+        n = datetime.utcnow()
+        freq_seconds = 15
+
+        try:
+            dfi = pd.date_range(datetime(year=n.year, month=n.month, day=n.day, hour=n.hour, minute=n.minute, second=0),
+                                periods=3600 / freq_seconds, freq=f'{freq_seconds}S')
+
+            pd_input = [{'time': datetime.fromtimestamp(r.get('time', 0)), 'reading': r.get('reading', None)} for r in
+                        self.reading_history]
+
+            ref_df = pd.DataFrame(dfi)
+            ref_df.columns = ['time']
+
+            data_df = pd.DataFrame(pd_input).groupby(pd.Grouper(freq=f'{freq_seconds}S', key='time')).first()
+
+            df = ref_df.join(data_df, how='left', on='time')
+
+            df['time_label'] = df['time'].apply(lambda x: x.strftime('%H:%M'))
+
+            result = df.to_dict('records')
+        except Exception:
+            result = []
+
+        return result
 
     def set_threshold(self, threshold: int):
         self.reading_threshold = threshold
