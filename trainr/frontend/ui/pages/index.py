@@ -80,7 +80,8 @@ def index() -> rx.Component:
                                     rx.recharts.x_axis(data_key='time_label', type_='category',
                                                        name='Last 60 minutes.',
                                                        tick_line=False, axis_line=True),
-                                    rx.recharts.y_axis(data_key='reading', type_='number'),
+                                    rx.recharts.y_axis(
+                                        data_key='reading', type_='number'),
                                     rx.recharts.graphing_tooltip(),
                                     height=200,
                                     width='100%',

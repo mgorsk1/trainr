@@ -11,7 +11,6 @@ from trainr.backend.handler.system.mode import SystemModeHandler
 from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler
 from trainr.utils import ReadingType
 
-
 app = FastAPI(
     title='Trainr API',
     summary='Backend API for managing application for Indoor Training Automation.',

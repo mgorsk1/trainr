@@ -186,7 +186,7 @@ class State(rx.State):
         except:
             return 0
 
-    @rx.var #
+    @rx.var
     def reading_history_sanitized(self) -> List[dict]:
         n = datetime.utcnow()
         freq_seconds = 15
@@ -201,7 +201,8 @@ class State(rx.State):
             ref_df = pd.DataFrame(dfi)
             ref_df.columns = ['time']
 
-            data_df = pd.DataFrame(pd_input).groupby(pd.Grouper(freq=f'{freq_seconds}S', key='time')).first()
+            data_df = pd.DataFrame(pd_input).groupby(
+                pd.Grouper(freq=f'{freq_seconds}S', key='time')).first()
 
             df = ref_df.join(data_df, how='left', on='time')
 
