@@ -11,18 +11,20 @@ from trainr.backend.handler.system.user_name import SystemUserNameHandler
 
 
 def get_router(handler: SystemSettingsHandlerModel):
+    tags = [handler.setting_name]
+
     router = APIRouter(
         prefix=f'/{handler.setting_name}',
-        tags=['system']
+        tags=tags
     )
 
-    @router.get('/', tags=['system'], response_model=SystemSettingInfoApiModel)
+    @router.get('/', tags=tags, response_model=SystemSettingInfoApiModel, summary=f'Get {handler.setting_name} setting value.')
     async def get_state() -> SystemSettingInfoApiModel:
         data = handler.get_state()
 
         return SystemSettingInfoApiModel(setting_value=data.setting_value, setting_name=handler.setting_name)
 
-    @router.put('/', tags=['system'])
+    @router.put('/', tags=tags, summary=f'Register {handler.setting_name} setting value.')
     async def set_value(mode: SystemSettingInputApiModel) -> SystemSettingInfoApiModel:
         handler.set_mode(mode.setting_value)
 

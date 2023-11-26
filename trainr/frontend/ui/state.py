@@ -1,8 +1,10 @@
 import asyncio
 import os
+from datetime import datetime
 from typing import List
 from typing import Tuple
 
+import pandas as pd
 import reflex as rx
 import requests
 from requests.exceptions import ConnectionError
@@ -27,6 +29,7 @@ class State(rx.State):
     reading_value: int = 0
     reading_threshold: int
     reading_zones: List[Tuple[int, int, int]]
+    reading_history: List = []
 
     fan_on: bool
     fan_speed: int
@@ -135,13 +138,13 @@ class State(rx.State):
 
     @rx.var
     def reading_zone_spec(self):
+        default_zone = {'zone': -1, 'display_name': f'Zone {defaults.UNKNOWN}'}
         try:
             return \
-                requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones',
-                             params=dict(hr=self.reading_value)).json()[
-                    0]
-        except (AttributeError, KeyError, IndexError, ConnectionError):
-            return {'zone': -1, 'display_name': f'Zone {defaults.UNKNOWN}'}
+                requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
+                             params=dict(hr=self.reading_value)).json() or default_zone
+        except (AttributeError, KeyError, ConnectionError):
+            return default_zone
 
     @rx.var
     def reading_zone(self):
@@ -183,6 +186,34 @@ class State(rx.State):
         except:
             return 0
 
+    @rx.var
+    def reading_history_sanitized(self) -> List[dict]:
+        n = datetime.utcnow()
+        freq_seconds = 15
+
+        try:
+            dfi = pd.date_range(datetime(year=n.year, month=n.month, day=n.day, hour=n.hour, minute=n.minute, second=0),
+                                periods=3600 / freq_seconds, freq=f'{freq_seconds}S')
+
+            pd_input = [{'time': datetime.fromtimestamp(r.get('time', 0)), 'reading': r.get('reading', None)} for r in
+                        self.reading_history]
+
+            ref_df = pd.DataFrame(dfi)
+            ref_df.columns = ['time']
+
+            data_df = pd.DataFrame(pd_input).groupby(
+                pd.Grouper(freq=f'{freq_seconds}S', key='time')).first()
+
+            df = ref_df.join(data_df, how='left', on='time')
+
+            df['time_label'] = df['time'].apply(lambda x: x.strftime('%H:%M'))
+
+            result = df.to_dict('records')
+        except Exception:
+            result = []
+
+        return result
+
     def set_threshold(self, threshold: int):
         self.reading_threshold = threshold
 
@@ -203,13 +234,19 @@ class State(rx.State):
 
     def refresh_reading_state(self):
         try:
-            self.reading_threshold = requests.get(f'{api_url}/{self.system_reading_type.lower()}/threshold').json().get(
-                'threshold', 0)
+            self.reading_threshold = requests \
+                .get(f'{api_url}/{self.system_reading_type.lower()}/threshold') \
+                .json() \
+                .get('threshold', 0)
 
             self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN), z.get('range_to', defaults.UNKNOWN)) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
+            self.reading_history = requests \
+                .get(f'{api_url}/{self.system_reading_type.lower()}/history?seconds=3600') \
+                .json()
         except (ConnectionError, AttributeError):
             self.reading_zones = []
+            self.reading_history = []
 
     # Fan --------------------------------------------------------------------------------------------------------------
 

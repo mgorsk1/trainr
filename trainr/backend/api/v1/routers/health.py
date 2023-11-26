@@ -9,5 +9,5 @@ router = APIRouter(
 
 
 @router.get('/', response_model=HealthApiModel)
-async def root():
+async def get_health():
     return HealthApiModel(healthy=True)
