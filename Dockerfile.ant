@@ -1,0 +1,14 @@
+FROM python:3.9-slim
+
+WORKDIR /app/trainr
+
+COPY trainr/ant ant
+COPY requirements-ant.txt requirements.txt
+
+ENV VIRTUAL_ENV=/app/trainr/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PYTHONPATH=$VIRTUAL_ENV:/app
+
+RUN python3.9 -m venv $VIRTUAL_ENV && pip install -r requirements.txt
+
+ENTRYPOINT ["python3", "/app/trainr/ant/main.py"]

@@ -44,6 +44,17 @@ services:
       start_period: 180s
       timeout: 10s
 
+  publisher:
+    container_name: publisher
+    build:
+      context: .
+      dockerfile: Dockerfile.ant
+    networks:
+      - trainr-network
+    depends_on:
+      - backend
+    environment:
+      ANT__BACKEND_API_URL: http://backend:8080
 
   postgresql:
     image: postgres
