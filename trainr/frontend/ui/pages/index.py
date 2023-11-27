@@ -71,7 +71,7 @@ def index() -> rx.Component:
                                         data_key='reading',
                                         fill='#000000',
                                         type='monotone',
-                                        dot=False,
+                                        dot=True,
                                     ),
                                     rx.recharts.reference_line(
                                         stroke_width=2,
