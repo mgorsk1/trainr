@@ -201,11 +201,12 @@ class State(rx.State):
             ref_df = pd.DataFrame(dfi)
             ref_df.columns = ['time']
 
-            data_df = pd.DataFrame(pd_input).groupby(
-                pd.Grouper(freq=f'{freq_seconds}S', key='time')).first()
+            data_df = pd.DataFrame(pd_input).groupby(pd.Grouper(freq=f'{freq_seconds}S', key='time')).first().reset_index()
 
-            df = ref_df.join(data_df, how='left', on='time')
+            data_df['time'] = data_df['time'].astype('datetime64[ns]')
+            ref_df['time'] = ref_df['time'].astype('datetime64[ns]')
 
+            df = pd.concat([ref_df, data_df])
             df['time_label'] = df['time'].apply(lambda x: x.strftime('%H:%M'))
 
             result = df.to_dict('records')
