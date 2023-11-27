@@ -56,11 +56,43 @@ services:
       context: .
       dockerfile: Dockerfile.ant
     networks:
-      - trainr-network
+      - trainr-prd-network
     depends_on:
       - backend
     environment:
       ANT__BACKEND_API_URL: http://backend:8080
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    networks:
+      - trainr-prd-network
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    ports:
+      - 8086:8086
+
+  influxdbSetup:
+    image: influxdb:latest
+    container_name: influxdb-setup
+    networks:
+      - trainr-prd-network
+    depends_on:
+      - influxdb
+    env_file:
+      - .prd.env
+    command: [
+      'setup',
+      '--host', '$BACKEND__INFLUXDB_HOST',
+      '--org', '$BACKEND__INFLUXDB_ORG',
+      '--bucket' ,'$BACKEND__INFLUXDB_BUCKET',
+      '--username' , '$BACKEND__INFLUXDB_USER',
+      '--password', '$BACKEND__INFLUXDB_PASSWORD',
+      '--retention', '4h',
+      '--force'
+    ]
+    entrypoint: [ 'influx' ]
 
 networks:
   trainr-prd-network:

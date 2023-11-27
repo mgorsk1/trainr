@@ -5,12 +5,15 @@ from datetime import timedelta
 from typing import List
 from typing import Optional
 
+import influxdb_client
+from influxdb_client import Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 from sqlalchemy import delete
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
 
+from trainr.backend.config import config
 from trainr.backend.handler.database.engine import engine
 from trainr.backend.handler.model.reading import ReadingHandlerModel
 from trainr.backend.handler.model.reading import ReadingZoneHandlerModel
@@ -20,6 +23,13 @@ from trainr.backend.handler.model.reading import ThresholdHandlerModel
 class ReadingHandler(ABC):
     def __init__(self):
         self.threshold = None
+
+        self.client = influxdb_client.InfluxDBClient(
+            url=config.influxdb.host,
+            username=config.influxdb.auth.user,
+            password=config.influxdb.auth.password,
+            org=config.influxdb.org
+        )
 
     @property
     @abstractmethod
@@ -31,61 +41,73 @@ class ReadingHandler(ABC):
     def zones_spec(self) -> List[ReadingZoneHandlerModel]:
         pass
 
+    def _run_influxdb_query(self, query: str) -> List[ReadingHandlerModel]:
+        result = []
+
+        query_api = self.client.query_api()
+        query_results = query_api.query(query, org=config.influxdb.org)
+
+        for t in query_results:
+            for r in t.records:
+                r_value = r.get_value()
+                try:
+                    r_time = r['_time']
+                except Exception:
+                    r_time = datetime.now()
+
+                result.append(ReadingHandlerModel(
+                    reading_value=r_value, reading_type=self.reading_type, time=r_time))
+
+        return result
+
     def get_reading(self, seconds: int = 0) -> ReadingHandlerModel:
-        with Session(engine) as session:
-            query_statement = select(ReadingHandlerModel) \
-                .where(ReadingHandlerModel.reading_type == self.reading_type) \
-                .order_by(ReadingHandlerModel.time.desc()) \
-                .limit(1)
+        query = f"""from(bucket: "{config.influxdb.bucket}")
+                    |> range(start: -{seconds}s)
+                    |> filter(fn: (r) => r._measurement == "{self.reading_type}")
+                    |> last()
+                    |> keep(columns: ["_time", "_value"])
+        """
+        try:
+            results = self._run_influxdb_query(query)
 
-            if seconds > 0:
-                time_difference = datetime.now() - timedelta(seconds=seconds)
-                query_statement = query_statement.where(
-                    ReadingHandlerModel.time >= time_difference)
-
-            try:
-                return session.scalars(query_statement).one()
-            except NoResultFound:
-                data = ReadingHandlerModel(
-                    reading_value=0, reading_type=self.reading_type, time=datetime.now())
-
-                return data
+            return results[0]
+        except Exception:
+            return ReadingHandlerModel(reading_value=0, reading_type=self.reading_type, time=datetime.now())
 
     def get_reading_avg(self, seconds: int = 10) -> ReadingHandlerModel:
-        time_difference = datetime.now() - timedelta(seconds=seconds)
+        query = f"""from(bucket: "{config.influxdb.bucket}")
+                            |> range(start: -{seconds}s)
+                            |> filter(fn: (r) => r._measurement == "{self.reading_type}")
+                            |> mean()
+                """
+        try:
+            results = self._run_influxdb_query(query)
 
-        with Session(engine) as session:
-            data = session \
-                .query(func.avg(ReadingHandlerModel.reading_value)) \
-                .filter(ReadingHandlerModel.reading_type == self.reading_type) \
-                .filter(ReadingHandlerModel.time >= time_difference).one()[0]
-
-            reading_value = int(data) if data else 0
-
-            return ReadingHandlerModel(reading_value=reading_value,
-                                       reading_type=self.reading_type,
-                                       time=datetime.now())
+            return results[0]
+        except Exception:
+            return ReadingHandlerModel(reading_value=0, reading_type=self.reading_type, time=datetime.now())
 
     def save_reading(self, value: int):
-        with Session(engine, expire_on_commit=False) as session:
-            data = ReadingHandlerModel(reading_value=value,
-                                       reading_type=self.reading_type,
-                                       time=datetime.now())
+        point = (
+            Point(self.reading_type.value)
+            .field('value', value)
+        )
 
-            session.add(data)
-            session.commit()
+        write_api = self.client.write_api(write_options=SYNCHRONOUS)
+        write_api.write(bucket=config.influxdb.bucket,
+                        org=config.influxdb.org, record=point)
 
-        return data
+        return ReadingHandlerModel(reading_value=value, reading_type=self.reading_type, time=datetime.now())
 
     def get_reading_history(self, seconds: int) -> List[ReadingHandlerModel]:
-        time_difference = datetime.now() - timedelta(seconds=seconds)
+        query = f"""from(bucket: "{config.influxdb.bucket}")
+                    |> range(start: -{seconds}s)
+                    |> filter(fn: (r) => r._measurement == "{self.reading_type}")
+                    |> keep(columns: ["_time", "_value"])
+        """
+        results = self._run_influxdb_query(query)
 
-        with Session(engine) as session:
-            query_statement = select(ReadingHandlerModel) \
-                .where(ReadingHandlerModel.reading_type == self.reading_type) \
-                .where(ReadingHandlerModel.time >= time_difference)
-
-            return session.scalars(query_statement).fetchall()
+        return results
 
     def get_reading_zones(self) -> List[ReadingZoneHandlerModel]:
         with Session(engine) as session:

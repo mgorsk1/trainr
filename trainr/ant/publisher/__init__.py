@@ -8,7 +8,9 @@ from trainr.ant.logger import logger
 
 
 class AntPublisher(ABC):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, device_id: int, **kwargs):
+        self.device_id = device_id
+
         self.api_url = os.getenv(
             'ANT__BACKEND_API_URL', 'http://localhost:8080')
 

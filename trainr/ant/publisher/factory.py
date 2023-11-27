@@ -39,15 +39,15 @@ class AntPublisherFactory:
         return data
 
     @classmethod
-    def get_publisher(cls):
+    def get_publisher(cls, device_id: int):
         publisher_type = AntPublisherFactory.get_reading_type()
 
         if publisher_type == 'HR':
             logger.info('Creating publisher for [HR] reading type.')
-            publisher = HRPublisher()
+            publisher = HRPublisher(device_id)
         elif publisher_type == 'FTP':
             logger.info('Creating publisher for [FTP] reading type.')
-            publisher = FTPPublisher()
+            publisher = FTPPublisher(device_id)
         else:
             raise NotImplementedError(
                 f'Publisher [{publisher_type}] not implemented.')

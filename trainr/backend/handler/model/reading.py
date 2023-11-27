@@ -1,7 +1,7 @@
+import dataclasses
 from datetime import datetime
 
 from sqlalchemy import Column
-from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import String
 
@@ -30,10 +30,8 @@ class ThresholdHandlerModel(Base):
     reading_value = Column(Integer, nullable=False)
 
 
-class ReadingHandlerModel(Base):
-    __tablename__ = "reading"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    time = Column(DateTime, default=datetime.now())
-    reading_type = Column(String, nullable=False)
-    reading_value = Column(Integer, nullable=False)
+@dataclasses.dataclass
+class ReadingHandlerModel:
+    time: datetime
+    reading_type: str
+    reading_value: int

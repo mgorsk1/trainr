@@ -49,21 +49,5 @@ async def shut_down():
 
 
 @app.on_event('startup')
-@repeat_every(seconds=30 * 60)
-def expire_reading_history() -> None:
-    try:
-        reading_type = SystemReadingTypeHandler().get_state().setting_value
-        if reading_type == ReadingType.HR:
-            HRReadingHandler().remove_history()
-        elif reading_type == ReadingType.FTP:
-            FTPReadingHandler().remove_history()
-        else:
-            raise NotImplementedError(
-                f'Expiring history for reading type {reading_type} not implemented.')
-    except Exception as e:
-        print(e.args)
-
-
-@app.on_event('startup')
 async def init():
     init_db()

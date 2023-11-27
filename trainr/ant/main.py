@@ -8,8 +8,9 @@ from trainr.ant.publisher.factory import AntPublisherFactory
 
 @click.command()
 @click.option('--publish-interval', default=10, help='Interval (in seconds) between consecutive publish operations.')
-def run(publish_interval: int):
-    publisher = AntPublisherFactory.get_publisher()
+@click.option('--device-id', default=0, help='ID of ANT+ device. Run "openant scan" to find out what is ID of your device.')
+def run(publish_interval: int, device_id: int):
+    publisher = AntPublisherFactory.get_publisher(device_id)
 
     while True:
         try:

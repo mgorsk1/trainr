@@ -63,7 +63,7 @@ def user_name_modal() -> rx.Component:
                         rx.vstack(
                             rx.input(
                                 placeholder='',
-                                id='"user_name',
+                                id='user_name',
                             ),
                             rx.button('Save', type_='submit'),
                         ),
