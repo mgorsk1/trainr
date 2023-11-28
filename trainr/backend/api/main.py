@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from trainr.backend.api.v1 import v1
 from trainr.backend.api.v1.routers.fan import turn_fan_off
@@ -36,9 +37,9 @@ async def shut_down():
 
     if system_on:
         if reading_type == ReadingType.HR:
-            reading = HRReadingHandler().get_reading(seconds=60)
+            reading = await HRReadingHandler().get_reading(seconds=60)
         elif reading_type == ReadingType.FTP:
-            reading = FTPReadingHandler().get_reading(seconds=60)
+            reading = await FTPReadingHandler().get_reading(seconds=60)
         else:
             raise NotImplementedError(
                 f'Shutting down for reading type {reading_type} not implemented.')
@@ -49,21 +50,8 @@ async def shut_down():
 
 
 @app.on_event('startup')
-@repeat_every(seconds=30 * 60)
-def expire_reading_history() -> None:
-    try:
-        reading_type = SystemReadingTypeHandler().get_state().setting_value
-        if reading_type == ReadingType.HR:
-            HRReadingHandler().remove_history()
-        elif reading_type == ReadingType.FTP:
-            FTPReadingHandler().remove_history()
-        else:
-            raise NotImplementedError(
-                f'Expiring history for reading type {reading_type} not implemented.')
-    except Exception as e:
-        print(e.args)
-
-
-@app.on_event('startup')
 async def init():
     init_db()
+
+
+Instrumentator().instrument(app).expose(app)

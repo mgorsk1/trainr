@@ -21,7 +21,7 @@ services:
       start_period: 10s
       timeout: 10s
     depends_on:
-      - postgresql
+      - influxdb
 
   frontend:
     container_name: frontend
@@ -44,20 +44,50 @@ services:
       start_period: 180s
       timeout: 10s
 
-
-  postgresql:
-    image: postgres
-    restart: always
+  publisher:
+    container_name: publisher
+    build:
+      context: .
+      dockerfile: Dockerfile.ant
     networks:
       - trainr-network
-    environment:
-      POSTGRES_USER: trainr_user
-      POSTGRES_PASSWORD: trainr_password
-      POSTGRES_DB: trainr
-    volumes:
-      - trainr-postgresql-db:/var/lib/postgresql
+    depends_on:
+      - backend
+    command:
+      - --backend-url
+      - http://backend:8080
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    networks:
+      - trainr-network
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
     ports:
-      - 5432:5432
+      - 8086:8086
+
+  influxdbSetup:
+    image: influxdb:latest
+    container_name: influxdb-setup
+    networks:
+      - trainr-network
+    depends_on:
+      - influxdb
+    env_file:
+      - .env
+    command: [
+      'setup',
+      '--host', '$BACKEND__INFLUXDB_HOST',
+      '--org', '$BACKEND__INFLUXDB_ORG',
+      '--bucket' ,'$BACKEND__INFLUXDB_BUCKET',
+      '--username' , '$BACKEND__INFLUXDB_USER',
+      '--password', '$BACKEND__INFLUXDB_PASSWORD',
+      '--retention', '4h',
+      '--force'
+    ]
+    entrypoint: [ 'influx' ]
 
 networks:
   trainr-network:
@@ -65,5 +95,4 @@ networks:
 volumes:
   trainr-backend-db:
     driver: local
-  trainr-postgresql-db:
-    driver: local
+
