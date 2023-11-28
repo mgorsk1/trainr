@@ -37,9 +37,9 @@ async def shut_down():
 
     if system_on:
         if reading_type == ReadingType.HR:
-            reading = HRReadingHandler().get_reading(seconds=60)
+            reading = await HRReadingHandler().get_reading(seconds=60)
         elif reading_type == ReadingType.FTP:
-            reading = FTPReadingHandler().get_reading(seconds=60)
+            reading = await FTPReadingHandler().get_reading(seconds=60)
         else:
             raise NotImplementedError(
                 f'Shutting down for reading type {reading_type} not implemented.')
