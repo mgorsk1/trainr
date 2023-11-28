@@ -208,8 +208,9 @@ class State(rx.State):
             ref_df['time'] = ref_df['time'].astype('datetime64[ns]')
 
             df = pd.concat([ref_df, data_df])
-            df['time_label'] = df['time'].apply(lambda x: x.strftime('%H:%M'))
+            df['time_label'] = df['time'].apply(lambda x: x.strftime('%H:%M:%S'))
 
+            df = df.sort_values(by='time')
             result = df.to_dict('records')
         except Exception:
             result = []
@@ -244,7 +245,7 @@ class State(rx.State):
             self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN), z.get('range_to', defaults.UNKNOWN)) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
             self.reading_history = requests \
-                .get(f'{api_url}/{self.system_reading_type.lower()}/history?seconds=3600') \
+                .get(f'{api_url}/{self.system_reading_type.lower()}/history', params=dict(seconds=3600)) \
                 .json()
         except (ConnectionError, AttributeError):
             self.reading_zones = []

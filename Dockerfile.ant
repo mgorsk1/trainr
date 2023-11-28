@@ -9,6 +9,11 @@ ENV VIRTUAL_ENV=/app/trainr/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV PYTHONPATH=$VIRTUAL_ENV:/app
 
-RUN python3.9 -m venv $VIRTUAL_ENV && pip install -r requirements.txt
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y libusb-1.0-0-dev && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3.9 -m venv $VIRTUAL_ENV && \
+    pip install -r requirements.txt
 
 ENTRYPOINT ["python3", "/app/trainr/ant/main.py"]
