@@ -9,3 +9,6 @@ SQLAlchemy==1.4.41
 tinytuya==1.13.0
 uvicorn==0.20.0
 influxdb-client
+aiohttp
+aiocsv
+prometheus-fastapi-instrumentator

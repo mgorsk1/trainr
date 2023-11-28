@@ -5,9 +5,8 @@ from datetime import timedelta
 from typing import List
 from typing import Optional
 
-import influxdb_client
 from influxdb_client import Point
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 from sqlalchemy import delete
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -24,7 +23,7 @@ class ReadingHandler(ABC):
     def __init__(self):
         self.threshold = None
 
-        self.client = influxdb_client.InfluxDBClient(
+        self.client = InfluxDBClientAsync(
             url=config.influxdb.host,
             username=config.influxdb.auth.user,
             password=config.influxdb.auth.password,
@@ -41,11 +40,11 @@ class ReadingHandler(ABC):
     def zones_spec(self) -> List[ReadingZoneHandlerModel]:
         pass
 
-    def _run_influxdb_query(self, query: str) -> List[ReadingHandlerModel]:
+    async def _run_influxdb_query(self, query: str) -> List[ReadingHandlerModel]:
         result = []
 
         query_api = self.client.query_api()
-        query_results = query_api.query(query, org=config.influxdb.org)
+        query_results = await query_api.query(query, org=config.influxdb.org)
 
         for t in query_results:
             for r in t.records:
@@ -60,7 +59,7 @@ class ReadingHandler(ABC):
 
         return result
 
-    def get_reading(self, seconds: int = 0) -> ReadingHandlerModel:
+    async def get_reading(self, seconds: int = 0) -> ReadingHandlerModel:
         query = f"""from(bucket: "{config.influxdb.bucket}")
                     |> range(start: -{seconds}s)
                     |> filter(fn: (r) => r._measurement == "{self.reading_type}")
@@ -68,34 +67,33 @@ class ReadingHandler(ABC):
                     |> keep(columns: ["_time", "_value"])
         """
         try:
-            results = self._run_influxdb_query(query)
+            results = await self._run_influxdb_query(query)
 
             return results[0]
         except Exception:
             return ReadingHandlerModel(reading_value=0, reading_type=self.reading_type, time=datetime.now())
 
-    def get_reading_avg(self, seconds: int = 10) -> ReadingHandlerModel:
+    async def get_reading_avg(self, seconds: int = 10) -> ReadingHandlerModel:
         query = f"""from(bucket: "{config.influxdb.bucket}")
                             |> range(start: -{seconds}s)
                             |> filter(fn: (r) => r._measurement == "{self.reading_type}")
                             |> mean()
                 """
         try:
-            results = self._run_influxdb_query(query)
+            results = await self._run_influxdb_query(query)
 
             return results[0]
         except Exception:
             return ReadingHandlerModel(reading_value=0, reading_type=self.reading_type, time=datetime.now())
 
-    def save_reading(self, value: int):
+    async def save_reading(self, value: int):
         point = (
             Point(self.reading_type.value)
             .field('value', value)
         )
 
-        write_api = self.client.write_api(write_options=SYNCHRONOUS)
-        write_api.write(bucket=config.influxdb.bucket,
-                        org=config.influxdb.org, record=point)
+        write_api = self.client.write_api()
+        await write_api.write(bucket=config.influxdb.bucket, org=config.influxdb.org, record=point)
 
         return ReadingHandlerModel(reading_value=value, reading_type=self.reading_type, time=datetime.now())
 

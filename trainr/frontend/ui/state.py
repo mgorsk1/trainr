@@ -201,7 +201,8 @@ class State(rx.State):
             ref_df = pd.DataFrame(dfi)
             ref_df.columns = ['time']
 
-            data_df = pd.DataFrame(pd_input).groupby(pd.Grouper(freq=f'{freq_seconds}S', key='time')).first().reset_index()
+            data_df = pd.DataFrame(pd_input).groupby(pd.Grouper(
+                freq=f'{freq_seconds}S', key='time')).first().reset_index()
 
             data_df['time'] = data_df['time'].astype('datetime64[ns]')
             ref_df['time'] = ref_df['time'].astype('datetime64[ns]')

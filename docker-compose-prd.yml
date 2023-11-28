@@ -59,8 +59,9 @@ services:
       - trainr-prd-network
     depends_on:
       - backend
-    environment:
-      ANT__BACKEND_API_URL: http://backend:8080
+    command:
+      - --backend-url
+      - http://backend:8080
 
   influxdb:
     image: influxdb:latest

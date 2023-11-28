@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
-
+from prometheus_fastapi_instrumentator import Instrumentator
 from trainr.backend.api.v1 import v1
 from trainr.backend.api.v1.routers.fan import turn_fan_off
 from trainr.backend.api.v1.routers.light import turn_light_off
@@ -51,3 +51,6 @@ async def shut_down():
 @app.on_event('startup')
 async def init():
     init_db()
+
+
+Instrumentator().instrument(app).expose(app)

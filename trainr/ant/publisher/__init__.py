@@ -11,8 +11,7 @@ class AntPublisher(ABC):
     def __init__(self, device_id: int, **kwargs):
         self.device_id = device_id
 
-        self.api_url = os.getenv(
-            'ANT__BACKEND_API_URL', 'http://localhost:8080')
+        self.api_url = kwargs.get('backend_url', 'http://localhost:8080')
 
     @property
     @abstractmethod

@@ -65,9 +65,9 @@ def get_router(handler):
     @router.get('/', tags=tags, response_model=ReadingInfoApiModel, summary=f'Get last {handler.reading_type} reading.')
     async def get_current_reading(seconds: int = 10, function: ReadingFunction = ReadingFunction.LAST):
         if function == ReadingFunction.LAST:
-            data = handler.get_reading(seconds)
+            data = await handler.get_reading(seconds)
         elif function == ReadingFunction.AVG:
-            data = handler.get_reading_avg(seconds)
+            data = await handler.get_reading_avg(seconds)
         else:
             raise NotImplementedError(
                 f'Reading function {function} not supported')
@@ -78,7 +78,7 @@ def get_router(handler):
                  summary=f'Register {handler.reading_type} reading.')
     async def set_current_reading(reading: ReadingInputApiModel,
                                   background_tasks: BackgroundTasks) -> ReadingInfoApiModel:
-        data = handler.save_reading(reading.reading)
+        data = await handler.save_reading(reading.reading)
 
         background_tasks.add_task(adjust_system)
 
@@ -87,7 +87,7 @@ def get_router(handler):
     @router.get('/history', tags=tags, response_model=List[ReadingInfoApiModel],
                 summary=f'Get {handler.reading_type} reading history.')
     async def get_reading_history(seconds: int = 10) -> List[ReadingInfoApiModel]:
-        data = handler.get_reading_history(seconds)
+        data = await handler.get_reading_history(seconds)
 
         return [ReadingInfoApiModel(reading=r.reading_value, time=r.time.strftime('%s')) for r in data]
 
