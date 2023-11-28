@@ -1,4 +1,5 @@
-import random
+from openant.devices.power_meter import PowerData
+from openant.devices.power_meter import PowerMeter
 
 from trainr.ant.publisher import AntPublisher
 
@@ -8,6 +9,6 @@ class FTPPublisher(AntPublisher):
     def reading_type(self) -> str:
         return 'ftp'
 
-    def get(self):
-        # @todo implement actual
-        return random.randrange(100, 210)
+    @property
+    def ant_classes(self):
+        return PowerMeter, PowerData

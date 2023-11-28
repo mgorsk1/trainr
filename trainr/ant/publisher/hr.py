@@ -1,4 +1,5 @@
-import random
+from openant.devices.heart_rate import HeartRate
+from openant.devices.heart_rate import HeartRateData
 
 from trainr.ant.publisher import AntPublisher
 
@@ -8,6 +9,6 @@ class HRPublisher(AntPublisher):
     def reading_type(self) -> str:
         return 'hr'
 
-    def get(self):
-        # @todo implement actual
-        return random.randrange(90, 180)
+    @property
+    def ant_classes(self):
+        return HeartRate, HeartRateData

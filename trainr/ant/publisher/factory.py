@@ -29,7 +29,7 @@ class ReadingTypeWatcher(threading.Thread):
 
 
 class AntPublisherFactory:
-    api_url = os.getenv('ANT__BACKEND_API_URL', 'http://localhost:8080')
+    api_url = None
 
     @classmethod
     def get_reading_type(cls):
