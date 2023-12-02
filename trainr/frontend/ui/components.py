@@ -90,11 +90,11 @@ def user_name_modal() -> rx.Component:
                     rx.form(
                         rx.vstack(
                             rx.hstack(
-                                rx.box(rx.center(rx.text('My name is', as_='i')), width='11%'),
+                                rx.box(rx.center(rx.text('My name is')), width='11%'),
                                 rx.box(user_name_input(), width='24%'),
-                                rx.box(rx.center(rx.text('and my Threshold', as_='i')), width='20%'),
+                                rx.box(rx.center(rx.text('and my Threshold')), width='20%'),
                                 rx.box(reading_type_input(), width='15%'),
-                                rx.box(rx.center(rx.text('is', as_='i')), width='5%'),
+                                rx.box(rx.center(rx.text('is')), width='5%'),
                                 rx.box(threshold_input(), width='15%'),
                             ),
                             rx.button('Save', type_='submit'),
