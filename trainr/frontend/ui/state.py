@@ -20,6 +20,7 @@ api_url = os.getenv('FRONTEND__API_URL', 'http://localhost:8080/api/v1')
 
 
 class State(rx.State):
+    system_initialized: bool = True
     system_mode: str
     system_reading_type: str
     system_last_seconds: int
@@ -56,6 +57,10 @@ class State(rx.State):
     def system_user_name_not_set(self) -> bool:
         return True if len(self.system_user_name) < 1 else False
 
+    @rx.var
+    def system_not_initialized(self) -> bool:
+        return not self.system_initialized
+
     def toggle_system_mode(self, mode_auto: bool):
         if not mode_auto:
             payload = {'setting_value': SystemMode.MANUAL}
@@ -64,15 +69,6 @@ class State(rx.State):
 
         result = requests.put(f'{api_url}/system/mode', json=payload)
         self.system_mode = result.json().get('setting_value', defaults.UNKNOWN)
-
-    def set_reading_type(self, system_reading_type: str):
-        result = requests.put(f'{api_url}/system/reading_type',
-                              json={'setting_value': system_reading_type})
-
-        self.system_reading_type = result.json().get('setting_value', defaults.UNKNOWN)
-
-        self.refresh_system_state()
-        self.refresh_reading_state()
 
     def set_last_seconds(self, system_last_seconds: int):
         result = requests.put(f'{api_url}/system/last_seconds',
@@ -83,14 +79,50 @@ class State(rx.State):
 
         self.refresh_system_state()
 
-    def set_user_name(self, user_name: str):
-        self.system_user_name = user_name
+    def set_reading_type(self, system_reading_type: str):
+        self.system_reading_type = system_reading_type
 
-    def save_user_name(self, system_user_name):
+    def save_reading_type(self, system_reading_type: dict):
+        system_reading_type = system_reading_type['reading_type']
+
+        result = requests.put(f'{api_url}/system/reading_type',
+                              json={'setting_value': system_reading_type})
+
+        self.system_reading_type = result.json().get('setting_value', defaults.UNKNOWN)
+
+        self.refresh_system_state()
+        self.refresh_reading_state()
+
+    def set_user_name(self, system_user_name: str):
+        self.system_user_name = system_user_name
+
+    def save_user_name(self, system_user_name: dict):
+        system_user_name = system_user_name['user_name']
         result = requests.put(f'{api_url}/system/user_name',
-                              json={'setting_value': system_user_name['user_name']})
+                              json={'setting_value': system_user_name})
 
         self.system_user_name = result.json()['setting_value']
+
+        self.refresh_system_state()
+
+    def save_user_data(self, user_data):
+        user_name = user_data['user_name']
+        reading_type = user_data['reading_type']
+        threshold = user_data['reading_threshold']
+
+        self.save_user_name(dict(user_name=user_name))
+        self.save_threshold(dict(reading_threshold=threshold))
+        self.save_reading_type(dict(reading_type=reading_type))
+
+        self.save_system_initialized('true')
+
+        self.refresh_system_state()
+
+    def save_system_initialized(self, status: str):
+        result = requests.put(f'{api_url}/system/initialized',
+                              json={'setting_value': status})
+
+        self.system_initialized = result.json()['setting_value']
 
         self.refresh_system_state()
 
@@ -118,6 +150,11 @@ class State(rx.State):
                 f'{api_url}/system/user_name/').json()['setting_value']
         except (ConnectionError, AttributeError, KeyError):
             self.system_user_name = ''
+        try:
+            self.system_initialized = requests.get(
+                f'{api_url}/system/initialized/').json()['setting_value'] == 'true'
+        except (ConnectionError, AttributeError, KeyError):
+            self.system_initialized = False
 
         self.refresh_backend_health()
 
@@ -141,8 +178,8 @@ class State(rx.State):
         default_zone = {'zone': -1, 'display_name': f'Zone {defaults.UNKNOWN}'}
         try:
             return \
-                requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
-                             params=dict(hr=self.reading_value)).json() or default_zone
+                    requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
+                                 params=dict(hr=self.reading_value)).json() or default_zone
         except (AttributeError, KeyError, ConnectionError):
             return default_zone
 
@@ -208,7 +245,8 @@ class State(rx.State):
             ref_df['time'] = ref_df['time'].astype('datetime64[ns]')
 
             df = pd.concat([ref_df, data_df])
-            df['time_label'] = df['time'].apply(lambda x: x.strftime('%H:%M:%S'))
+            df['time_label'] = df['time'].apply(
+                lambda x: x.strftime('%H:%M:%S'))
 
             df = df.sort_values(by='time')
             result = df.to_dict('records')
@@ -217,11 +255,11 @@ class State(rx.State):
 
         return result
 
-    def set_threshold(self, threshold: int):
-        self.reading_threshold = threshold
+    def set_threshold(self, reading_threshold: int):
+        self.reading_threshold = reading_threshold
 
-    def save_threshold(self, threshold: dict):
-        self.reading_threshold = threshold['reading_threshold']
+    def save_threshold(self, reading_threshold: dict):
+        self.reading_threshold = reading_threshold['reading_threshold']
 
         self.save_zones()
 
@@ -230,7 +268,8 @@ class State(rx.State):
                      json={'threshold': self.reading_threshold})
 
         try:
-            self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN), z.get('range_to', defaults.UNKNOWN)) for z in
+            self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN),
+                                   z.get('range_to', defaults.UNKNOWN)) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
         except (ConnectionError, AttributeError):
             self.reading_zones = []
@@ -242,7 +281,8 @@ class State(rx.State):
                 .json() \
                 .get('threshold', 0)
 
-            self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN), z.get('range_to', defaults.UNKNOWN)) for z in
+            self.reading_zones = [(z.get('zone', defaults.UNKNOWN), z.get('range_from', defaults.UNKNOWN),
+                                   z.get('range_to', defaults.UNKNOWN)) for z in
                                   requests.get(f'{api_url}/{self.system_reading_type.lower()}/zones').json()]
             self.reading_history = requests \
                 .get(f'{api_url}/{self.system_reading_type.lower()}/history', params=dict(seconds=3600)) \

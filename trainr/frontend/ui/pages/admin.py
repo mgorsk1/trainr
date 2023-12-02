@@ -1,6 +1,6 @@
 import reflex as rx
 
-from trainr.frontend.ui.components import backend_health
+from trainr.frontend.ui.components import backend_health, threshold_input, user_name_input, reading_type_input
 from trainr.frontend.ui.components import heading
 from trainr.frontend.ui.components import user_name_modal
 from trainr.frontend.ui.state import State
@@ -30,11 +30,14 @@ def admin() -> rx.Component:
                 rx.responsive_grid(
                     rx.card(
                         rx.card_body(
-                            rx.select(
-                                ['HR', 'FTP'],
-                                value=State.system_reading_type,
-                                on_change=State.set_reading_type,
-                            ),
+                            rx.form(
+                                rx.hstack(
+                                    reading_type_input(**dict(margin_bottom='10px')),
+                                    rx.button('Save', type_='submit')
+                                ),
+                                on_submit=State.save_reading_type,
+                                reset_on_submit=False
+                            )
                         ),
                         header=rx.heading(
                             f'Reading Source {State.reading_type_emoji}', size='md'),
@@ -49,12 +52,7 @@ def admin() -> rx.Component:
                         rx.card_body(
                             rx.form(
                                 rx.hstack(
-                                    rx.number_input(
-                                        value=State.reading_threshold,
-                                        on_change=State.set_threshold,
-                                        padding_top='10px',
-                                        id='reading_threshold',
-                                    ),
+                                    threshold_input(**dict(margin_top='8px')),
                                     rx.button('Save', type_='submit')
                                 ),
                                 on_submit=State.save_threshold,
@@ -110,11 +108,7 @@ def admin() -> rx.Component:
                         rx.card_body(
                             rx.form(
                                 rx.hstack(
-                                    rx.input(
-                                        value=State.system_user_name,
-                                        on_change=State.set_user_name,
-                                        id='user_name',
-                                    ),
+                                    user_name_input(),
                                     rx.button('Save', type_='submit')
                                 ),
                                 on_submit=State.save_user_name,
