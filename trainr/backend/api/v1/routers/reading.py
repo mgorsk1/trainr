@@ -52,8 +52,8 @@ def get_router(handler):
             else ftp_zone_to_fan_speed_mapping
 
         if system_on and reading_avg > 0:
-            zone = await get_zones(hr=reading_avg)
-            zone = zone[0].zone if zone else None
+            zone = await get_zone(reading=reading_avg)
+            zone = zone.zone if zone else None
 
             if zone:
                 if light_color := zone_to_light_spec_mapping.get(zone):
@@ -92,17 +92,8 @@ def get_router(handler):
         return [ReadingInfoApiModel(reading=r.reading_value, time=r.time.strftime('%s')) for r in data]
 
     @router.get('/zones', tags=tags, response_model=List[ZoneInfoApiModel])
-    async def get_zones(zone: int = -1, hr: int = -1) -> List[ZoneInfoApiModel]:
-        if zone > 0:
-            data = handler.get_reading_zone(zone)
-        elif hr >= 0:
-            data = handler.get_reading_zone_by_reading(hr)
-        else:
-            data = handler.get_reading_zones()
-
-        data = data or []
-
-        data = data if isinstance(data, list) else [data]
+    async def get_zones() -> List[ZoneInfoApiModel]:
+        data = handler.get_reading_zones()
 
         return [ZoneInfoApiModel(zone=r.zone,
                                  range_from=r.range_from,
@@ -112,11 +103,11 @@ def get_router(handler):
 
     @router.get('/zone', tags=tags, response_model=Optional[ZoneInfoApiModel],
                 summary=f'Get {handler.reading_type} zone.')
-    async def get_zone(zone: int = -1, hr: int = -1) -> Optional[ZoneInfoApiModel]:
+    async def get_zone(zone: int = -1, reading: int = -1) -> Optional[ZoneInfoApiModel]:
         if zone > 0:
             data = handler.get_reading_zone(zone)
-        elif hr >= 0:
-            data = handler.get_reading_zone_by_reading(hr)
+        elif reading >= 0:
+            data = handler.get_reading_zone_by_reading(reading)
         else:
             return None
 

@@ -1,3 +1,5 @@
+from typing import Any
+
 from openant.devices.heart_rate import HeartRate
 from openant.devices.heart_rate import HeartRateData
 
@@ -12,3 +14,6 @@ class HRPublisher(AntPublisher):
     @property
     def ant_classes(self):
         return HeartRate, HeartRateData
+
+    def get_reading_from_data(self, data: Any) -> int:
+        return int(data.heart_rate)

@@ -1,7 +1,7 @@
-import time
 from abc import ABC
 from abc import abstractmethod
 from datetime import datetime
+from typing import Any
 from typing import Tuple
 
 import requests
@@ -30,6 +30,10 @@ class AntPublisher(ABC):
     def ant_classes(self) -> Tuple:
         pass
 
+    @abstractmethod
+    def get_reading_from_data(self, data: Any) -> int:
+        pass
+
     def run(self, publish_interval: int):
         device_class, device_data_class = self.ant_classes
         node = Node()
@@ -42,7 +46,8 @@ class AntPublisher(ABC):
             if isinstance(data, device_data_class):
                 publish_now = datetime.now()
                 if (publish_now - self.publish_time).seconds > publish_interval:
-                    self._publish(data.heart_rate)
+                    reading = self.get_reading_from_data(data)
+                    self._publish(reading)
                     self.publish_time = publish_now
 
         device = device_class(node, device_id=self.device_id)

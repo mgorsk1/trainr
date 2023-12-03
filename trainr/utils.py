@@ -37,7 +37,7 @@ fan_speed_to_display_name_mapping: Dict[int, str] = {
 light_name_to_spec_mapping = {
     'WHITE': LightColor(hue=41216, saturation=56, name='gray'),
     'BLUE': LightColor(hue=44133, saturation=220, name='blue'),
-    'NAVY': LightColor(hue=44133, saturation=254, name='green'),
+    'NAVY': LightColor(hue=44133, saturation=254, name='navy'),
     'GREEN': LightColor(hue=22658, saturation=209, name='green'),
     'YELLOW': LightColor(hue=9532, saturation=207, name='yellow'),
     'ORANGE': LightColor(hue=6291, saturation=251, name='orange'),
