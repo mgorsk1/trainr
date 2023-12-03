@@ -3,8 +3,10 @@ from fastapi_utils.tasks import repeat_every
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from trainr.backend.api.v1 import v1
+from trainr.backend.api.v1.model.light import Color
+from trainr.backend.api.v1.model.light import LightColorInputApiModel
 from trainr.backend.api.v1.routers.fan import turn_fan_off
-from trainr.backend.api.v1.routers.light import turn_light_off
+from trainr.backend.api.v1.routers.light import set_light_color
 from trainr.backend.handler.database.engine import init_db
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
 from trainr.backend.handler.reading.hr import HRReadingHandler
@@ -46,7 +48,7 @@ async def shut_down():
 
         if reading.reading_value < 1:
             await turn_fan_off()
-            await turn_light_off()
+            await set_light_color(LightColorInputApiModel(color_name=Color.WHITE))
 
 
 @app.on_event('startup')
