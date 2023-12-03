@@ -23,13 +23,6 @@ class ReadingHandler(ABC):
     def __init__(self):
         self.threshold = None
 
-        self.client = InfluxDBClientAsync(
-            url=config.influxdb.host,
-            username=config.influxdb.auth.user,
-            password=config.influxdb.auth.password,
-            org=config.influxdb.org
-        )
-
     @property
     @abstractmethod
     def reading_type(self):
@@ -43,21 +36,26 @@ class ReadingHandler(ABC):
     async def _run_influxdb_query(self, query: str) -> List[ReadingHandlerModel]:
         result = []
 
-        query_api = self.client.query_api()
-        query_results = await query_api.query(query, org=config.influxdb.org)
+        async with InfluxDBClientAsync(url=config.influxdb.host,
+                                       username=config.influxdb.auth.user,
+                                       password=config.influxdb.auth.password,
+                                       org=config.influxdb.org) as client:
 
-        for t in query_results:
-            for r in t.records:
-                r_value = r.get_value()
-                try:
-                    r_time = r['_time']
-                except Exception:
-                    r_time = datetime.now()
+            query_api = client.query_api()
+            query_results = await query_api.query(query, org=config.influxdb.org)
 
-                result.append(ReadingHandlerModel(
-                    reading_value=r_value, reading_type=self.reading_type, time=r_time))
+            for t in query_results:
+                for r in t.records:
+                    r_value = r.get_value()
+                    try:
+                        r_time = r['_time']
+                    except Exception:
+                        r_time = datetime.now()
 
-        return result
+                    result.append(ReadingHandlerModel(
+                        reading_value=r_value, reading_type=self.reading_type, time=r_time))
+
+            return result
 
     async def get_reading(self, seconds: int = 0) -> ReadingHandlerModel:
         query = f"""from(bucket: "{config.influxdb.bucket}")
@@ -92,10 +90,15 @@ class ReadingHandler(ABC):
             .field('value', value)
         )
 
-        write_api = self.client.write_api()
-        await write_api.write(bucket=config.influxdb.bucket, org=config.influxdb.org, record=point)
+        async with InfluxDBClientAsync(url=config.influxdb.host,
+                                       username=config.influxdb.auth.user,
+                                       password=config.influxdb.auth.password,
+                                       org=config.influxdb.org) as client:
+            write_api = client.write_api()
 
-        return ReadingHandlerModel(reading_value=value, reading_type=self.reading_type, time=datetime.now())
+            await write_api.write(bucket=config.influxdb.bucket, org=config.influxdb.org, record=point)
+
+            return ReadingHandlerModel(reading_value=value, reading_type=self.reading_type, time=datetime.now())
 
     def get_reading_history(self, seconds: int) -> List[ReadingHandlerModel]:
         query = f"""from(bucket: "{config.influxdb.bucket}")
