@@ -8,7 +8,6 @@ fan:
 light:
   cls: ${BACKEND__LIGHT_CLS:-HueGroup}
   settings:
-    hue_bridge_ip: ${BACKEND__HUE_BRIDGE_IP:-192.168.0.2}
     hue_bridge_username: ${BACKEND__HUE_BRIDGE_USERNAME:-__empty__}
     hue_bridge_group_name: ${BACKEND__HUE_BRIDGE_GROUP_NAME:-Salon}
 

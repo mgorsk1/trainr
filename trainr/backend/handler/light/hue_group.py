@@ -1,3 +1,6 @@
+from json import loads
+
+from huesdk import Discover
 from huesdk import Hue
 
 from trainr.backend.handler.light.base import LightHandler
@@ -9,7 +12,15 @@ class HueGroup(LightHandler):
     def __init__(self, config, **kwargs):
         super().__init__(config, **kwargs)
 
-        self.hue = Hue(bridge_ip=self.config.hue_bridge_ip,
+        try:
+            discover = Discover()
+
+            bridge_ip = loads(discover.find_hue_bridge())[
+                0].get('internalipaddress')
+        except Exception:
+            raise ConnectionError('Hue Bridge IP not found!')
+
+        self.hue = Hue(bridge_ip=bridge_ip,
                        username=self.config.hue_bridge_username)
 
         self.group = self.hue.get_group(name=self.config.hue_bridge_group_name)
