@@ -179,7 +179,7 @@ class State(rx.State):
         try:
             return \
                 requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
-                             params=dict(hr=self.reading_value)).json() or default_zone
+                             params=dict(reading=self.reading_value)).json() or default_zone
         except (AttributeError, KeyError, ConnectionError):
             return default_zone
 
