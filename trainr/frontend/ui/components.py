@@ -90,9 +90,11 @@ def user_name_modal() -> rx.Component:
                     rx.form(
                         rx.vstack(
                             rx.hstack(
-                                rx.box(rx.center(rx.text('My name is')), width='11%'),
+                                rx.box(rx.center(rx.text('My name is')),
+                                       width='11%'),
                                 rx.box(user_name_input(), width='24%'),
-                                rx.box(rx.center(rx.text('and my Threshold')), width='20%'),
+                                rx.box(
+                                    rx.center(rx.text('and my Threshold')), width='20%'),
                                 rx.box(reading_type_input(), width='15%'),
                                 rx.box(rx.center(rx.text('is')), width='5%'),
                                 rx.box(threshold_input(), width='15%'),
@@ -102,7 +104,8 @@ def user_name_modal() -> rx.Component:
                         on_submit=State.save_user_data,
                     ),
                 ),
-                rx.modal_footer(rx.text('💡You can change this configuration later in the admin menu.', as_='small'))
+                rx.modal_footer(rx.text(
+                    '💡You can change this configuration later in the admin menu.', as_='small'))
             ),
         ),
         is_open=State.system_not_initialized,

@@ -1,7 +1,10 @@
 import reflex as rx
 
-from trainr.frontend.ui.components import backend_health, threshold_input, user_name_input, reading_type_input
+from trainr.frontend.ui.components import backend_health
 from trainr.frontend.ui.components import heading
+from trainr.frontend.ui.components import reading_type_input
+from trainr.frontend.ui.components import threshold_input
+from trainr.frontend.ui.components import user_name_input
 from trainr.frontend.ui.components import user_name_modal
 from trainr.frontend.ui.state import State
 from trainr.utils import fan_speed_name_to_int_mapping
@@ -32,7 +35,8 @@ def admin() -> rx.Component:
                         rx.card_body(
                             rx.form(
                                 rx.hstack(
-                                    reading_type_input(**dict(margin_bottom='10px')),
+                                    reading_type_input(
+                                        **dict(margin_bottom='10px')),
                                     rx.button('Save', type_='submit')
                                 ),
                                 on_submit=State.save_reading_type,
