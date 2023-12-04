@@ -11,6 +11,13 @@ light:
     hue_bridge_username: ${BACKEND__HUE_BRIDGE_USERNAME:-__empty__}
     hue_bridge_group_name: ${BACKEND__HUE_BRIDGE_GROUP_NAME:-Salon}
 
+motivation:
+  cls: ${BACKEND__MOTIVATION_CLS:-SonosMotivation}
+  settings:
+    coach: snoop_dogg
+    url: http://fort.local/sonosapi
+    room: Robert Plant
+
 influxdb:
   host: ${BACKEND__INFLUXDB_HOST:-http://localhost:8086}
   org: ${BACKEND__INFLUXDB_ORG:-trainr}

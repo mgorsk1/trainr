@@ -26,6 +26,7 @@ class State(rx.State):
     system_last_seconds: int
     system_backend_healthy: bool = True
     system_user_name: str = ' '
+    system_coach_name: str
 
     reading_value: int = 0
     reading_threshold: int
@@ -118,6 +119,21 @@ class State(rx.State):
 
         self.refresh_system_state()
 
+    def set_coach_name(self, system_coach_name: str):
+        self.system_coach_name = system_coach_name
+
+    def save_coach_name(self, system_coach_name: dict):
+        coach_name = system_coach_name['coach_name']
+
+        result = requests.put(f'{api_url}/system/coach',
+                              json={'setting_value': coach_name.lower().replace(' ', '_')})
+
+        print(result)
+
+        self.system_coach_name = result.json().get('setting_value', defaults.UNKNOWN).replace('_', ' ').title()
+
+        self.refresh_system_state()
+
     def save_system_initialized(self, status: str):
         result = requests.put(f'{api_url}/system/initialized',
                               json={'setting_value': status})
@@ -150,11 +166,18 @@ class State(rx.State):
                 f'{api_url}/system/user_name/').json()['setting_value']
         except (ConnectionError, AttributeError, KeyError):
             self.system_user_name = ''
+
         try:
             self.system_initialized = requests.get(
                 f'{api_url}/system/initialized/').json()['setting_value'] == 'true'
         except (ConnectionError, AttributeError, KeyError):
             self.system_initialized = False
+
+        try:
+            self.system_coach_name = requests.get(
+                f'{api_url}/system/coach/').json()['setting_value'].title().replace('_', ' ')
+        except (ConnectionError, AttributeError, KeyError):
+            self.system_coach_name = defaults.UNKNOWN
 
         self.refresh_backend_health()
 

@@ -1,6 +1,6 @@
 import reflex as rx
 
-from trainr.frontend.ui.components import backend_health
+from trainr.frontend.ui.components import backend_health, coach_name_input
 from trainr.frontend.ui.components import heading
 from trainr.frontend.ui.components import reading_type_input
 from trainr.frontend.ui.components import threshold_input
@@ -113,18 +113,41 @@ def admin() -> rx.Component:
                             rx.form(
                                 rx.hstack(
                                     user_name_input(),
-                                    rx.button('Save', type_='submit')
+                                    rx.button('Save', type_='submit'),
+                                    margin_top='10px'
                                 ),
                                 on_submit=State.save_user_name,
                                 reset_on_submit=False
                             )
                         ),
                         header=rx.heading(
-                            f'User Name',
+                            f'User Name 🚴',
                             size='md'
                         ),
                         footer=rx.text(
                             'How do you want to be called?',
+                            as_='i',
+                            font_size='0.4em',
+                            padding_top='10px'
+                        ),
+                    ),
+                    rx.card(
+                        rx.card_body(
+                            rx.form(
+                                rx.hstack(
+                                    coach_name_input(**dict(margin_bottom='10px')),
+                                    rx.button('Save', type_='submit')
+                                ),
+                                on_submit=State.save_coach_name,
+                                reset_on_submit=False
+                            )
+                        ),
+                        header=rx.heading(
+                            f'Coach Name 👨‍🏫',
+                            size='md'
+                        ),
+                        footer=rx.text(
+                            'Who do you want to motivate you?',
                             as_='i',
                             font_size='0.4em',
                             padding_top='10px'

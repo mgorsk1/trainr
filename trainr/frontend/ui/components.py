@@ -81,6 +81,16 @@ def reading_type_input(**kwargs) -> rx.Component:
     )
 
 
+def coach_name_input(**kwargs) -> rx.Component:
+    return rx.select(
+        ['Snoop Dogg', 'Gordon Ramsay', 'Morgan Freeman'],
+        value=State.system_coach_name,
+        on_change=State.set_coach_name,
+        id='coach_name',
+        **kwargs
+    )
+
+
 def user_name_modal() -> rx.Component:
     return rx.modal(
         rx.modal_overlay(

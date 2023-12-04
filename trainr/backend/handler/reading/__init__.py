@@ -23,6 +23,7 @@ class ReadingHandler(ABC):
     def __init__(self):
         self.threshold = None
 
+
     @property
     @abstractmethod
     def reading_type(self):
@@ -94,6 +95,7 @@ class ReadingHandler(ABC):
                                        username=config.influxdb.auth.user,
                                        password=config.influxdb.auth.password,
                                        org=config.influxdb.org) as client:
+
             write_api = client.write_api()
 
             await write_api.write(bucket=config.influxdb.bucket, org=config.influxdb.org, record=point)
