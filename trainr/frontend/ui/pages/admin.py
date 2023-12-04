@@ -101,7 +101,7 @@ def admin() -> rx.Component:
                                 border_radius='10px'
                             )
                         ),
-                        header=rx.heading('Last Seconds', size='md'),
+                        header=rx.heading('Last Seconds ⏱️', size='md'),
                         footer=rx.text(
                             'Time period for which readings are collected.',
                             as_='i',
@@ -197,7 +197,7 @@ def admin() -> rx.Component:
                             is_disabled=State.system_mode_auto
                         ),
                         header=rx.heading(
-                            'Fan Settings',
+                            'Fan Settings 💨',
                             size='md',
                             color=State.system_mode_header_color
                         ),
@@ -216,7 +216,7 @@ def admin() -> rx.Component:
                             is_disabled=State.system_mode_auto
                         ),
                         header=rx.heading(
-                            'Light Settings',
+                            'Light Settings 💡',
                             size='md',
                             color=State.system_mode_header_color
                         ),
