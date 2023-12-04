@@ -11,7 +11,7 @@ class SonosMotivation(MotivationHandler):
         self.room = config.room
 
     def say(self, coach: str) -> str:
-        text = self.get_quote()
+        text = self.get_quote(coach)
         requests.get(f'{self.url}/{self.room}/say/{text}')
 
         return text

@@ -13,12 +13,13 @@ class HueGroup(LightHandler):
         super().__init__(config, **kwargs)
 
         try:
+            print(-1)
             discover = Discover()
+            data = discover.find_hue_bridge()
 
-            bridge_ip = loads(discover.find_hue_bridge())[
-                0].get('internalipaddress')
-        except Exception:
-            raise ConnectionError('Hue Bridge IP not found!')
+            bridge_ip = loads(data)[0].get('internalipaddress')
+        except Exception as e:
+            raise ConnectionError(f'Hue Bridge IP not found! {e.args}')
 
         self.hue = Hue(bridge_ip=bridge_ip,
                        username=self.config.hue_bridge_username)

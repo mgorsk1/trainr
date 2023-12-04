@@ -14,7 +14,7 @@ global handler
 handler = MotivationHandlerFactory(config.motivation).get_handler()
 
 
-@router.get('/quote', tags=['motivation'], response_model=MotivationInfoApiModel)
+@router.post('/quote', tags=['motivation'], response_model=MotivationInfoApiModel)
 async def say_quote(motivation: MotivationInputApiModel) -> MotivationInfoApiModel:
     quote = handler.say(motivation.coach)
 

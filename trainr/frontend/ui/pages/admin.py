@@ -135,19 +135,28 @@ def admin() -> rx.Component:
                         rx.card_body(
                             rx.form(
                                 rx.hstack(
-                                    coach_name_input(**dict(margin_bottom='10px')),
-                                    rx.button('Save', type_='submit')
+                                    coach_name_input(
+                                        **dict(margin_bottom='10px', is_disabled=State.system_motivation_disabled)),
+                                    rx.button('Save', type_='submit', is_disabled=State.system_motivation_disabled)
                                 ),
                                 on_submit=State.save_coach_name,
-                                reset_on_submit=False
+                                reset_on_submit=False,
                             )
                         ),
-                        header=rx.heading(
-                            f'Coach Name 👨‍🏫',
-                            size='md'
+                        header=rx.hstack(
+                            rx.heading(
+                                f'Motivation 👨‍🏫',
+                                size='md',
+                            ),
+                            rx.spacer(),
+                            rx.switch(
+                                is_checked=State.system_motivation_enabled,
+                                on_change=State.toggle_system_motivation,
+                            ),
+
                         ),
                         footer=rx.text(
-                            'Who do you want to motivate you?',
+                            'Decide IF and WHO should motivate you!',
                             as_='i',
                             font_size='0.4em',
                             padding_top='10px'

@@ -1,30 +1,26 @@
 from abc import ABC, abstractmethod
 import random
+from importlib import import_module
 from typing import List
-
-from trainr.backend.handler.motivation.quotes.morgan_freeman import quotes as morgan_freeman_quotes
-from trainr.backend.handler.motivation.quotes.gordon_ramsay import quotes as gordon_ramsay_quotes
-from trainr.backend.handler.motivation.quotes.snoop_dogg import quotes as snoop_dogg_quotes
 
 
 class MotivationHandler(ABC):
     def __init__(self, config, **kwargs):
-        self.coach = config.coach
+        self.config = config
 
     @abstractmethod
     def say(self, coach: str):
         pass
 
-    @property
-    def quotes(self) -> List[str]:
-        if self.coach == 'morgan_freeman':
-            return morgan_freeman_quotes
-        elif self.coach == 'gordon_ramsay':
-            return gordon_ramsay_quotes
-        elif self.coach == 'snoop_dogg':
-            return snoop_dogg_quotes
-        else:
+    def get_quotes(self, coach: str) -> List[str]:
+        try:
+            m = import_module(f'trainr.backend.handler.motivation.quotes.{coach}')
+
+            quotes = getattr(m, 'quotes')
+
+            return quotes
+        except Exception:
             raise NotImplementedError(f'Coach {self.coach} not supported!')
 
-    def get_quote(self) -> str:
-        return random.choice(self.quotes)
+    def get_quote(self, coach: str) -> str:
+        return random.choice(self.get_quotes(coach))

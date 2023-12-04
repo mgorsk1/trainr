@@ -25,6 +25,13 @@ class ReadingType(str, Enum):
     FTP = 'FTP'
 
 
+class Coach(str, Enum):
+    GORDON_RAMSAY = 'gordon_ramsay'
+    MORGAN_FREEMAN = 'morgan_freeman'
+    SNOOP_DOGG = 'snoop_dogg'
+    MR_T = 'mr_t'
+
+
 fan_speed_name_to_int_mapping = {
     'LOW': 1,
     'MEDIUM': 2,

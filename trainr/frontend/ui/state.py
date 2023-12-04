@@ -26,6 +26,7 @@ class State(rx.State):
     system_last_seconds: int
     system_backend_healthy: bool = True
     system_user_name: str = ' '
+    system_motivation_enabled: bool = False
     system_coach_name: str
 
     reading_value: int = 0
@@ -62,6 +63,10 @@ class State(rx.State):
     def system_not_initialized(self) -> bool:
         return not self.system_initialized
 
+    @rx.var
+    def system_motivation_disabled(self) -> bool:
+        return not self.system_motivation_enabled
+
     def toggle_system_mode(self, mode_auto: bool):
         if not mode_auto:
             payload = {'setting_value': SystemMode.MANUAL}
@@ -70,6 +75,12 @@ class State(rx.State):
 
         result = requests.put(f'{api_url}/system/mode', json=payload)
         self.system_mode = result.json().get('setting_value', defaults.UNKNOWN)
+
+    def toggle_system_motivation(self, motivation_enabled: bool):
+        payload = {'setting_value': str(motivation_enabled).lower()}
+
+        result = requests.put(f'{api_url}/system/motivation_enabled', json=payload)
+        self.system_motivation_enabled = result.json().get('setting_value', defaults.UNKNOWN) == 'true'
 
     def set_last_seconds(self, system_last_seconds: int):
         result = requests.put(f'{api_url}/system/last_seconds',
@@ -125,7 +136,7 @@ class State(rx.State):
     def save_coach_name(self, system_coach_name: dict):
         coach_name = system_coach_name['coach_name']
 
-        result = requests.put(f'{api_url}/system/coach',
+        result = requests.put(f'{api_url}/system/motivation_coach',
                               json={'setting_value': coach_name.lower().replace(' ', '_')})
 
         print(result)
@@ -175,9 +186,15 @@ class State(rx.State):
 
         try:
             self.system_coach_name = requests.get(
-                f'{api_url}/system/coach/').json()['setting_value'].title().replace('_', ' ')
+                f'{api_url}/system/motivation_coach/').json()['setting_value'].title().replace('_', ' ')
         except (ConnectionError, AttributeError, KeyError):
             self.system_coach_name = defaults.UNKNOWN
+
+        try:
+            self.system_motivation_enabled = requests.get(
+                f'{api_url}/system/motivation_enabled/').json()['setting_value'] == 'true'
+        except (ConnectionError, AttributeError, KeyError):
+            self.system_motivation_enabled = False
 
         self.refresh_backend_health()
 

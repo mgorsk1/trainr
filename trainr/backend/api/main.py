@@ -1,3 +1,4 @@
+import requests
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -7,9 +8,12 @@ from trainr.backend.api.v1.model.light import Color
 from trainr.backend.api.v1.model.light import LightColorInputApiModel
 from trainr.backend.api.v1.routers.fan import turn_fan_off
 from trainr.backend.api.v1.routers.light import set_light_color
+from trainr.backend.config import config
 from trainr.backend.handler.database.engine import init_db
+from trainr.backend.handler.factory import MotivationHandlerFactory
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
 from trainr.backend.handler.reading.hr import HRReadingHandler
+from trainr.backend.handler.system.coach import SystemMotivationHandler, SystemMotivationCoachHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
 from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler
 from trainr.utils import ReadingType
@@ -34,26 +38,49 @@ app.include_router(v1, prefix='/api')
 @app.on_event('startup')
 @repeat_every(seconds=60)
 async def shut_down():
+    global is_down
+
+    is_down = False
+
     system_on = SystemModeHandler().get_state().setting_value == 'AUTO'
     reading_type = SystemReadingTypeHandler().get_state().setting_value
 
-    if system_on:
+    if system_on and not is_down:
         if reading_type == ReadingType.HR:
-            reading = await HRReadingHandler().get_reading(seconds=60)
+            handler = HRReadingHandler()
         elif reading_type == ReadingType.FTP:
-            reading = await FTPReadingHandler().get_reading(seconds=60)
+            handler = FTPReadingHandler()
         else:
             raise NotImplementedError(
                 f'Shutting down for reading type {reading_type} not implemented.')
+
+        reading = await handler.get_reading(seconds=60)
 
         if reading.reading_value < 1:
             await turn_fan_off()
             await set_light_color(LightColorInputApiModel(color_name=Color.WHITE))
 
+            is_down = True
+        else:
+            is_down = False
+
 
 @app.on_event('startup')
 async def init():
     init_db()
+
+
+@app.on_event('startup')
+@repeat_every(seconds=60*10)
+async def coach():
+    motivation_enabled = SystemMotivationHandler().get_state().setting_value == 'true'
+
+    if motivation_enabled:
+        coach_name = SystemMotivationCoachHandler().get_state().setting_value
+
+        handler = MotivationHandlerFactory(config.motivation).get_handler()
+
+        handler.say(coach_name)
 
 
 Instrumentator().instrument(app).expose(app)

@@ -1,6 +1,7 @@
 import reflex as rx
 
 from trainr.frontend.ui.state import State
+from trainr.utils import Coach
 
 
 def nav() -> rx.Component:
@@ -83,7 +84,7 @@ def reading_type_input(**kwargs) -> rx.Component:
 
 def coach_name_input(**kwargs) -> rx.Component:
     return rx.select(
-        ['Snoop Dogg', 'Gordon Ramsay', 'Morgan Freeman'],
+        [c.replace('_', ' ').title() for c in Coach],
         value=State.system_coach_name,
         on_change=State.set_coach_name,
         id='coach_name',
