@@ -103,7 +103,7 @@ def admin() -> rx.Component:
                         ),
                         header=rx.heading('Last Seconds ⏱️', size='md'),
                         footer=rx.text(
-                            'Time period for which readings are collected.',
+                            'Time period for which readings are pulled.',
                             as_='i',
                             font_size='0.4em',
                             padding_top='10px'
