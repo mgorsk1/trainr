@@ -7,6 +7,7 @@ from trainr.utils import Coach
 class MotivationInputApiModel:
     coach: Coach
 
+
 @dataclass
 class MotivationInfoApiModel(MotivationInputApiModel):
     text: str

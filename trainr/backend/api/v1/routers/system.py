@@ -2,9 +2,10 @@ from fastapi import APIRouter
 
 from trainr.backend.api.v1.model.system import SystemSettingInfoApiModel
 from trainr.backend.api.v1.model.system import SystemSettingInputApiModel
-from trainr.backend.handler.model.system.settings import SystemSettingsHandlerModel
-from trainr.backend.handler.system.coach import SystemMotivationHandler
+from trainr.backend.handler.model.system.settings import \
+    SystemSettingsHandlerModel
 from trainr.backend.handler.system.coach import SystemMotivationCoachHandler
+from trainr.backend.handler.system.coach import SystemMotivationHandler
 from trainr.backend.handler.system.initialized import SystemInitializedHandler
 from trainr.backend.handler.system.last_seconds import SystemLastSecondsHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
@@ -57,5 +58,3 @@ router.include_router(user_name_router)
 router.include_router(system_initialized_router)
 router.include_router(motivation_handler)
 router.include_router(motivation_coach_handler)
-
-

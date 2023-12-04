@@ -13,7 +13,8 @@ from trainr.backend.handler.database.engine import init_db
 from trainr.backend.handler.factory import MotivationHandlerFactory
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
 from trainr.backend.handler.reading.hr import HRReadingHandler
-from trainr.backend.handler.system.coach import SystemMotivationHandler, SystemMotivationCoachHandler
+from trainr.backend.handler.system.coach import SystemMotivationCoachHandler
+from trainr.backend.handler.system.coach import SystemMotivationHandler
 from trainr.backend.handler.system.mode import SystemModeHandler
 from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler
 from trainr.utils import ReadingType

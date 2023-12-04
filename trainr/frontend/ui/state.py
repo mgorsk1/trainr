@@ -79,8 +79,10 @@ class State(rx.State):
     def toggle_system_motivation(self, motivation_enabled: bool):
         payload = {'setting_value': str(motivation_enabled).lower()}
 
-        result = requests.put(f'{api_url}/system/motivation_enabled', json=payload)
-        self.system_motivation_enabled = result.json().get('setting_value', defaults.UNKNOWN) == 'true'
+        result = requests.put(
+            f'{api_url}/system/motivation_enabled', json=payload)
+        self.system_motivation_enabled = result.json().get(
+            'setting_value', defaults.UNKNOWN) == 'true'
 
     def set_last_seconds(self, system_last_seconds: int):
         result = requests.put(f'{api_url}/system/last_seconds',
@@ -141,7 +143,8 @@ class State(rx.State):
 
         print(result)
 
-        self.system_coach_name = result.json().get('setting_value', defaults.UNKNOWN).replace('_', ' ').title()
+        self.system_coach_name = result.json().get(
+            'setting_value', defaults.UNKNOWN).replace('_', ' ').title()
 
         self.refresh_system_state()
 

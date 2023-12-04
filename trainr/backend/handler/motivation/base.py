@@ -1,5 +1,6 @@
-from abc import ABC, abstractmethod
 import random
+from abc import ABC
+from abc import abstractmethod
 from importlib import import_module
 from typing import List
 
@@ -14,7 +15,8 @@ class MotivationHandler(ABC):
 
     def get_quotes(self, coach: str) -> List[str]:
         try:
-            m = import_module(f'trainr.backend.handler.motivation.quotes.{coach}')
+            m = import_module(
+                f'trainr.backend.handler.motivation.quotes.{coach}')
 
             quotes = getattr(m, 'quotes')
 

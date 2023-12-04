@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
-from trainr.backend.api.v1.model.motivation import MotivationInfoApiModel, MotivationInputApiModel
+from trainr.backend.api.v1.model.motivation import MotivationInfoApiModel
+from trainr.backend.api.v1.model.motivation import MotivationInputApiModel
 from trainr.backend.config import config
 from trainr.backend.handler.factory import MotivationHandlerFactory
 

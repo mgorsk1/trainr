@@ -23,7 +23,6 @@ class ReadingHandler(ABC):
     def __init__(self):
         self.threshold = None
 
-
     @property
     @abstractmethod
     def reading_type(self):

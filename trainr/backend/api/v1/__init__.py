@@ -16,4 +16,3 @@ v1.include_router(reading.hr_router)
 v1.include_router(reading.ftp_router)
 v1.include_router(system.router)
 v1.include_router(motivation.router)
-

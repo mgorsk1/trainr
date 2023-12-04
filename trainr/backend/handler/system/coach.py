@@ -19,4 +19,3 @@ class SystemMotivationCoachHandler(SystemSettingHandler):
     @property
     def setting_default_value(self):
         return 'snoop_dogg'
-
