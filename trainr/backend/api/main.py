@@ -1,4 +1,3 @@
-import requests
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -39,14 +38,11 @@ app.include_router(v1, prefix='/api')
 @app.on_event('startup')
 @repeat_every(seconds=60)
 async def shut_down():
-    global is_down
-
-    is_down = False
-
     system_on = SystemModeHandler().get_state().setting_value == 'AUTO'
     reading_type = SystemReadingTypeHandler().get_state().setting_value
 
-    if system_on and not is_down:
+    # @todo introduce way to establish if user is in training
+    if system_on:
         if reading_type == ReadingType.HR:
             handler = HRReadingHandler()
         elif reading_type == ReadingType.FTP:
@@ -61,10 +57,6 @@ async def shut_down():
             await turn_fan_off()
             await set_light_color(LightColorInputApiModel(color_name=Color.WHITE))
 
-            is_down = True
-        else:
-            is_down = False
-
 
 @app.on_event('startup')
 async def init():
@@ -72,7 +64,7 @@ async def init():
 
 
 @app.on_event('startup')
-@repeat_every(seconds=60*10)
+@repeat_every(seconds=60 * 10)
 async def coach():
     motivation_enabled = SystemMotivationHandler().get_state().setting_value == 'true'
 
