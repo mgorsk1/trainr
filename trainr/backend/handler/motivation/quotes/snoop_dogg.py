@@ -93,3 +93,29 @@ quotes = [
     "Ain't no fakin' – you're the real deal, nephew.",
     "Roll with resilience – success",
 ]
+
+greetings = [
+    "What up, player? Ready to elevate the vibe?",
+    "Yo, my G! Time to roll smooth through the day.",
+    "Hey, nephew! Let's kick it and conquer the world.",
+    "Wassup, champ? Ready to drop it like it's hot?",
+    "Greetings, smooth operator! Let's ride the success wave.",
+    "Hey, boss player! Ready to hustle and flow?",
+    "What's good, fam? Time to shine and grind.",
+    "Wassup, superstar? Let's make today legendary.",
+    "Hey, young Jedi! Ready to master the game?",
+    "Yo, icon in the making! Let's vibe and thrive.",
+]
+
+goodbyes = [
+    "Gotta bounce, player! Stay on that next level.",
+    "I'm out, G! Keep it real and stay lifted.",
+    "Time to roll, nephew! Keep it smooth and iconic.",
+    "I'm out, champ! Stay winning and shining.",
+    "Gotta jet, smooth operator! Keep it cool, my G.",
+    "Farewell, boss player! Until next time, stay fly.",
+    "I'm out, fam! Keep it smooth and stay legendary.",
+    "Time to bounce, superstar! Stay on that grind, ya feel?",
+    "I'm out, young Jedi! May the vibes be with you.",
+    "Farewell, icon in the making! Keep it iconic, my G.",
+]

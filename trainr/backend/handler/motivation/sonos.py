@@ -10,8 +10,7 @@ class SonosMotivation(MotivationHandler):
         self.url = config.url
         self.room = config.room
 
-    def say(self, coach: str) -> str:
-        text = self.get_quote(coach)
+    def say(self, text: str) -> str:
         requests.get(f'{self.url}/{self.room}/say/{text}')
 
         return text

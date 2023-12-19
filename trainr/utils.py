@@ -26,8 +26,6 @@ class ReadingType(str, Enum):
 
 
 class Coach(str, Enum):
-    GORDON_RAMSAY = 'gordon_ramsay'
-    MORGAN_FREEMAN = 'morgan_freeman'
     SNOOP_DOGG = 'snoop_dogg'
     MR_T = 'mr_t'
 

@@ -11,3 +11,4 @@ class MotivationInputApiModel:
 @dataclass
 class MotivationInfoApiModel(MotivationInputApiModel):
     text: str
+    type: str

@@ -100,3 +100,29 @@ quotes = [
     "I don't wait for luck; I create my destiny, sucka!",
     "Quit the fear; start the roar of triumph, fool!",
 ]
+
+greetings = [
+    "Champ! Ready to conquer?",
+    "Hey warrior, time to shine!",
+    "What's kickin', tough cookie?",
+    "Greetings, mighty one! Pity no obstacles!",
+    "Howdy, powerhouse! Ready to roar?",
+    "Yo, warrior! Tackle the day!",
+    "What's the word, hero? Unleash!",
+    "Hey, powerhouse! Be legendary!",
+    "Greetings, unstoppable force! Roar and conquer!",
+    "Hey, warrior friend! Own this day!",
+]
+
+goodbyes = [
+    "Keep pitying fools, champ! I'm out.",
+    "Stay strong, warrior! Gotta bounce.",
+    "Time to roll, tough cookie! Pity those fools!",
+    "Farewell, mighty one! Stay legendary!",
+    "I'm out, powerhouse! Keep roaring!",
+    "Jetting, warrior! Tackle the day!",
+    "Bouncing, hero! Keep unleashing that T-vibe!",
+    "Gotta jet, powerhouse! Stay legendary!",
+    "Farewell, unstoppable force! Keep conquering!",
+    "I'm out, warrior friend! Keep owning, sucka!",
+]

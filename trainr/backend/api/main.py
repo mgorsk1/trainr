@@ -54,6 +54,16 @@ async def shut_down():
         reading = await handler.get_reading(seconds=60)
 
         if reading.reading_value < 1:
+            motivation_enabled = SystemMotivationHandler().get_state().setting_value == 'true'
+
+            if motivation_enabled:
+                coach_name = SystemMotivationCoachHandler().get_state().setting_value
+
+                handler = MotivationHandlerFactory(
+                    config.motivation).get_handler()
+
+                handler.say_goodbye(coach_name)
+
             await turn_fan_off()
             await set_light_color(LightColorInputApiModel(color_name=Color.WHITE))
 
@@ -73,7 +83,7 @@ async def coach():
 
         handler = MotivationHandlerFactory(config.motivation).get_handler()
 
-        handler.say(coach_name)
+        handler.say_motivate(coach_name)
 
 
 Instrumentator().instrument(app).expose(app)
