@@ -10,7 +10,13 @@ class SonosMotivation(MotivationHandler):
         self.url = config.url
         self.room = config.room
 
-    def say(self, text: str) -> str:
-        requests.get(f'{self.url}/{self.room}/say/{text}')
+    def say(self, text: str,  **kwargs) -> str:
+        url = f'{self.url}/{self.room}/say/{text}'
+
+        if kwargs.get('voice_id'):
+            url += f'/{kwargs.get("voice_id")}'
+
+        requests.get(url)
 
         return text
+

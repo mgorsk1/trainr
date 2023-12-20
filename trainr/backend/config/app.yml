@@ -17,6 +17,15 @@ motivation:
     coach: snoop_dogg
     url: http://fort.local/sonosapi
     room: Robert Plant
+    coaches:
+      mr_t:
+        voice_id: kCDGrDEQuS9NTaD5fxkl
+      snoop_dogg:
+        voice_id: __todo__
+      darth_vader:
+        voice_id: __todo__
+      princess_caroline:
+        voice_id: __todo__
 
 influxdb:
   host: ${BACKEND__INFLUXDB_HOST:-http://localhost:8086}
