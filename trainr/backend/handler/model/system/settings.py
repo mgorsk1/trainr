@@ -12,3 +12,13 @@ class SystemSettingsHandlerModel(Base):
 
     def __repr__(self):
         return super(SystemSettingsHandlerModel, self).__repr__()
+
+
+class SystemStateHandlerModel(Base):
+    __tablename__ = "state"
+
+    setting_name = Column(String(32), primary_key=True, unique=True)
+    setting_value = Column(String(32), nullable=False)
+
+    def __repr__(self):
+        return super(SystemSettingsHandlerModel, self).__repr__()

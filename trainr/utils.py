@@ -28,6 +28,8 @@ class ReadingType(str, Enum):
 class Coach(str, Enum):
     SNOOP_DOGG = 'snoop_dogg'
     MR_T = 'mr_t'
+    DARTH_VADER = 'darth_vader'
+    PRINCESS_CAROLYN = 'princess_carolyn'
 
 
 fan_speed_name_to_int_mapping = {

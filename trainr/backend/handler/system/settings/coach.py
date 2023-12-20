@@ -1,7 +1,7 @@
-from trainr.backend.handler.system import SystemSettingHandler
+from trainr.backend.handler.system import SystemHandler
 
 
-class SystemMotivationHandler(SystemSettingHandler):
+class SystemMotivationHandler(SystemHandler):
     @property
     def setting_name(self):
         return 'motivation_enabled'
@@ -11,7 +11,7 @@ class SystemMotivationHandler(SystemSettingHandler):
         return 'false'
 
 
-class SystemMotivationCoachHandler(SystemSettingHandler):
+class SystemMotivationCoachHandler(SystemHandler):
     @property
     def setting_name(self):
         return 'motivation_coach'

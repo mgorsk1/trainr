@@ -2,34 +2,36 @@ from fastapi import APIRouter
 
 from trainr.backend.api.v1.model.system import SystemSettingInfoApiModel
 from trainr.backend.api.v1.model.system import SystemSettingInputApiModel
-from trainr.backend.handler.model.system.settings import \
-    SystemSettingsHandlerModel
-from trainr.backend.handler.system.coach import SystemMotivationCoachHandler
-from trainr.backend.handler.system.coach import SystemMotivationHandler
-from trainr.backend.handler.system.initialized import SystemInitializedHandler
-from trainr.backend.handler.system.last_seconds import SystemLastSecondsHandler
-from trainr.backend.handler.system.mode import SystemModeHandler
-from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler
-from trainr.backend.handler.system.user_name import SystemUserNameHandler
+from trainr.backend.handler.system import SystemHandler
+from trainr.backend.handler.system.settings.coach import \
+    SystemMotivationCoachHandler
+from trainr.backend.handler.system.settings.coach import \
+    SystemMotivationHandler
+from trainr.backend.handler.system.settings.initialized import \
+    SystemInitializedHandler
+from trainr.backend.handler.system.settings.last_seconds import \
+    SystemLastSecondsHandler
+from trainr.backend.handler.system.settings.mode import SystemModeHandler
+from trainr.backend.handler.system.settings.reading_type import \
+    SystemReadingTypeHandler
+from trainr.backend.handler.system.settings.user_name import \
+    SystemUserNameHandler
 
 
-def get_router(handler: SystemSettingsHandlerModel):
-    tags = [handler.setting_name]
-
+def get_router(handler: SystemHandler):
     router = APIRouter(
-        prefix=f'/{handler.setting_name}',
-        tags=tags
+        prefix=f'/{handler.setting_name}'
     )
 
-    @router.get('/', tags=tags, response_model=SystemSettingInfoApiModel, summary=f'Get {handler.setting_name} setting value.')
+    @router.get('/', response_model=SystemSettingInfoApiModel, summary=f'Get {handler.setting_name} setting value.')
     async def get_state() -> SystemSettingInfoApiModel:
         data = handler.get_state()
 
         return SystemSettingInfoApiModel(setting_value=data.setting_value, setting_name=handler.setting_name)
 
-    @router.put('/', tags=tags, summary=f'Register {handler.setting_name} setting value.')
-    async def set_value(mode: SystemSettingInputApiModel) -> SystemSettingInfoApiModel:
-        handler.set_mode(mode.setting_value)
+    @router.put('/', summary=f'Register {handler.setting_name} setting value.')
+    async def set_value(setting: SystemSettingInputApiModel) -> SystemSettingInfoApiModel:
+        handler.set_value(setting.setting_value)
 
         data = handler.get_state()
 
@@ -39,7 +41,6 @@ def get_router(handler: SystemSettingsHandlerModel):
 
 
 router = APIRouter(
-    prefix='/system',
     tags=['system']
 )
 

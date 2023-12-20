@@ -73,19 +73,19 @@ class State(rx.State):
         else:
             payload = {'setting_value': SystemMode.AUTO}
 
-        result = requests.put(f'{api_url}/system/mode', json=payload)
+        result = requests.put(f'{api_url}/system/settings/mode', json=payload)
         self.system_mode = result.json().get('setting_value', defaults.UNKNOWN)
 
     def toggle_system_motivation(self, motivation_enabled: bool):
         payload = {'setting_value': str(motivation_enabled).lower()}
 
         result = requests.put(
-            f'{api_url}/system/motivation_enabled', json=payload)
+            f'{api_url}/system/settings/motivation_enabled', json=payload)
         self.system_motivation_enabled = result.json().get(
             'setting_value', defaults.UNKNOWN) == 'true'
 
     def set_last_seconds(self, system_last_seconds: int):
-        result = requests.put(f'{api_url}/system/last_seconds',
+        result = requests.put(f'{api_url}/system/settings/last_seconds',
                               json={'setting_value': str(system_last_seconds)})
 
         self.system_last_seconds = int(result.json().get(
@@ -99,7 +99,7 @@ class State(rx.State):
     def save_reading_type(self, system_reading_type: dict):
         system_reading_type = system_reading_type['reading_type']
 
-        result = requests.put(f'{api_url}/system/reading_type',
+        result = requests.put(f'{api_url}/system/settings/reading_type',
                               json={'setting_value': system_reading_type})
 
         self.system_reading_type = result.json().get('setting_value', defaults.UNKNOWN)
@@ -112,7 +112,7 @@ class State(rx.State):
 
     def save_user_name(self, system_user_name: dict):
         system_user_name = system_user_name['user_name']
-        result = requests.put(f'{api_url}/system/user_name',
+        result = requests.put(f'{api_url}/system/settings/user_name',
                               json={'setting_value': system_user_name})
 
         self.system_user_name = result.json()['setting_value']
@@ -138,10 +138,8 @@ class State(rx.State):
     def save_coach_name(self, system_coach_name: dict):
         coach_name = system_coach_name['coach_name']
 
-        result = requests.put(f'{api_url}/system/motivation_coach',
+        result = requests.put(f'{api_url}/system/settings/motivation_coach',
                               json={'setting_value': coach_name.lower().replace(' ', '_')})
-
-        print(result)
 
         self.system_coach_name = result.json().get(
             'setting_value', defaults.UNKNOWN).replace('_', ' ').title()
@@ -149,7 +147,7 @@ class State(rx.State):
         self.refresh_system_state()
 
     def save_system_initialized(self, status: str):
-        result = requests.put(f'{api_url}/system/initialized',
+        result = requests.put(f'{api_url}/system/settings/initialized',
                               json={'setting_value': status})
 
         self.system_initialized = result.json()['setting_value']
@@ -159,43 +157,43 @@ class State(rx.State):
     def refresh_system_state(self):
         try:
             self.system_mode = requests.get(
-                f'{api_url}/system/mode/').json()['setting_value']
+                f'{api_url}/system/settings/mode/').json()['setting_value']
         except (ConnectionError, AttributeError, KeyError):
             self.system_mode = SystemMode.MANUAL
 
         try:
             self.system_reading_type = requests.get(
-                f'{api_url}/system/reading_type/').json()['setting_value']
+                f'{api_url}/system/settings/reading_type/').json()['setting_value']
         except (ConnectionError, AttributeError, KeyError):
             self.system_reading_type = defaults.UNKNOWN
 
         try:
             self.system_last_seconds = int(requests.get(
-                f'{api_url}/system/last_seconds/').json()['setting_value'])
+                f'{api_url}/system/settings/last_seconds/').json()['setting_value'])
         except (ConnectionError, AttributeError, KeyError):
             self.system_last_seconds = 0
 
         try:
             self.system_user_name = requests.get(
-                f'{api_url}/system/user_name/').json()['setting_value']
+                f'{api_url}/system/settings/user_name/').json()['setting_value']
         except (ConnectionError, AttributeError, KeyError):
             self.system_user_name = ''
 
         try:
             self.system_initialized = requests.get(
-                f'{api_url}/system/initialized/').json()['setting_value'] == 'true'
+                f'{api_url}/system/settings/initialized/').json()['setting_value'] == 'true'
         except (ConnectionError, AttributeError, KeyError):
             self.system_initialized = False
 
         try:
             self.system_coach_name = requests.get(
-                f'{api_url}/system/motivation_coach/').json()['setting_value'].title().replace('_', ' ')
+                f'{api_url}/system/settings/motivation_coach/').json()['setting_value'].title().replace('_', ' ')
         except (ConnectionError, AttributeError, KeyError):
             self.system_coach_name = defaults.UNKNOWN
 
         try:
             self.system_motivation_enabled = requests.get(
-                f'{api_url}/system/motivation_enabled/').json()['setting_value'] == 'true'
+                f'{api_url}/system/settings/motivation_enabled/').json()['setting_value'] == 'true'
         except (ConnectionError, AttributeError, KeyError):
             self.system_motivation_enabled = False
 

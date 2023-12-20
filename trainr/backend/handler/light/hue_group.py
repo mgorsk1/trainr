@@ -13,7 +13,6 @@ class HueGroup(LightHandler):
         super().__init__(config, **kwargs)
 
         try:
-            print(-1)
             discover = Discover()
             data = discover.find_hue_bridge()
 

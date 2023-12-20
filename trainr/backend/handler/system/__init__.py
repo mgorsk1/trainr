@@ -11,7 +11,7 @@ from trainr.backend.handler.model.system.settings import \
 from trainr.utils import SystemMode
 
 
-class SystemSettingHandler(ABC):
+class SystemHandler(ABC):
     @property
     @abstractmethod
     def setting_name(self):
@@ -39,11 +39,11 @@ class SystemSettingHandler(ABC):
 
         return self.state
 
-    def set_mode(self, mode: SystemMode):
+    def set_value(self, value: str):
         if not self.state:
             self.get_state()
 
-        self.state.setting_value = mode
+        self.state.setting_value = value
 
         with Session(engine) as session:
             session.add(self.state)

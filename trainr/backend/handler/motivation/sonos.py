@@ -19,4 +19,3 @@ class SonosMotivation(MotivationHandler):
         requests.get(url)
 
         return text
-

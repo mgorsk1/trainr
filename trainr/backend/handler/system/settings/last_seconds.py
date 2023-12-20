@@ -1,7 +1,7 @@
-from trainr.backend.handler.system import SystemSettingHandler
+from trainr.backend.handler.system import SystemHandler
 
 
-class SystemLastSecondsHandler(SystemSettingHandler):
+class SystemLastSecondsHandler(SystemHandler):
     @property
     def setting_name(self):
         return 'last_seconds'

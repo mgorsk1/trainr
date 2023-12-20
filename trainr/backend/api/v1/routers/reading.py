@@ -13,11 +13,19 @@ from trainr.backend.api.v1.model.reading import ZoneInfoApiModel
 from trainr.backend.api.v1.model.reading import ZoneInputApiModel
 from trainr.backend.api.v1.routers.fan import set_fan_speed
 from trainr.backend.api.v1.routers.light import set_light_color
+from trainr.backend.config import config
+from trainr.backend.handler.factory import MotivationHandlerFactory
+from trainr.backend.handler.motivation.base import MotivationHandler
 from trainr.backend.handler.reading.ftp import FTPReadingHandler
 from trainr.backend.handler.reading.hr import HRReadingHandler
-from trainr.backend.handler.system.last_seconds import SystemLastSecondsHandler
-from trainr.backend.handler.system.mode import SystemModeHandler
-from trainr.backend.handler.system.reading_type import SystemReadingTypeHandler
+from trainr.backend.handler.system.settings.coach import \
+    SystemMotivationCoachHandler
+from trainr.backend.handler.system.settings.last_seconds import \
+    SystemLastSecondsHandler
+from trainr.backend.handler.system.settings.mode import SystemModeHandler
+from trainr.backend.handler.system.settings.reading_type import \
+    SystemReadingTypeHandler
+from trainr.backend.handler.system.state.training_on import TrainingOnHandler
 from trainr.utils import ReadingFunction
 from trainr.utils import ReadingType
 from trainr.utils import ftp_zone_to_fan_speed_mapping
@@ -36,6 +44,7 @@ def get_router(handler):
 
     async def adjust_system():
         system_on = SystemModeHandler().get_state().setting_value == 'AUTO'
+        training_on = TrainingOnHandler().get_state().setting_value == 'true'
         last_seconds = SystemLastSecondsHandler().get_state().setting_value
 
         reading_avg = await get_current_reading(seconds=int(last_seconds), function=ReadingFunction.AVG)
@@ -52,6 +61,16 @@ def get_router(handler):
             else ftp_zone_to_fan_speed_mapping
 
         if system_on and reading_avg > 0:
+            if not training_on:
+                TrainingOnHandler().set_value("true")
+
+                coach_name = SystemMotivationCoachHandler().get_state().setting_value
+
+                handler = MotivationHandlerFactory(
+                    config.motivation).get_handler()
+
+                handler.say_hello(coach_name)
+
             zone = await get_zone(reading=reading_avg)
             zone = zone.zone if zone else None
 

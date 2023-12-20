@@ -1,8 +1,8 @@
-from trainr.backend.handler.system import SystemSettingHandler
+from trainr.backend.handler.system import SystemHandler
 from trainr.utils import ReadingType
 
 
-class SystemReadingTypeHandler(SystemSettingHandler):
+class SystemReadingTypeHandler(SystemHandler):
     @property
     def setting_name(self):
         return 'reading_type'
