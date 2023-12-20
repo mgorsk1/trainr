@@ -14,7 +14,6 @@ light:
 motivation:
   cls: ${BACKEND__MOTIVATION_CLS:-SonosMotivation}
   settings:
-    coach: snoop_dogg
     url: http://fort.local/sonosapi
     room: Robert Plant
     coaches:
@@ -24,7 +23,7 @@ motivation:
         voice_id: __todo__
       darth_vader:
         voice_id: __todo__
-      princess_caroline:
+      princess_carolyn:
         voice_id: __todo__
 
 influxdb:
