@@ -2,16 +2,16 @@ version: '3'
 
 services:
   backend:
-    container_name: backend
+    container_name: trainr-dev-backend
     build:
       context: .
       dockerfile: Dockerfile.backend
     networks:
-      - trainr-network
+      - trainr-dev-network
     env_file:
       - .env
     volumes:
-      - trainr-backend-db:/app/db
+      - trainr-dev-backend-db:/app/db
     ports:
       - 8080:8080
     healthcheck:
@@ -24,12 +24,12 @@ services:
       - influxdb
 
   frontend:
-    container_name: frontend
+    container_name: trainr-dev-frontend
     build:
       context: .
       dockerfile: Dockerfile.frontend
     networks:
-      - trainr-network
+      - trainr-dev-network
     env_file:
       - .env
     ports:
@@ -45,23 +45,23 @@ services:
       timeout: 10s
 
   publisher:
-    container_name: publisher
+    container_name: trainr-dev-publisher
     build:
       context: .
       dockerfile: Dockerfile.ant
     networks:
-      - trainr-network
+      - trainr-dev-network
     depends_on:
       - backend
     command:
       - --backend-url
-      - http://backend:8080
+      - http://trainr-dev-backend:8080
 
   influxdb:
     image: influxdb:latest
     container_name: influxdb
     networks:
-      - trainr-network
+      - trainr-dev-network
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
@@ -72,7 +72,7 @@ services:
     image: influxdb:latest
     container_name: influxdb-setup
     networks:
-      - trainr-network
+      - trainr-dev-network
     depends_on:
       - influxdb
     env_file:
@@ -88,11 +88,19 @@ services:
       '--force'
     ]
     entrypoint: [ 'influx' ]
-
+  
+  sonosApi:
+    build:
+      dockerfile: Dockerfile.sonos
+      context: .
+    container_name: trainr-dev-sonos-api
+    networks:
+      - trainr-dev-network
+    
 networks:
-  trainr-network:
+  trainr-dev-network:
 
 volumes:
-  trainr-backend-db:
+  trainr-dev-backend-db:
     driver: local
 

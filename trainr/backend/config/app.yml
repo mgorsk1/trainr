@@ -18,13 +18,13 @@ motivation:
     room: Robert Plant
     coaches:
       mr_t:
-        voice_id: kCDGrDEQuS9NTaD5fxkl
+        voice_id: ${BACKEND__SONOS_MRT_VOICE_ID:-__dummy__}
       snoop_dogg:
-        voice_id: __todo__
+        voice_id: ${BACKEND__SONOS_SNOOPDOGG_VOICE_ID:-__dummy__}
       darth_vader:
-        voice_id: __todo__
+        voice_id: ${BACKEND__SONOS_DARTHVADER_VOICE_ID:-__dummy__}
       princess_carolyn:
-        voice_id: __todo__
+        voice_id: ${BACKEND__SONOS_PRINCESSCAROLYN_VOICE_ID:-__dummy__}
 
 influxdb:
   host: ${BACKEND__INFLUXDB_HOST:-http://localhost:8086}
