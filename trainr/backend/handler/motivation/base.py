@@ -1,7 +1,8 @@
-import random
 from abc import ABC
 from abc import abstractmethod
+from datetime import datetime
 from importlib import import_module
+from random import Random
 from typing import List
 
 
@@ -9,14 +10,18 @@ class MotivationHandler(ABC):
     def __init__(self, config, **kwargs):
         self.config = config
 
-    def _say(self, text: str, coach: str):
-        voice_id = self.config.coaches[coach].voice_id
-
-        return self.say(text, **dict(voice_id=voice_id))
+    @property
+    def random(self):
+        return Random(datetime.now().timestamp())
 
     @abstractmethod
     def say(self, text: str, **kwargs):
         pass
+
+    def _say(self, text: str, coach: str):
+        voice_id = self.config.coaches[coach].voice_id
+
+        return self.say(text, **dict(voice_id=voice_id))
 
     def say_motivate(self, coach: str):
         text = self.get_motivate(coach)
@@ -42,13 +47,13 @@ class MotivationHandler(ABC):
 
             return quotes
         except Exception:
-            raise NotImplementedError(f'Coach {self.coach} not supported!')
+            raise NotImplementedError(f'Coach {coach} not supported!')
 
     def get_motivate(self, coach: str) -> str:
-        return random.choice(self._get_phrases(coach, 'quotes'))
+        return self.random.choice(self._get_phrases(coach, 'quotes'))
 
     def get_hello(self, coach: str) -> str:
-        return random.choice(self._get_phrases(coach, 'greetings'))
+        return self.random.choice(self._get_phrases(coach, 'greetings'))
 
     def get_goodbye(self, coach: str) -> str:
-        return random.choice(self._get_phrases(coach, 'goodbyes'))
+        return self.random.choice(self._get_phrases(coach, 'goodbyes'))

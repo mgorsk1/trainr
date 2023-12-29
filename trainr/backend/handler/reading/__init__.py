@@ -101,13 +101,13 @@ class ReadingHandler(ABC):
 
             return ReadingHandlerModel(reading_value=value, reading_type=self.reading_type, time=datetime.now())
 
-    def get_reading_history(self, seconds: int) -> List[ReadingHandlerModel]:
+    async def get_reading_history(self, seconds: int) -> List[ReadingHandlerModel]:
         query = f"""from(bucket: "{config.influxdb.bucket}")
                     |> range(start: -{seconds}s)
                     |> filter(fn: (r) => r._measurement == "{self.reading_type}")
                     |> keep(columns: ["_time", "_value"])
         """
-        results = self._run_influxdb_query(query)
+        results = await self._run_influxdb_query(query)
 
         return results
 
