@@ -1,6 +1,7 @@
 import asyncio
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from typing import List
 from typing import Tuple
 
@@ -219,8 +220,8 @@ class State(rx.State):
         default_zone = {'zone': -1, 'display_name': f'Zone {defaults.UNKNOWN}'}
         try:
             return \
-                    requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
-                                 params=dict(reading=self.reading_value)).json() or default_zone
+                requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
+                             params=dict(reading=self.reading_value)).json() or default_zone
         except (AttributeError, KeyError, ConnectionError):
             return default_zone
 

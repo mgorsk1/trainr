@@ -8,5 +8,6 @@ router = APIRouter(
     prefix='/system',
 )
 
-router.include_router(settings_router, prefix='/settings', tags=['system settings'])
+router.include_router(settings_router, prefix='/settings',
+                      tags=['system settings'])
 router.include_router(state_router, prefix='/state', tags=['system state'])
