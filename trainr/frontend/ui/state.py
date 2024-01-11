@@ -1,6 +1,6 @@
 import asyncio
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List
 from typing import Tuple
 
@@ -219,8 +219,8 @@ class State(rx.State):
         default_zone = {'zone': -1, 'display_name': f'Zone {defaults.UNKNOWN}'}
         try:
             return \
-                requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
-                             params=dict(reading=self.reading_value)).json() or default_zone
+                    requests.get(f'{api_url}/{self.system_reading_type.lower()}/zone',
+                                 params=dict(reading=self.reading_value)).json() or default_zone
         except (AttributeError, KeyError, ConnectionError):
             return default_zone
 
@@ -268,10 +268,17 @@ class State(rx.State):
     def reading_history_sanitized(self) -> List[dict]:
         n = datetime.utcnow()
         freq_seconds = 15
+        hours = 1
 
         try:
-            dfi = pd.date_range(datetime(year=n.year, month=n.month, day=n.day, hour=n.hour, minute=n.minute, second=0),
-                                periods=3600 / freq_seconds, freq=f'{freq_seconds}S')
+            end_date = datetime(year=n.year, month=n.month, day=n.day, hour=n.hour, minute=n.minute, second=0,
+                                microsecond=0)
+            start_date = end_date - timedelta(hours=hours)
+
+            dfi = pd.date_range(
+                start=start_date,
+                end=end_date,
+                freq=f'{freq_seconds}S')
 
             pd_input = [{'time': datetime.fromtimestamp(r.get('time', 0)), 'reading': r.get('reading', None)} for r in
                         self.reading_history]
@@ -285,11 +292,12 @@ class State(rx.State):
             data_df['time'] = data_df['time'].astype('datetime64[ns]')
             ref_df['time'] = ref_df['time'].astype('datetime64[ns]')
 
-            df = pd.concat([ref_df, data_df])
+            df = ref_df.merge(data_df, on='time')
             df['time_label'] = df['time'].apply(
                 lambda x: x.strftime('%H:%M:%S'))
 
             df = df.sort_values(by='time')
+
             result = df.to_dict('records')
         except Exception:
             result = []
