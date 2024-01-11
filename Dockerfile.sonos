@@ -1,0 +1,23 @@
+FROM python:3.9-slim as code
+
+WORKDIR /code
+
+RUN apt-get update && apt-get upgrade -y && apt-get install -y git && \
+    git clone https://github.com/jishi/node-sonos-http-api.git
+
+FROM python:3.9-slim
+
+WORKDIR /code
+
+COPY --from=code /code /code
+
+WORKDIR /code/node-sonos-http-api
+
+RUN curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
+    apt-get update && apt-get upgrade -y && apt-get install -y gcc python3-dev unzip curl nodejs npm && \
+    rm -rf /var/lib/apt/lists/*  && \
+    npm install --production
+
+EXPOSE 5005
+
+ENTRYPOINT ["npm", "start"]

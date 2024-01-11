@@ -1,0 +1,109 @@
+version: '3'
+
+# .prd.env:
+#    FRONTEND__API_URL=http://trainr-prd-backend:8080/api/v1
+#    BACKEND__DB_URL="sqlite:////app/db/trainr.db"
+#    BACKEND__HB_FAN_DEVICE_ID=__fill_me__
+#    BACKEND__HB_FAN_IP=__fill_me__
+#    BACKEND__HB_FAN_LOCAL_KEY=__fill_me__
+#    BACKEND__HUE_BRIDGE_IP=__fill_me__
+#    BACKEND__HUE_BRIDGE_USERNAME=__fill_me__
+#    BACKEND__HUE_BRIDGE_GROUP_NAME=__fill_me__
+
+services:
+  backend:
+    container_name: trainr-prd-backend
+    image: mariuszgorski/trainr-backend:latest
+    networks:
+      - trainr-prd-network
+    volumes:
+      - trainr-prd-backend-db:/app/db
+    ports:
+      - 8080:8080
+    env_file:
+      - .prd.env
+    healthcheck:
+      test: curl --fail http://localhost:8080/api/v1/health || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+
+  frontend:
+    container_name: trainr-prd-frontend
+    image: mariuszgorski/trainr-frontend:latest
+    networks:
+      - trainr-prd-network
+    ports:
+      - 3000:3000
+      - 8000:8000
+    env_file:
+      - .prd.env
+    depends_on:
+      - backend
+    healthcheck:
+      test: curl --fail http://localhost:8000/ping || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 180s
+      timeout: 10s
+
+  publisher:
+    container_name: trainr-prd-publisher
+    build:
+      context: .
+      dockerfile: Dockerfile.ant
+    networks:
+      - trainr-prd-network
+    depends_on:
+      - backend
+    command:
+      - --trainr-prd-backend-url
+      - http://trainr-prd-backend:8080
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    networks:
+      - trainr-prd-network
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    ports:
+      - 8086:8086
+
+  influxdbSetup:
+    image: influxdb:latest
+    container_name: influxdb-setup
+    networks:
+      - trainr-prd-network
+    depends_on:
+      - influxdb
+    env_file:
+      - .prd.env
+    command: [
+      'setup',
+      '--host', '$BACKEND__INFLUXDB_HOST',
+      '--org', '$BACKEND__INFLUXDB_ORG',
+      '--bucket' ,'$BACKEND__INFLUXDB_BUCKET',
+      '--username' , '$BACKEND__INFLUXDB_USER',
+      '--password', '$BACKEND__INFLUXDB_PASSWORD',
+      '--retention', '4h',
+      '--force'
+    ]
+    entrypoint: [ 'influx' ]
+
+  sonosApi:
+    build:
+      dockerfile: Dockerfile.sonos
+      context: .
+    container_name: trainr-prd-sonos-api
+    networks:
+      - trainr-prd-network
+
+networks:
+  trainr-prd-network:
+
+volumes:
+  trainr-prd-backend-db:
+    driver: local
