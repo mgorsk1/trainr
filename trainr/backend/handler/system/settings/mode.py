@@ -1,8 +1,8 @@
-from trainr.backend.handler.system import SystemSettingHandler
+from trainr.backend.handler.system import SystemHandler
 from trainr.utils import SystemMode
 
 
-class SystemModeHandler(SystemSettingHandler):
+class SystemModeHandler(SystemHandler):
     @property
     def setting_name(self):
         return 'mode'

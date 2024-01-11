@@ -1,7 +1,7 @@
 version: '3'
 
 # .prd.env:
-#    FRONTEND__API_URL=http://backend-prd:8080/api/v1
+#    FRONTEND__API_URL=http://trainr-prd-backend:8080/api/v1
 #    BACKEND__DB_URL="sqlite:////app/db/trainr.db"
 #    BACKEND__HB_FAN_DEVICE_ID=__fill_me__
 #    BACKEND__HB_FAN_IP=__fill_me__
@@ -12,7 +12,7 @@ version: '3'
 
 services:
   backend:
-    container_name: backend-prd
+    container_name: trainr-prd-backend
     image: mariuszgorski/trainr-backend:latest
     networks:
       - trainr-prd-network
@@ -28,11 +28,9 @@ services:
       retries: 5
       start_period: 10s
       timeout: 10s
-    depends_on:
-      - postgresql
 
   frontend:
-    container_name: frontend-prd
+    container_name: trainr-prd-frontend
     image: mariuszgorski/trainr-frontend:latest
     networks:
       - trainr-prd-network
@@ -51,7 +49,7 @@ services:
       timeout: 10s
 
   publisher:
-    container_name: publisher
+    container_name: trainr-prd-publisher
     build:
       context: .
       dockerfile: Dockerfile.ant
@@ -60,8 +58,8 @@ services:
     depends_on:
       - backend
     command:
-      - --backend-url
-      - http://backend:8080
+      - --trainr-prd-backend-url
+      - http://trainr-prd-backend:8080
 
   influxdb:
     image: influxdb:latest
@@ -94,6 +92,14 @@ services:
       '--force'
     ]
     entrypoint: [ 'influx' ]
+
+  sonosApi:
+    build:
+      dockerfile: Dockerfile.sonos
+      context: .
+    container_name: trainr-prd-sonos-api
+    networks:
+      - trainr-prd-network
 
 networks:
   trainr-prd-network:

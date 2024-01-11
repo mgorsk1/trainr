@@ -11,6 +11,21 @@ light:
     hue_bridge_username: ${BACKEND__HUE_BRIDGE_USERNAME:-__empty__}
     hue_bridge_group_name: ${BACKEND__HUE_BRIDGE_GROUP_NAME:-Salon}
 
+motivation:
+  cls: ${BACKEND__MOTIVATION_CLS:-SonosMotivation}
+  settings:
+    url: http://fort.local/sonosapi
+    room: Robert Plant
+    coaches:
+      mr_t:
+        voice_id: ${BACKEND__SONOS_MRT_VOICE_ID:-__dummy__}
+      snoop_dogg:
+        voice_id: ${BACKEND__SONOS_SNOOPDOGG_VOICE_ID:-__dummy__}
+      darth_vader:
+        voice_id: ${BACKEND__SONOS_DARTHVADER_VOICE_ID:-__dummy__}
+      princess_carolyn:
+        voice_id: ${BACKEND__SONOS_PRINCESSCAROLYN_VOICE_ID:-__dummy__}
+
 influxdb:
   host: ${BACKEND__INFLUXDB_HOST:-http://localhost:8086}
   org: ${BACKEND__INFLUXDB_ORG:-trainr}

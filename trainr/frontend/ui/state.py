@@ -1,6 +1,7 @@
 import asyncio
 import os
 from datetime import datetime
+from datetime import timedelta
 from typing import List
 from typing import Tuple
 
@@ -26,6 +27,8 @@ class State(rx.State):
     system_last_seconds: int
     system_backend_healthy: bool = True
     system_user_name: str = ' '
+    system_motivation_enabled: bool = False
+    system_coach_name: str
 
     reading_value: int = 0
     reading_threshold: int
@@ -61,17 +64,29 @@ class State(rx.State):
     def system_not_initialized(self) -> bool:
         return not self.system_initialized
 
+    @rx.var
+    def system_motivation_disabled(self) -> bool:
+        return not self.system_motivation_enabled
+
     def toggle_system_mode(self, mode_auto: bool):
         if not mode_auto:
             payload = {'setting_value': SystemMode.MANUAL}
         else:
             payload = {'setting_value': SystemMode.AUTO}
 
-        result = requests.put(f'{api_url}/system/mode', json=payload)
+        result = requests.put(f'{api_url}/system/settings/mode', json=payload)
         self.system_mode = result.json().get('setting_value', defaults.UNKNOWN)
 
+    def toggle_system_motivation(self, motivation_enabled: bool):
+        payload = {'setting_value': str(motivation_enabled).lower()}
+
+        result = requests.put(
+            f'{api_url}/system/settings/motivation_enabled', json=payload)
+        self.system_motivation_enabled = result.json().get(
+            'setting_value', defaults.UNKNOWN) == 'true'
+
     def set_last_seconds(self, system_last_seconds: int):
-        result = requests.put(f'{api_url}/system/last_seconds',
+        result = requests.put(f'{api_url}/system/settings/last_seconds',
                               json={'setting_value': str(system_last_seconds)})
 
         self.system_last_seconds = int(result.json().get(
@@ -85,7 +100,7 @@ class State(rx.State):
     def save_reading_type(self, system_reading_type: dict):
         system_reading_type = system_reading_type['reading_type']
 
-        result = requests.put(f'{api_url}/system/reading_type',
+        result = requests.put(f'{api_url}/system/settings/reading_type',
                               json={'setting_value': system_reading_type})
 
         self.system_reading_type = result.json().get('setting_value', defaults.UNKNOWN)
@@ -98,7 +113,7 @@ class State(rx.State):
 
     def save_user_name(self, system_user_name: dict):
         system_user_name = system_user_name['user_name']
-        result = requests.put(f'{api_url}/system/user_name',
+        result = requests.put(f'{api_url}/system/settings/user_name',
                               json={'setting_value': system_user_name})
 
         self.system_user_name = result.json()['setting_value']
@@ -118,8 +133,22 @@ class State(rx.State):
 
         self.refresh_system_state()
 
+    def set_coach_name(self, system_coach_name: str):
+        self.system_coach_name = system_coach_name
+
+    def save_coach_name(self, system_coach_name: dict):
+        coach_name = system_coach_name['coach_name']
+
+        result = requests.put(f'{api_url}/system/settings/motivation_coach',
+                              json={'setting_value': coach_name.lower().replace(' ', '_')})
+
+        self.system_coach_name = result.json().get(
+            'setting_value', defaults.UNKNOWN).replace('_', ' ').title()
+
+        self.refresh_system_state()
+
     def save_system_initialized(self, status: str):
-        result = requests.put(f'{api_url}/system/initialized',
+        result = requests.put(f'{api_url}/system/settings/initialized',
                               json={'setting_value': status})
 
         self.system_initialized = result.json()['setting_value']
@@ -129,32 +158,45 @@ class State(rx.State):
     def refresh_system_state(self):
         try:
             self.system_mode = requests.get(
-                f'{api_url}/system/mode/').json()['setting_value']
+                f'{api_url}/system/settings/mode/').json()['setting_value']
         except (ConnectionError, AttributeError, KeyError):
             self.system_mode = SystemMode.MANUAL
 
         try:
             self.system_reading_type = requests.get(
-                f'{api_url}/system/reading_type/').json()['setting_value']
+                f'{api_url}/system/settings/reading_type/').json()['setting_value']
         except (ConnectionError, AttributeError, KeyError):
             self.system_reading_type = defaults.UNKNOWN
 
         try:
             self.system_last_seconds = int(requests.get(
-                f'{api_url}/system/last_seconds/').json()['setting_value'])
+                f'{api_url}/system/settings/last_seconds/').json()['setting_value'])
         except (ConnectionError, AttributeError, KeyError):
             self.system_last_seconds = 0
 
         try:
             self.system_user_name = requests.get(
-                f'{api_url}/system/user_name/').json()['setting_value']
+                f'{api_url}/system/settings/user_name/').json()['setting_value']
         except (ConnectionError, AttributeError, KeyError):
             self.system_user_name = ''
+
         try:
             self.system_initialized = requests.get(
-                f'{api_url}/system/initialized/').json()['setting_value'] == 'true'
+                f'{api_url}/system/settings/initialized/').json()['setting_value'] == 'true'
         except (ConnectionError, AttributeError, KeyError):
             self.system_initialized = False
+
+        try:
+            self.system_coach_name = requests.get(
+                f'{api_url}/system/settings/motivation_coach/').json()['setting_value'].title().replace('_', ' ')
+        except (ConnectionError, AttributeError, KeyError):
+            self.system_coach_name = defaults.UNKNOWN
+
+        try:
+            self.system_motivation_enabled = requests.get(
+                f'{api_url}/system/settings/motivation_enabled/').json()['setting_value'] == 'true'
+        except (ConnectionError, AttributeError, KeyError):
+            self.system_motivation_enabled = False
 
         self.refresh_backend_health()
 
@@ -227,10 +269,17 @@ class State(rx.State):
     def reading_history_sanitized(self) -> List[dict]:
         n = datetime.utcnow()
         freq_seconds = 15
+        hours = 1
 
         try:
-            dfi = pd.date_range(datetime(year=n.year, month=n.month, day=n.day, hour=n.hour, minute=n.minute, second=0),
-                                periods=3600 / freq_seconds, freq=f'{freq_seconds}S')
+            end_date = datetime(year=n.year, month=n.month, day=n.day, hour=n.hour, minute=n.minute, second=0,
+                                microsecond=0)
+            start_date = end_date - timedelta(hours=hours)
+
+            dfi = pd.date_range(
+                start=start_date,
+                end=end_date,
+                freq=f'{freq_seconds}S')
 
             pd_input = [{'time': datetime.fromtimestamp(r.get('time', 0)), 'reading': r.get('reading', None)} for r in
                         self.reading_history]
@@ -244,11 +293,12 @@ class State(rx.State):
             data_df['time'] = data_df['time'].astype('datetime64[ns]')
             ref_df['time'] = ref_df['time'].astype('datetime64[ns]')
 
-            df = pd.concat([ref_df, data_df])
+            df = ref_df.merge(data_df, on='time')
             df['time_label'] = df['time'].apply(
                 lambda x: x.strftime('%H:%M:%S'))
 
             df = df.sort_values(by='time')
+
             result = df.to_dict('records')
         except Exception:
             result = []

@@ -29,3 +29,9 @@ class LightHandlerFactory(HandlerFactory):
     @property
     def module_name(self):
         return 'trainr.backend.handler.light'
+
+
+class MotivationHandlerFactory(HandlerFactory):
+    @property
+    def module_name(self):
+        return 'trainr.backend.handler.motivation'

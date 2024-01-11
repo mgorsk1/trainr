@@ -1,7 +1,7 @@
-from trainr.backend.handler.system import SystemSettingHandler
+from trainr.backend.handler.system import SystemHandler
 
 
-class SystemInitializedHandler(SystemSettingHandler):
+class SystemInitializedHandler(SystemHandler):
     @property
     def setting_name(self):
         return 'initialized'

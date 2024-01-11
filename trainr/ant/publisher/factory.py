@@ -34,7 +34,7 @@ class AntPublisherFactory:
     @classmethod
     def get_reading_type(cls):
         data = requests.get(
-            f'{AntPublisherFactory.api_url}/api/v1/system/reading_type').json()['setting_value']
+            f'{AntPublisherFactory.api_url}/api/v1/system/settings/reading_type').json()['setting_value']
 
         return data
 
