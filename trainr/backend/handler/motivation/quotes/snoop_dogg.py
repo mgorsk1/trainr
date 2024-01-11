@@ -95,27 +95,27 @@ quotes = [
 ]
 
 greetings = [
-    "What up, player? Ready to elevate the vibe?",
-    "Yo, my G! Time to roll smooth through the day.",
-    "Hey, nephew! Let's kick it and conquer the world.",
-    "Wassup, champ? Ready to drop it like it's hot?",
-    "Greetings, smooth operator! Let's ride the success wave.",
-    "Hey, boss player! Ready to hustle and flow?",
-    "What's good, fam? Time to shine and grind.",
-    "Wassup, superstar? Let's make today legendary.",
-    "Hey, young Jedi! Ready to master the game?",
-    "Yo, icon in the making! Let's vibe and thrive.",
+    "Yo, what's crack-a-lackin', young grasshopper? Ready to roll up that knowledge and light it up? Let's get this session smokin'.",
+    "What up, my mentee? Time to elevate that mindset, cuz we 'bout to drop some wisdom bombs up in here.",
+    "Hey there, nephew! The game of learning is a marathon, not a sprint. So lace up, and let's hit this track together.",
+    "Ayy, my apprentice! Ready to soak up the game like a sponge? We're gonna turn this training session into a chronic success.",
+    "What's good, young blood? The learning vibes are in the air. Let's vibe out and get that education groove going.",
+    "Hello, my protege! Today's lesson is smoother than a Snoop track. Get ready to ride the rhythm of knowledge.",
+    "Hey, young player! The game is on, and we're here to win. Time to drop some lyrical wisdom bombs on this training beat.",
+    "What's poppin', my student? Today's lesson is fresher than a West Coast breeze. Get ready for that knowledge breeze, nephew.",
+    "Greetings, my pupil! We're in the dojo of wisdom, and you're about to become a black belt in knowledge. Let's roll.",
+    "Yo, my apprentice! We're about to turn this training session into a laid-back masterpiece. Grab your mental shades and let's shine."
 ]
 
 goodbyes = [
-    "Gotta bounce, player! Stay on that next level.",
-    "I'm out, G! Keep it real and stay lifted.",
-    "Time to roll, nephew! Keep it smooth and iconic.",
-    "I'm out, champ! Stay winning and shining.",
-    "Gotta jet, smooth operator! Keep it cool, my G.",
-    "Farewell, boss player! Until next time, stay fly.",
-    "I'm out, fam! Keep it smooth and stay legendary.",
-    "Time to bounce, superstar! Stay on that grind, ya feel?",
-    "I'm out, young Jedi! May the vibes be with you.",
-    "Farewell, icon in the making! Keep it iconic, my G.",
+    "And with that, my mentee, it's time to peace out. Keep it real, stay true, and remember, knowledge is power. Stay lifted!",
+    "Farewell, young scholar! Until we cross paths again, keep the mind elevated and the hustle activated. One love, my friend.",
+    "Time to bounce, nephew! Keep the learning flame burning, and remember, the game never stops. Catch you on the flip side.",
+    "I'm out, my apprentice! Until next time, keep soaking up that wisdom like a sponge. Stay cool, stay educated, and stay true.",
+    "Gotta roll out, young blood! Keep the vibes positive, the mind elevated, and the hustle strong. Until our paths align again, stay blessed.",
+    "It's been real, my protege! Until our next session, keep riding that knowledge wave. Stay chill, stay focused, and stay winning.",
+    "Time to peace out, my student! Keep dropping those wisdom bombs and riding the wave of success. Until the next episode, stay fly.",
+    "And with that, I'm ghost, young player! Until our knowledge paths intersect again, keep it smokin' and stay on that grind.",
+    "Farewell, my pupil! Keep walking the path of wisdom, and remember, the journey is just as important as the destination. Stay legendary.",
+    "I'm outta here, my apprentice! Keep the mind sharp, the hustle strong, and the knowledge flowing. Until next time, stay high on life."
 ]
