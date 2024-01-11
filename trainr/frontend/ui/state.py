@@ -293,7 +293,7 @@ class State(rx.State):
             data_df['time'] = data_df['time'].astype('datetime64[ns]')
             ref_df['time'] = ref_df['time'].astype('datetime64[ns]')
 
-            df = ref_df.merge(data_df, on='time')
+            df = ref_df.merge(data_df, on='time', how='left')
             df['time_label'] = df['time'].apply(
                 lambda x: x.strftime('%H:%M:%S'))
 
