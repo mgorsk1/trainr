@@ -64,7 +64,7 @@ hr_zone_to_light_spec_mapping: Dict[int, LightColor] = {
 
 ftp_zone_to_light_spec_mapping: Dict[int, LightColor] = {
     0: light_name_to_spec_mapping['WHITE'],
-    1: light_name_to_spec_mapping['NAVY'],
+    1: light_name_to_spec_mapping['WHITE'],
     2: light_name_to_spec_mapping['BLUE'],
     3: light_name_to_spec_mapping['GREEN'],
     4: light_name_to_spec_mapping['YELLOW'],
